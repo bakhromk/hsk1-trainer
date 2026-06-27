@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HSK 1 · Китайский язык</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#faf9f6;--bg2:#f2f0eb;--border:#ddd9d0;
+  --text:#1a1a18;--text2:#6b6860;--text3:#a09d96;
+  --red:#c0392b;--red-bg:#fdf0ef;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;
+}
+.header{
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+.header-hz{font-size:40px;line-height:1;margin-bottom:6px}
+.header-title{font-size:18px;font-weight:500;color:var(--text);margin-bottom:3px}
+.header-sub{font-size:13px;color:var(--text2)}
+
+.main{flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:12px}
+
+.menu-card{
+  background:white;border:1.5px solid var(--border);
+  border-radius:16px;padding:20px;
+  cursor:pointer;transition:all .15s;
+  text-decoration:none;display:block;
+}
+.menu-card:hover,.menu-card:active{border-color:var(--red);background:var(--red-bg)}
+.mc-top{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.mc-icon{font-size:32px;line-height:1}
+.mc-title{font-size:17px;font-weight:500;color:var(--text)}
+.mc-desc{font-size:13px;color:var(--text2);line-height:1.5}
+.mc-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.mc-tag{
+  font-size:11px;padding:3px 8px;border-radius:10px;
+  background:var(--bg2);color:var(--text3);
+}
+
+.footer{
+  text-align:center;padding:16px;
+  font-size:12px;color:var(--text3);
+  border-top:1px solid var(--border);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-hz">汉语</div>
+  <div class="header-title">HSK 1 · Китайский язык</div>
+  <div class="header-sub">По учебнику Москаленко · 15 уроков · 172 слова</div>
+</div>
+
+<div class="main">
+
+  <a class="menu-card" href="dashboard.html">
+    <div class="mc-top">
+      <div class="mc-icon">📚</div>
+      <div class="mc-title">Дашборд</div>
+    </div>
+    <div class="mc-desc">Словарь, диалоги, грамматика и упражнения по всем 15 урокам</div>
+    <div class="mc-tags">
+      <span class="mc-tag">172 слова</span>
+      <span class="mc-tag">41 диалог</span>
+      <span class="mc-tag">75 упражнений</span>
+      <span class="mc-tag">Порядок черт</span>
+    </div>
+  </a>
+
+  <a class="menu-card" href="trainer.html">
+    <div class="mc-top">
+      <div class="mc-icon">✍️</div>
+      <div class="mc-title">Тренажёр написания</div>
+    </div>
+    <div class="mc-desc">Пиньинь + перевод → пишешь иероглиф → сравниваешь с образцом</div>
+    <div class="mc-tags">
+      <span class="mc-tag">Рисование</span>
+      <span class="mc-tag">Порядок черт</span>
+      <span class="mc-tag">По урокам</span>
+    </div>
+  </a>
+
+</div>
+
+<div class="footer">HSK 1 · 汉语水平考试</div>
+
+<script>
+if (window.Telegram && window.Telegram.WebApp) {
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+}
+</script>
+</body>
+</html>
