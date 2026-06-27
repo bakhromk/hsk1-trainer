@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSK 1 Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0efeb;
+  --border:#e5e4df;--border2:#d4d3ce;
+  --text:#1a1a18;--text2:#555550;--text3:#999990;
+  --red:#c0392b;--red-bg:#fde8e8;--red-border:#e8a0a0;
+  --green:#27ae60;--green-bg:#eafaf1;
+  --blue:#1a5276;--blue-bg:#e8f4fd;
+  --radius:10px;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px}
+.app{max-width:800px;margin:0 auto;padding:16px}
+
+/* HEADER */
+.top-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap}
+.logo{font-size:13px;font-weight:600;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;padding-top:4px}
+.lesson-nav{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.lesson-btn{font-size:12px;padding:4px 10px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s}
+.lesson-btn:hover{background:var(--bg2)}
+.lesson-btn.active{background:var(--red);color:#fff;border-color:var(--red)}
+.lesson-btn.dict-btn{background:var(--bg3);border-color:var(--border2);font-weight:500}
+.lesson-btn.dict-btn.active{background:#1a3a5c;color:#fff;border-color:#1a3a5c}
+
+/* LESSON HEADER */
+.lesson-header{margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.back-btn{font-size:12px;padding:5px 12px;border-radius:16px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;white-space:nowrap}
+.back-btn:hover{background:var(--bg3)}
+.lesson-meta{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.lesson-title-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.lesson-ru{font-size:16px;font-weight:500;color:var(--text)}
+
+/* TABS */
+.tabs{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.tab{font-size:13px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);color:var(--text2);cursor:pointer;background:transparent;transition:all .15s}
+.tab:hover{background:var(--bg2)}
+.tab.active{background:var(--bg2);color:var(--text);font-weight:500;border-color:var(--border2)}
+.panel{display:none}.panel.active{display:block}
+
+/* VOCAB GRID */
+.vc-bar{display:flex;gap:6px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.vc-label{font-size:12px;color:var(--text2)}
+.toggle-btn{font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid var(--border2);cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.toggle-btn.on{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.vocab-cell{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s;position:relative}
+.vocab-cell:hover{border-color:var(--red);background:var(--red-bg)}
+.vc-pinyin{font-size:11px;color:var(--red);margin-bottom:4px;min-height:15px}
+.vc-hanzi{font-size:28px;line-height:1.1;color:var(--text);margin-bottom:4px}
+.vc-trans{font-size:11px;color:var(--text2);line-height:1.3}
+.blur{filter:blur(4px);user-select:none}
+
+/* WORD DETAIL */
+.word-detail{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.wd-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.wd-hanzi{font-size:56px;line-height:1;color:var(--text);min-width:72px;text-align:center}
+.wd-info{flex:1}
+.wd-pinyin{font-size:20px;color:var(--red);margin-bottom:4px}
+.wd-pos{font-size:12px;color:var(--text3);margin-bottom:6px}
+.wd-trans{font-size:16px;color:var(--text2)}
+.wd-section{margin-top:16px}
+.wd-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.ex-row{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--bg3)}
+.ex-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.ex-hz{font-size:16px;color:var(--text);margin-bottom:2px}
+.ex-py{font-size:12px;color:var(--red);margin-bottom:2px}
+.ex-tr{font-size:12px;color:var(--text2)}
+.close-detail{font-size:12px;padding:5px 12px;border-radius:16px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;margin-bottom:14px}
+.close-detail:hover{background:var(--bg3)}
+
+/* STROKES */
+.stroke-intro{font-size:13px;color:var(--text2);margin-bottom:14px}
+.stroke-word-block{margin-bottom:24px}
+.stroke-word-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:8px}
+.stroke-char-block{margin-bottom:16px}
+.stroke-char-hdr{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.sch-hanzi{font-size:22px;color:var(--text)}
+.sch-py{font-size:13px;color:var(--red)}
+.sch-count{font-size:11px;color:var(--text3);margin-left:auto}
+.strokes-row{display:flex;flex-wrap:wrap;gap:5px}
+.sc{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sc-num{font-size:10px;color:var(--text3)}
+.sc-svg{border:1px solid var(--border);border-radius:5px;background:var(--bg)}
+.loading-s{font-size:13px;color:var(--text3);padding:16px 0}
+
+/* DIALOGS */
+.d-bar{display:flex;gap:6px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.d-section-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--border)}
+.d-section-label:first-child{margin-top:0;padding-top:0;border-top:none}
+.dsrc{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle}
+.src-book{background:var(--red-bg);color:var(--red)}
+.src-extra{background:var(--blue-bg);color:var(--blue)}
+.d-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.d-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.d-block-title{font-size:11px;color:var(--text3);margin-bottom:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.d-row{display:grid;grid-template-columns:24px 1fr;gap:6px;margin-bottom:8px;align-items:start}
+.d-row:last-child{margin-bottom:0}
+.d-sp{font-size:12px;font-weight:500;color:var(--text3);padding-top:2px}
+.d-sp.b{color:var(--red)}
+.d-hz{font-size:15px;color:var(--text)}
+.d-py{font-size:12px;color:var(--red)}
+.d-tr{font-size:12px;color:var(--text2)}
+
+/* GRAMMAR */
+.g-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.g-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:8px}
+.g-body{font-size:13px;color:var(--text2);line-height:1.7}
+.tone-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.tone-card{background:var(--bg2);border-radius:8px;padding:10px 8px;text-align:center}
+.t-mark{font-size:22px;color:var(--red);font-weight:500}
+.t-name{font-size:11px;color:var(--text2);margin-top:2px}
+.t-desc{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4}
+.t-ex{font-size:13px;color:var(--text);margin-top:4px}
+.rule-box{background:var(--bg2);border-radius:8px;padding:10px 12px;margin-top:8px}
+.rule-row{display:flex;gap:8px;font-size:12px;margin-bottom:4px;align-items:baseline}
+.rn{color:var(--text3);min-width:16px;font-weight:500}
+.rt{color:var(--text2);line-height:1.5}
+.re{color:var(--red)}
+
+/* QUIZ */
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.quiz-score{font-size:13px;color:var(--text2)}
+.quiz-score span{font-weight:500;color:var(--text)}
+.quiz-scope-tabs,.quiz-mode-tabs{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.quiz-mode-tabs{margin-bottom:14px}
+.q-tab{font-size:12px;padding:5px 12px;border-radius:16px;border:1px solid var(--border);color:var(--text2);cursor:pointer;background:transparent;transition:all .15s}
+.q-tab:hover{background:var(--bg2)}
+.q-tab.active{background:var(--bg2);color:var(--text);font-weight:500;border-color:var(--border2)}
+.q-progress{height:3px;background:var(--border);border-radius:2px;margin-bottom:14px}
+.q-pbar{height:3px;background:var(--red);border-radius:2px;transition:width .3s}
+.q-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;margin-bottom:14px}
+.q-label{font-size:11px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.q-cn{font-size:42px;color:var(--text);margin-bottom:4px;line-height:1.2}
+.q-sub{font-size:14px;color:var(--red)}
+.q-ru{font-size:20px;color:var(--text)}
+.q-retry{display:inline-block;font-size:11px;background:#faeeda;color:#633806;padding:2px 8px;border-radius:10px;margin-top:6px}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.q-opt{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 8px;font-size:15px;color:var(--text);cursor:pointer;text-align:center;transition:background .15s,border-color .15s;line-height:1.3;font-family:var(--font)}
+.q-opt:hover:not(.disabled){border-color:var(--border2);background:var(--bg2)}
+.q-opt.correct{border-color:var(--green) !important;background:var(--green-bg) !important;color:#1e8449 !important}
+.q-opt.wrong{border-color:var(--red) !important;background:var(--red-bg) !important;color:var(--red) !important}
+.q-opt.disabled{cursor:default;pointer-events:none}
+.q-fb{font-size:14px;text-align:center;padding:10px;border-radius:8px;margin-bottom:10px}
+.q-fb.ok{background:var(--green-bg);color:#1e8449}
+.q-fb.no{background:var(--red-bg);color:var(--red)}
+.q-next{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-size:14px;font-family:var(--font)}
+.q-next:hover{background:var(--bg2)}
+.q-done{text-align:center;padding:24px}
+.q-done-score{font-size:36px;font-weight:500}
+.q-done-label{font-size:13px;color:var(--text2);margin-top:4px}
+.q-done-stat{font-size:12px;color:var(--text3);margin-top:6px}
+.q-restart{margin-top:14px;padding:8px 20px;border-radius:20px;border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:13px;color:var(--text2);font-family:var(--font)}
+
+/* EXERCISES */
+.ex-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.ex-counter{font-size:13px;color:var(--text2)}
+.ex-counter span{font-weight:500;color:var(--text)}
+.ex-q-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.ex-q-num{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.ex-sentence{font-size:22px;color:var(--text);text-align:center;margin-bottom:6px;line-height:1.4}
+.ex-translation{font-size:13px;color:var(--text3);text-align:center;margin-bottom:16px}
+.ex-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ex-opt{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 8px;font-size:18px;color:var(--text);cursor:pointer;text-align:center;transition:all .15s;font-family:var(--font)}
+.ex-opt:hover:not(.disabled){border-color:var(--border2);background:var(--bg2)}
+.ex-opt.correct{border-color:var(--green)!important;background:var(--green-bg)!important;color:#1e8449!important}
+.ex-opt.wrong{border-color:var(--red)!important;background:var(--red-bg)!important;color:var(--red)!important}
+.ex-opt.disabled{cursor:default;pointer-events:none}
+.ex-fb{font-size:14px;text-align:center;padding:10px;border-radius:8px;margin-bottom:10px}
+.ex-fb.ok{background:var(--green-bg);color:#1e8449}
+.ex-fb.no{background:var(--red-bg);color:var(--red)}
+.ex-full-sentence{font-size:16px;color:var(--text2);text-align:center;margin-top:6px}
+.ex-next{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-size:14px;font-family:var(--font)}
+.ex-next:hover{background:var(--bg2)}
+.ex-done{text-align:center;padding:24px}
+.ex-done-score{font-size:36px;font-weight:500}
+.ex-done-label{font-size:13px;color:var(--text2);margin-top:4px}
+.ex-restart{margin-top:14px;padding:8px 20px;border-radius:20px;border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:13px;color:var(--text2);font-family:var(--font)}
+.ex-progress{height:3px;background:var(--border);border-radius:2px;margin-bottom:14px}
+.ex-pbar{height:3px;background:var(--green);border-radius:2px;transition:width .3s}
+
+/* DICT */
+.dict-bar{display:flex;gap:8px;margin-bottom:14px}
+.dict-search{flex:1;padding:7px 12px;border:1px solid var(--border2);border-radius:8px;font-size:14px;outline:none;font-family:var(--font)}
+.dict-search:focus{border-color:var(--red)}
+.dict-table{width:100%;border-collapse:collapse}
+.dict-table th{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg2)}
+.dict-table td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:14px}
+.dict-table tr:last-child td{border-bottom:none}
+.dict-table tr:hover td{background:var(--bg2);cursor:pointer}
+.dict-hz{font-size:18px}
+.dict-py{color:var(--red);font-size:13px}
+.dict-lesson{font-size:11px;color:var(--text3);background:var(--bg2);padding:2px 6px;border-radius:10px}
+
+/* WORD PAGE */
+.word-page{display:none}
+.word-page.active{display:block}
+.wp-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.wp-body{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.wp-hanzi{font-size:64px;line-height:1;color:var(--text);text-align:center;margin-bottom:8px}
+.wp-pinyin{font-size:22px;color:var(--red);text-align:center;margin-bottom:4px}
+.wp-pos{font-size:12px;color:var(--text3);text-align:center;margin-bottom:4px}
+.wp-trans{font-size:18px;color:var(--text2);text-align:center;margin-bottom:0}
+.wp-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.wp-section-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.sep{height:1px;background:var(--border);margin:14px 0}
+
+/* HOME SCREEN */
+.hs-hero{text-align:center;padding:32px 0 24px}
+.hs-hero-cn{font-size:52px;letter-spacing:10px;color:var(--text);line-height:1;margin-bottom:8px}
+.hs-hero-title{font-size:19px;font-weight:500;color:var(--text);margin-bottom:5px}
+.hs-hero-sub{font-size:13px;color:var(--text2)}
+.hs-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+.hs-stat{background:var(--bg2);border-radius:var(--radius);padding:14px 10px;text-align:center}
+.hs-stat-n{font-size:24px;font-weight:500;color:var(--red)}
+.hs-stat-l{font-size:11px;color:var(--text2);margin-top:3px}
+.hs-section-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.hs-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.hs-lesson-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px 12px;cursor:pointer;transition:all .15s;text-align:center}
+.hs-lesson-card:hover{border-color:var(--red);background:var(--red-bg)}
+.hs-lc-num{font-size:10px;font-weight:500;color:var(--red);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.hs-lc-title{font-size:12px;color:var(--text);font-weight:500;line-height:1.35;margin-bottom:5px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.hs-lc-meta{font-size:10px;color:var(--text3)}
+.hs-dict-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.hs-dict-card:hover{border-color:var(--blue);background:var(--blue-bg)}
+.hs-dict-hz{font-size:32px;line-height:1;color:var(--text)}
+.hs-dict-info{}
+.hs-dict-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px}
+.hs-dict-sub{font-size:12px;color:var(--text2)}
+.rules-divider{border-top:1px solid var(--border);margin-bottom:20px;padding-top:20px}
+.rules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.rule-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:grid;grid-template-columns:1fr 70px;gap:12px;align-items:center}
+.rule-num{font-size:10px;font-weight:500;color:var(--red);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.rule-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.rule-desc{font-size:11px;color:var(--text2);line-height:1.45;margin-bottom:6px}
+.rule-exs{font-size:12px;color:var(--text3)}
+.rule-exs span{color:var(--text);font-size:14px}
+.rule-anim{width:70px;height:70px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+.rule-anim svg{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="top-header">
+    <div class="logo">HSK 1 · Дашборд</div>
+    <div class="lesson-nav" id="lesson-nav"></div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen">
+    <div class="hs-hero">
+      <div class="hs-hero-cn">汉语</div>
+      <div class="hs-hero-title">HSK 1 · Интерактивный курс</div>
+      <div class="hs-hero-sub">Словарь, диалоги, грамматика и упражнения по учебнику Москаленко</div>
+    </div>
+    <div class="hs-stats">
+      <div class="hs-stat"><div class="hs-stat-n">15</div><div class="hs-stat-l">уроков</div></div>
+      <div class="hs-stat"><div class="hs-stat-n">172</div><div class="hs-stat-l">слова</div></div>
+      <div class="hs-stat"><div class="hs-stat-n">41</div><div class="hs-stat-l">диалог</div></div>
+      <div class="hs-stat"><div class="hs-stat-n">75</div><div class="hs-stat-l">упражнений</div></div>
+    </div>
+    <div class="hs-section-label">Уроки</div>
+    <div class="hs-grid" id="hs-lesson-grid"></div>
+    <div class="hs-dict-card" onclick="showDict()">
+      <div class="hs-dict-hz">字</div>
+      <div class="hs-dict-info">
+        <div class="hs-dict-title">Словарь HSK 1</div>
+        <div class="hs-dict-sub">Все 172 слова — поиск, карточки, порядок черт</div>
+      </div>
+    </div>
+    <div class="rules-divider">
+      <div class="hs-section-label">8 правил порядка черт 笔顺 (bǐshùn)</div>
+    </div>
+    <div class="rules-grid" id="hs-rules-grid"></div>
+    <div style="height:24px"></div>
+  </div>
+
+  <!-- LESSON VIEW -->
+  <div id="lesson-view">
+    <div class="lesson-header">
+      <button class="back-btn" onclick="goHome()">← Уроки</button>
+      <div>
+        <div class="lesson-meta" id="lesson-meta"></div>
+        <div class="lesson-title-row">
+          <div class="lesson-ru" id="lesson-ru"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('vocab')">📖 Словарь</button>
+      <button class="tab" onclick="showTab('strokes')">✏️ Штрихи</button>
+      <button class="tab" onclick="showTab('dialog')">💬 Диалоги</button>
+      <button class="tab" onclick="showTab('grammar')">📐 Грамматика</button>
+      <button class="tab" onclick="showTab('quiz')">🔁 Проверка</button>
+      <button class="tab" onclick="showTab('exercises')">✍️ Упражнения</button>
+    </div>
+
+    <!-- СЛОВАРЬ -->
+    <div class="panel active" id="panel-vocab">
+      <div class="vc-bar">
+        <span class="vc-label">Скрыть:</span>
+        <button class="toggle-btn" id="btn-pinyin" onclick="toggleHide('pinyin')">пиньинь</button>
+        <button class="toggle-btn" id="btn-trans" onclick="toggleHide('trans')">перевод</button>
+        <button class="toggle-btn" id="btn-hanzi" onclick="toggleHide('hanzi')">иероглиф</button>
+      </div>
+      <div id="vocab-detail"></div>
+      <div class="vocab-grid" id="vocab-grid"></div>
+    </div>
+
+    <!-- ШТРИХИ -->
+    <div class="panel" id="panel-strokes">
+      <p class="stroke-intro">Порядок черт. Текущая черта выделена красным.</p>
+      <div id="strokes-content"></div>
+    </div>
+
+    <!-- ДИАЛОГИ -->
+    <div class="panel" id="panel-dialog">
+      <div class="d-bar">
+        <span class="vc-label">Скрыть:</span>
+        <button class="toggle-btn" id="dbtn-pinyin" onclick="toggleDHide('pinyin')">пиньинь</button>
+        <button class="toggle-btn" id="dbtn-trans" onclick="toggleDHide('trans')">перевод</button>
+      </div>
+      <div id="dialog-content"></div>
+    </div>
+
+    <!-- ГРАММАТИКА -->
+    <div class="panel" id="panel-grammar">
+      <div id="grammar-content"></div>
+    </div>
+
+    <!-- ПРОВЕРКА -->
+    <div class="panel" id="panel-quiz">
+      <div class="quiz-header">
+        <div style="font-size:13px;font-weight:500" id="quiz-title">Проверка</div>
+        <div class="quiz-score">Правильно: <span id="quiz-correct">0</span> / <span id="quiz-total">0</span></div>
+      </div>
+      <div class="quiz-scope-tabs">
+        <button class="q-tab active" id="qscope-lesson" onclick="setScope('lesson')">Этот урок</button>
+        <button class="q-tab" id="qscope-all" onclick="setScope('all')">Все пройденные</button>
+      </div>
+      <div class="quiz-mode-tabs">
+        <button class="q-tab active" id="qmode-all" onclick="setMode('all')">Все типы</button>
+        <button class="q-tab" id="qmode-cn2ru" onclick="setMode('cn2ru')">Китайский → Русский</button>
+        <button class="q-tab" id="qmode-ru2cn" onclick="setMode('ru2cn')">Русский → Китайский</button>
+        <button class="q-tab" id="qmode-pinyin" onclick="setMode('pinyin')">Иероглиф → Пиньинь</button>
+      </div>
+      <div class="q-progress"><div class="q-pbar" id="q-pbar" style="width:0%"></div></div>
+      <div id="quiz-area"></div>
+    </div>
+  </div>
+
+    <!-- УПРАЖНЕНИЯ -->
+    <div class="panel" id="panel-exercises">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:500">Упражнения · Заполни пропуск</div>
+        <div class="ex-counter">Правильно: <span id="ex-correct">0</span> / <span id="ex-total">0</span></div>
+      </div>
+      <div class="ex-progress"><div class="ex-pbar" id="ex-pbar" style="width:0%"></div></div>
+      <div id="exercises-area"></div>
+    </div>
+
+  </div>
+
+  <!-- СЛОВАРЬ HSK 1 -->
+  <div id="dict-view" style="display:none">
+    <!-- Страница слова -->
+    <div class="word-page" id="word-page">
+      <div class="wp-header">
+        <button class="back-btn" onclick="closeWordPage()">← Словарь</button>
+        <div style="font-size:13px;color:var(--text3)">Карточка слова</div>
+      </div>
+      <div class="wp-body">
+        <div class="wp-hanzi" id="wp-hanzi"></div>
+        <div class="wp-pinyin" id="wp-pinyin"></div>
+        <div class="wp-pos" id="wp-pos"></div>
+        <div class="wp-trans" id="wp-trans"></div>
+        <div class="wp-section" id="wp-strokes-section">
+          <div class="wp-section-label">Порядок черт</div>
+          <div id="wp-strokes"></div>
+        </div>
+        <div class="wp-section" id="wp-examples-section" style="display:none">
+          <div class="wp-section-label">Примеры предложений</div>
+          <div id="wp-examples"></div>
+        </div>
+        <div class="wp-section" id="wp-dialogs-section" style="display:none">
+          <div class="wp-section-label">Диалоги где встречается</div>
+          <div id="wp-dialogs"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Таблица словаря -->
+    <div id="dict-main">
+      <div style="margin-bottom:14px">
+        <div class="lesson-meta">Полный список</div>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-top:4px">
+          <div style="font-size:18px;font-weight:500">Словарь HSK 1</div>
+          <div style="font-size:13px;color:var(--text3)">172 слова · 15 уроков</div>
+        </div>
+      </div>
+      <div class="dict-bar">
+        <input class="dict-search" id="dict-search" placeholder="Поиск: иероглиф, пиньинь или перевод..." oninput="filterDict()">
+      </div>
+      <table class="dict-table">
+        <thead><tr><th>字</th><th>Пиньинь</th><th>Перевод</th><th>Часть речи</th><th>Урок</th></tr></thead>
+        <tbody id="dict-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const LESSONS_DATA = {"1":{"title_ru":"Привет!","words":[{"hanzi":"你","pinyin":"nǐ","trans":"ты","pos":"мест.","examples":[{"hanzi":"你好！","pinyin":"Nǐ hǎo!","trans_en":"Hello!"},{"hanzi":"你是学生吗？","pinyin":"Nǐ shì xuéshēng ma?","trans_en":"Are you a student?"},{"hanzi":"你叫什么名字？","pinyin":"Nǐ jiào shénme míngzi?","trans_en":"What is your name?"}]},{"hanzi":"好","pinyin":"hǎo","trans":"хороший, хорошо","pos":"прил.","examples":[{"hanzi":"你好！","pinyin":"Nǐ hǎo!","trans_en":"Hello!"},{"hanzi":"今天天气很好。","pinyin":"Jīntiān tiānqì hěn hǎo.","trans_en":"The weather is very nice today."},{"hanzi":"这个菜很好吃。","pinyin":"Zhège cài hěn hǎochī.","trans_en":"This dish is very delicious."}]},{"hanzi":"你们","pinyin":"nǐmen","trans":"вы","pos":"мест.","examples":[{"hanzi":"你们好！","pinyin":"nǐ men hǎo","trans_en":"Hello (to all of you)!"},{"hanzi":"你们明天要去哪里？","pinyin":"nǐ men míng tiān yào qù nǎ lǐ","trans_en":"Where are you going tomorrow?"},{"hanzi":"你们要去哪里？","pinyin":"nǐ men yào qù nǎ lǐ","trans_en":"Where are you (plural) going?"}]},{"hanzi":"们","pinyin":"men","trans":"суффикс мн. числа","pos":"суффикс","examples":[{"hanzi":"我们是朋友。","pinyin":"Wǒmen shì péngyou.","trans_en":"We are friends."},{"hanzi":"你们好！","pinyin":"Nǐmen hǎo!","trans_en":"Hello everyone!"},{"hanzi":"他们都是学生。","pinyin":"Tāmen dōu shì xuéshēng.","trans_en":"They are all students."}]},{"hanzi":"再见","pinyin":"zàijiàn","trans":"до свидания","pos":"фраза","examples":[{"hanzi":"再见，妈妈。","pinyin":"zài jiàn mā mā","trans_en":"Goodbye, Mom."},{"hanzi":"明天见，再见！","pinyin":"míng tiān jiàn zài jiàn","trans_en":"See you tomorrow, goodbye!"},{"hanzi":"他对我说了再见。","pinyin":"tā duì wǒ shuō le zài jiàn","trans_en":"He said goodbye to me."}]},{"hanzi":"您","pinyin":"nín","pos":"мест.","trans":"Вы (вежливое обращение)","examples":[{"hanzi":"您好！","pinyin":"Nín hǎo!","trans_en":"Good day (formal)!"},{"hanzi":"请问，您叫什么名字？","pinyin":"Qǐng wèn, nín jiào shénme míngzi?","trans_en":"May I ask your name?"},{"hanzi":"谢谢您！","pinyin":"Xièxie nín!","trans_en":"Thank you (formal)!"}]},{"hanzi":"对不起","pinyin":"duìbuqǐ","pos":"гл.","trans":"извините, простите","examples":[{"hanzi":"对不起，我迟到了。","pinyin":"duì bù qǐ wǒ chí dào le","trans_en":"Sorry, I'm late."},{"hanzi":"对不起，我来晚了。","pinyin":"duì bu qǐ wǒ lái wǎn le","trans_en":"Sorry, I'm late."},{"hanzi":"对不起，我错了。","pinyin":"duì bu qǐ wǒ cuò le","trans_en":"Sorry, I was wrong."}]},{"hanzi":"没关系","pinyin":"méi guānxi","pos":"фраза","trans":"ничего страшного, не за что","examples":[{"hanzi":"对不起，我迟到了。没关系。","pinyin":"duì bu qǐ wǒ chí dào le méi guān xi","trans_en":"Sorry, I'm late. No problem."},{"hanzi":"没关系，下次小心一点。","pinyin":"méi guān xi xià cì xiǎo xīn yī diǎn","trans_en":"No problem, be more careful next time."},{"hanzi":"没关系，我可以等你一会儿。","pinyin":"méi guān xì wǒ kě yǐ děng nǐ yí huì er","trans_en":"No problem, I can wait for you for a while."}]}],"dialogs":[{"lines":[["А","你好！","Nǐ hǎo!","Привет!"],["B","你好！","Nǐ hǎo!","Привет!"]]},{"lines":[["А","你们好！","Nǐmen hǎo!","Здравствуйте!"],["B","你好！","Nǐ hǎo!","Привет!"]]},{"lines":[["А","再见！","Zàijiàn!","До свидания!"],["B","再见！","Zàijiàn!","До свидания!"]]}],"exercises":[{"sentence":"___，你好！","options":["再见","你","老师","谢谢"],"answer":"你","translation":"Привет!"},{"sentence":"你___！","options":["好","不","们","再见"],"answer":"好","translation":"Здравствуй!"},{"sentence":"___见！","options":["你","再","好","不"],"answer":"再","translation":"До свидания!"},{"sentence":"你___好！","options":["再","们","不","好"],"answer":"们","translation":"Здравствуйте (мн.ч.)!"},{"sentence":"对不起。— ___！","options":["再见","没关系","你好","谢谢"],"answer":"没关系","translation":"Извините. — Ничего страшного!"}]},"2":{"title_ru":"Спасибо!","words":[{"hanzi":"谢谢","pinyin":"xièxie","trans":"спасибо; благодарить","pos":"гл./межд.","examples":[{"hanzi":"谢谢。","pinyin":"xiè xiè","trans_en":"Thank you."},{"hanzi":"谢谢你的帮助。","pinyin":"xiè xie nǐ de bāng zhù","trans_en":"Thank you for your help."},{"hanzi":"谢谢你的礼物，我很喜欢 。","pinyin":"xiè xiè nǐ de lǐ wù wǒ hěn xǐ huan","trans_en":"Thank you for your gift, I like it very much."}]},{"hanzi":"不","pinyin":"bù","trans":"нет, не","pos":"нареч.","examples":[{"hanzi":"我不是老师。","pinyin":"Wǒ bù shì lǎoshī.","trans_en":"I am not a teacher."},{"hanzi":"他不会说汉语。","pinyin":"Tā bù huì shuō hànyǔ.","trans_en":"He cannot speak Chinese."},{"hanzi":"今天不冷。","pinyin":"Jīntiān bù lěng.","trans_en":"It is not cold today."}]},{"hanzi":"不客气","pinyin":"bú kèqi","trans":"пожалуйста, не за что","pos":"фраза","examples":[{"hanzi":"谢谢你的帮助。不客气。","pinyin":"xiè xiè nǐ de bāng zhù bú kè qì","trans_en":"Thank you for your help. You're welcome."},{"hanzi":"谢谢你的帮助！不客气。","pinyin":"xiè xie nǐ de bāng zhù bú kè qi","trans_en":"Thank you for your help! You're welcome."},{"hanzi":"他对老师说话很不客气。","pinyin":"tā duì lǎo shī shuō huà hěn bú kè qi","trans_en":"He speaks to the teacher very impolitely."}]},{"hanzi":"再见","pinyin":"zàijiàn","trans":"до свидания","pos":"фраза","examples":[{"hanzi":"再见，妈妈。","pinyin":"zài jiàn mā mā","trans_en":"Goodbye, Mom."},{"hanzi":"明天见，再见！","pinyin":"míng tiān jiàn zài jiàn","trans_en":"See you tomorrow, goodbye!"},{"hanzi":"他对我说了再见。","pinyin":"tā duì wǒ shuō le zài jiàn","trans_en":"He said goodbye to me."}]}],"dialogs":[{"lines":[["А","谢谢你！","Xièxie nǐ!","Спасибо тебе!"],["B","不谢。","Bù xiè.","Не благодари."]]},{"lines":[["А","谢谢！","Xièxie!","Спасибо!"],["B","不客气。","Bú kèqi.","Не за что."]]},{"lines":[["А","对不起。","Duìbuqǐ.","Простите."],["B","没关系。再见！","Méiguānxi. Zàijiàn!","Ничего страшного. До свидания!"],["А","再见！","Zàijiàn!","До свидания!"]]}],"exercises":[{"sentence":"谢谢你！— 不___。","options":["谢","好","客气","再见"],"answer":"谢","translation":"Спасибо! — Не благодари."},{"sentence":"___你！","options":["谢谢","不","再","好"],"answer":"谢谢","translation":"Спасибо тебе!"},{"sentence":"不___。","options":["谢谢","客气","好","再见"],"answer":"客气","translation":"Не за что."},{"sentence":"对___起。","options":["不","再","好","谢"],"answer":"不","translation":"Простите."},{"sentence":"没___系。","options":["关","再","好","不"],"answer":"关","translation":"Ничего страшного."}]},"3":{"title_ru":"Как тебя зовут?","words":[{"hanzi":"叫","pinyin":"jiào","trans":"звать, называться","pos":"гл.","examples":[{"hanzi":"我叫王明。","pinyin":"Wǒ jiào Wáng Míng.","trans_en":"My name is Wang Ming."},{"hanzi":"她叫李月。","pinyin":"Tā jiào Lǐ Yuè.","trans_en":"Her name is Li Yue."},{"hanzi":"你叫什么名字？","pinyin":"Nǐ jiào shénme míngzi?","trans_en":"What is your name?"}]},{"hanzi":"什么","pinyin":"shénme","trans":"что, какой","pos":"мест.","examples":[{"hanzi":"这是什么？","pinyin":"zhè shì shén me","trans_en":"What is this?"},{"hanzi":"你叫什么名字？","pinyin":"nǐ jiào shén me míng zi","trans_en":"What is your name?"},{"hanzi":"你周末打算做什么？","pinyin":"nǐ zhōu mò dǎ suàn zuò shén me","trans_en":"What are you planning to do this weekend?"}]},{"hanzi":"名字","pinyin":"míngzi","trans":"имя","pos":"сущ.","examples":[{"hanzi":"我的名字是李明 。","pinyin":"wǒ de míng zì shì lǐ míng","trans_en":"My name is Li Ming."},{"hanzi":"我的名字叫小明 。","pinyin":"wǒ de míng zi jiào xiǎo míng","trans_en":"My name is Xiao Ming."},{"hanzi":"我忘记了他的名字。","pinyin":"wǒ wàng jì le tā de míng zì","trans_en":"I forgot his name."}]},{"hanzi":"我","pinyin":"wǒ","trans":"я","pos":"мест.","examples":[{"hanzi":"我是学生。","pinyin":"Wǒ shì xuéshēng.","trans_en":"I am a student."},{"hanzi":"我叫王明。","pinyin":"Wǒ jiào Wáng Míng.","trans_en":"My name is Wang Ming."},{"hanzi":"我是中国人。","pinyin":"Wǒ shì Zhōngguórén.","trans_en":"I am Chinese."}]},{"hanzi":"是","pinyin":"shì","trans":"быть (связка)","pos":"гл.","examples":[{"hanzi":"我是学生。","pinyin":"Wǒ shì xuéshēng.","trans_en":"I am a student."},{"hanzi":"她是老师。","pinyin":"Tā shì lǎoshī.","trans_en":"She is a teacher."},{"hanzi":"他不是美国人。","pinyin":"Tā bù shì Měiguórén.","trans_en":"He is not American."}]},{"hanzi":"老师","pinyin":"lǎoshī","trans":"учитель","pos":"сущ.","examples":[{"hanzi":"这是我的老师。","pinyin":"zhè shì wǒ de lǎo shī","trans_en":"This is my teacher."},{"hanzi":"我们的老师很年轻。","pinyin":"wǒ men de lǎo shī hěn nián qīng","trans_en":"Our teacher is very young."},{"hanzi":"老师，请问现在几点了？","pinyin":"lǎo shī qǐng wèn xiàn zài jǐ diǎn le","trans_en":"Teacher, may I ask what time it is now?"}]},{"hanzi":"吗","pinyin":"ma","trans":"вопросительная частица","pos":"частица","examples":[{"hanzi":"你是学生吗？","pinyin":"Nǐ shì xuéshēng ma?","trans_en":"Are you a student?"},{"hanzi":"你好吗？","pinyin":"Nǐ hǎo ma?","trans_en":"How are you?"},{"hanzi":"她是中国人吗？","pinyin":"Tā shì Zhōngguórén ma?","trans_en":"Is she Chinese?"}]},{"hanzi":"学生","pinyin":"xuéshēng","trans":"студент, ученик","pos":"сущ.","examples":[{"hanzi":"我是一个学生 。","pinyin":"wǒ shì yí gè xué shēng","trans_en":"I am a student."},{"hanzi":"我是学生 。","pinyin":"wǒ shì xué shēng","trans_en":"I am a student."},{"hanzi":"这个学生每天都很早到学校。","pinyin":"zhè ge xué shēng měi tiān dōu hěn zǎo dào xué xiào","trans_en":"This student arrives at school very early every day."}]},{"hanzi":"人","pinyin":"rén","trans":"человек, люди","pos":"сущ.","examples":[{"hanzi":"他是中国人。","pinyin":"Tā shì Zhōngguórén.","trans_en":"He is Chinese."},{"hanzi":"这里有很多人。","pinyin":"Zhèlǐ yǒu hěn duō rén.","trans_en":"There are many people here."},{"hanzi":"她是好人。","pinyin":"Tā shì hǎo rén.","trans_en":"She is a good person."}]},{"hanzi":"中国","pinyin":"Zhōngguó","trans":"Китай","pos":"сущ.","examples":[{"hanzi":"我是中国人。","pinyin":"Wǒ shì Zhōngguórén.","trans_en":"I am Chinese."},{"hanzi":"中国很大。","pinyin":"Zhōngguó hěn dà.","trans_en":"China is very big."},{"hanzi":"我想去中国。","pinyin":"Wǒ xiǎng qù Zhōngguó.","trans_en":"I want to go to China."}]},{"hanzi":"美国","pinyin":"Měiguó","trans":"США, Америка","pos":"сущ.","examples":[{"hanzi":"她是美国人。","pinyin":"Tā shì Měiguórén.","trans_en":"She is American."},{"hanzi":"美国很大。","pinyin":"Měiguó hěn dà.","trans_en":"The USA is very big."},{"hanzi":"我想去美国学习。","pinyin":"Wǒ xiǎng qù Měiguó xuéxí.","trans_en":"I want to study in the USA."}]},{"hanzi":"李月","pinyin":"Lǐ Yuè","pos":"имя собств.","trans":"Ли Юэ (имя)","examples":[{"hanzi":"李月是我的朋友。","pinyin":"lǐ yuè shì wǒ de péng yǒu","trans_en":"Li Yue is my friend."},{"hanzi":"李月，你好吗？","pinyin":"lǐ yuè nǐ hǎo ma","trans_en":"Li Yue, how are you?"},{"hanzi":"她叫李月。","pinyin":"tā jiào lǐ yuè","trans_en":"She is called Li Yue."}]},{"hanzi":"国","pinyin":"guó","pos":"сущ.","trans":"страна","examples":[{"hanzi":"我是中国人。","pinyin":"wǒ shì zhōng guó rén","trans_en":"I am Chinese."},{"hanzi":"中国很大。","pinyin":"zhōng guó hěn dà","trans_en":"China is very big."},{"hanzi":"我想去中国旅游。","pinyin":"wǒ xiǎng qù zhōng guó lǚ yóu","trans_en":"I want to travel to China."}]}],"dialogs":[{"lines":[["А","你好！你叫什么名字？","Nǐ hǎo! Nǐ jiào shénme míngzi?","Привет! Как тебя зовут?"],["B","我叫李月。你叫什么名字？","Wǒ jiào Lǐ Yuè. Nǐ jiào shénme míngzi?","Меня зовут Ли Юэ. А тебя?"],["А","我叫王明。","Wǒ jiào Wáng Míng.","Меня зовут Ван Мин."]]},{"lines":[["А","你是老师吗？","Nǐ shì lǎoshī ma?","Ты учитель?"],["B","我不是老师，我是学生。","Wǒ bù shì lǎoshī, wǒ shì xuéshēng.","Я не учитель, я студент."],["А","你是中国人吗？","Nǐ shì Zhōngguórén ma?","Ты из Китая?"],["B","我是中国人，你是美国人吗？","Wǒ shì Zhōngguórén. Nǐ shì Měiguórén ma?","Да. А ты из США?"],["А","我不是美国人，我也是中国人。","Wǒ bù shì Měiguórén, wǒ yě shì Zhōngguórén.","Нет, я тоже из Китая."]]}],"exercises":[{"sentence":"你___什么名字？","options":["叫","是","有","在"],"answer":"叫","translation":"Как тебя зовут?"},{"sentence":"我___学生。","options":["叫","是","有","在"],"answer":"是","translation":"Я студент."},{"sentence":"你是老师___？","options":["吗","呢","的","了"],"answer":"吗","translation":"Ты учитель?"},{"sentence":"他___中国人。","options":["不是","叫","有","在"],"answer":"不是","translation":"Он не китаец."},{"sentence":"你叫什么___字？","options":["名","好","是","人"],"answer":"名","translation":"Как тебя зовут?"}]},"4":{"title_ru":"Из какой ты страны?","words":[{"hanzi":"她","pinyin":"tā","trans":"она","pos":"мест.","examples":[{"hanzi":"她是老师。","pinyin":"Tā shì lǎoshī.","trans_en":"She is a teacher."},{"hanzi":"她叫什么名字？","pinyin":"Tā jiào shénme míngzi?","trans_en":"What is her name?"},{"hanzi":"她的汉语很好。","pinyin":"Tā de hànyǔ hěn hǎo.","trans_en":"Her Chinese is very good."}]},{"hanzi":"谁","pinyin":"shéi","trans":"кто?","pos":"мест.","examples":[{"hanzi":"他是谁？","pinyin":"Tā shì shéi?","trans_en":"Who is he?"},{"hanzi":"谁是老师？","pinyin":"Shéi shì lǎoshī?","trans_en":"Who is the teacher?"},{"hanzi":"你在找谁？","pinyin":"Nǐ zài zhǎo shéi?","trans_en":"Who are you looking for?"}]},{"hanzi":"的","pinyin":"de","trans":"частица определения","pos":"частица","examples":[{"hanzi":"我的书在桌子上。","pinyin":"Wǒ de shū zài zhuōzi shàng.","trans_en":"My book is on the table."},{"hanzi":"她的汉语很好。","pinyin":"Tā de hànyǔ hěn hǎo.","trans_en":"Her Chinese is very good."},{"hanzi":"这是我的朋友。","pinyin":"Zhè shì wǒ de péngyou.","trans_en":"This is my friend."}]},{"hanzi":"汉语","pinyin":"hànyǔ","trans":"китайский язык","pos":"сущ.","examples":[{"hanzi":"我会说汉语。","pinyin":"Wǒ huì shuō hànyǔ.","trans_en":"I can speak Chinese."},{"hanzi":"我在学习汉语。","pinyin":"Wǒ zài xuéxí hànyǔ.","trans_en":"I am studying Chinese."},{"hanzi":"他的汉语很好。","pinyin":"Tā de hànyǔ hěn hǎo.","trans_en":"His Chinese is very good."}]},{"hanzi":"哪","pinyin":"nǎ","trans":"который?, какой?","pos":"мест.","examples":[{"hanzi":"你是哪国人？","pinyin":"Nǐ shì nǎ guó rén?","trans_en":"Which country are you from?"},{"hanzi":"他在哪儿工作？","pinyin":"Tā zài nǎr gōngzuò?","trans_en":"Where does he work?"},{"hanzi":"哪本书是你的？","pinyin":"Nǎ běn shū shì nǐ de?","trans_en":"Which book is yours?"}]},{"hanzi":"国","pinyin":"guó","trans":"страна","pos":"сущ.","examples":[{"hanzi":"他是美国人。","pinyin":"tā shì měi guó rén","trans_en":"He is an American."},{"hanzi":"我去美国学习。","pinyin":"wǒ qù měi guó xué xí","trans_en":"I go to the United States to study."},{"hanzi":"美国很大。","pinyin":"měi guó hěn dà","trans_en":"The United States is very big."}]},{"hanzi":"呢","pinyin":"ne","trans":"вопросительная частица","pos":"частица","examples":[{"hanzi":"我是中国人，你呢？","pinyin":"Wǒ shì Zhōngguórén, nǐ ne?","trans_en":"I am Chinese, and you?"},{"hanzi":"他去学校了，你呢？","pinyin":"Tā qù xuéxiào le, nǐ ne?","trans_en":"He went to school, what about you?"},{"hanzi":"你爸爸呢？","pinyin":"Nǐ bàba ne?","trans_en":"And your father?"}]},{"hanzi":"他","pinyin":"tā","trans":"он","pos":"мест.","examples":[{"hanzi":"他是我同学。","pinyin":"Tā shì wǒ tóngxué.","trans_en":"He is my classmate."},{"hanzi":"他叫王明。","pinyin":"Tā jiào Wáng Míng.","trans_en":"His name is Wang Ming."},{"hanzi":"他不会说汉语。","pinyin":"Tā bù huì shuō hànyǔ.","trans_en":"He cannot speak Chinese."}]},{"hanzi":"同学","pinyin":"tóngxué","trans":"одноклассник","pos":"сущ.","examples":[{"hanzi":"他是我的同学。","pinyin":"tā shì wǒ de tóng xué","trans_en":"He is my classmate."},{"hanzi":"这是我的同学。","pinyin":"zhè shì wǒ de tóng xué","trans_en":"This is my classmate."},{"hanzi":"明天我和同学去看电影。","pinyin":"míng tiān wǒ hé tóng xué qù kàn diàn yǐng","trans_en":"Tomorrow I will go to see a movie with my classmate."}]},{"hanzi":"朋友","pinyin":"péngyou","trans":"друг","pos":"сущ.","examples":[{"hanzi":"他是我的好朋友。","pinyin":"tā shì wǒ de hǎo péng you","trans_en":"He is my good friend."},{"hanzi":"他是我的朋友。","pinyin":"tā shì wǒ de péng yǒu","trans_en":"He is my friend."},{"hanzi":"我和朋友一起去公园 。","pinyin":"wǒ hé péng you yī qǐ qù gōng yuán","trans_en":"I go to the park with my friend."}]},{"hanzi":"语","pinyin":"yǔ","pos":"сущ.","trans":"язык, речь","examples":[{"hanzi":"这是汉语。","pinyin":"zhè shì hàn yǔ","trans_en":"This is Chinese."},{"hanzi":"我在学习汉语。","pinyin":"wǒ zài xué xí hàn yǔ","trans_en":"I am learning Chinese."},{"hanzi":"他的汉语说得很好。","pinyin":"tā de hàn yǔ shuō de hěn hǎo","trans_en":"He speaks Chinese very well."}]}],"dialogs":[{"lines":[["А","你好，你是哪国人？","Nǐ hǎo, nǐ shì nǎ guó rén?","Привет, ты из какой страны?"],["B","我是中国人，你呢？","Wǒ shì Zhōngguórén, nǐ ne?","Я из Китая, а ты?"],["А","我是俄罗斯人。","Wǒ shì Éluósīrén.","Я из России."]]},{"lines":[["А","他是谁？","Tā shì shéi?","Он кто?"],["B","他是我的同学。她是我的朋友。","Tā shì wǒ de tóngxué. Tā shì wǒ de péngyou.","Он мой одноклассник. Она моя подруга."],["А","她是哪国人？","Tā shì nǎ guó rén?","Она из какой страны?"],["B","她是美国人，她的汉语很好。","Tā shì Měiguórén, tā de hànyǔ hěn hǎo.","Она из США, её китайский очень хороший."]]}],"exercises":[{"sentence":"她是___？","options":["谁","什么","哪","几"],"answer":"谁","translation":"Она кто?"},{"sentence":"你是___国人？","options":["哪","什么","谁","几"],"answer":"哪","translation":"Ты из какой страны?"},{"sentence":"他是我___同学。","options":["的","吗","呢","了"],"answer":"的","translation":"Он мой одноклассник."},{"sentence":"我是中国人，你___？","options":["呢","吗","的","了"],"answer":"呢","translation":"Я из Китая, а ты?"},{"sentence":"她是我的___语老师。","options":["汉","好","中","美"],"answer":"汉","translation":"Она моя учительница китайского."}]},"5":{"title_ru":"Сколько у тебя в семье?","words":[{"hanzi":"家","pinyin":"jiā","trans":"семья, дом","pos":"сущ.","examples":[{"hanzi":"我家有三口人。","pinyin":"Wǒ jiā yǒu sān kǒu rén.","trans_en":"There are three people in my family."},{"hanzi":"他在家吗？","pinyin":"Tā zài jiā ma?","trans_en":"Is he at home?"},{"hanzi":"我想回家。","pinyin":"Wǒ xiǎng huí jiā.","trans_en":"I want to go home."}]},{"hanzi":"有","pinyin":"yǒu","trans":"иметь, есть","pos":"гл.","examples":[{"hanzi":"我家有五口人。","pinyin":"Wǒ jiā yǒu wǔ kǒu rén.","trans_en":"There are five people in my family."},{"hanzi":"桌子上有一本书。","pinyin":"Zhuōzi shàng yǒu yī běn shū.","trans_en":"There is a book on the table."},{"hanzi":"你有女儿吗？","pinyin":"Nǐ yǒu nǚér ma?","trans_en":"Do you have a daughter?"}]},{"hanzi":"口","pinyin":"kǒu","trans":"счётное слово для членов семьи","pos":"счётн.","examples":[{"hanzi":"你家有几口人？","pinyin":"Nǐ jiā yǒu jǐ kǒu rén?","trans_en":"How many people are in your family?"},{"hanzi":"我家有四口人。","pinyin":"Wǒ jiā yǒu sì kǒu rén.","trans_en":"There are four people in my family."}]},{"hanzi":"女儿","pinyin":"nǚér","trans":"дочь","pos":"сущ.","examples":[{"hanzi":"我的女儿今年五岁。","pinyin":"wǒ de nǚ ér jīn nián wǔ suì","trans_en":"My daughter is five years old this year."},{"hanzi":"我有一个女儿。","pinyin":"wǒ yǒu yí gè nǚ ér","trans_en":"I have a daughter."},{"hanzi":"她每天送女儿去学校。","pinyin":"tā měi tiān sòng nǚ ér qù xué xiào","trans_en":"She takes her daughter to school every day."}]},{"hanzi":"几","pinyin":"jǐ","trans":"сколько? (до 10)","pos":"мест.","examples":[{"hanzi":"你家有几口人？","pinyin":"Nǐ jiā yǒu jǐ kǒu rén?","trans_en":"How many people are in your family?"},{"hanzi":"她几岁了？","pinyin":"Tā jǐ suì le?","trans_en":"How old is she?"},{"hanzi":"现在几点？","pinyin":"Xiànzài jǐ diǎn?","trans_en":"What time is it now?"}]},{"hanzi":"岁","pinyin":"suì","trans":"лет (возраст)","pos":"счётн.","examples":[{"hanzi":"她今年三岁了。","pinyin":"Tā jīnnián sān suì le.","trans_en":"She is three years old this year."},{"hanzi":"他今年45岁了。","pinyin":"Tā jīnnián 45 suì le.","trans_en":"He is 45 years old this year."},{"hanzi":"你多大了？我18岁。","pinyin":"Wǒ shíbā suì.","trans_en":"I am 18 years old."}]},{"hanzi":"了","pinyin":"le","trans":"модальная частица","pos":"частица","examples":[{"hanzi":"他是老师了。","pinyin":"Tā shì lǎoshī le.","trans_en":"He has become a teacher."},{"hanzi":"她今年三岁了。","pinyin":"Tā jīnnián sān suì le.","trans_en":"She is three years old now."},{"hanzi":"天气冷了。","pinyin":"Tiānqì lěng le.","trans_en":"It has gotten cold."}]},{"hanzi":"今年","pinyin":"jīnnián","trans":"в этом году","pos":"нареч.","examples":[{"hanzi":"今年我学习中文。","pinyin":"jīn nián wǒ xué xí zhōng wén","trans_en":"I am studying Chinese this year."},{"hanzi":"她的女儿今年上小学了。","pinyin":"tā de nǚ ér jīn nián shàng xiǎo xué le","trans_en":"Her daughter started elementary school this year."},{"hanzi":"今年夏天很热。","pinyin":"jīn nián xià tiān hěn rè","trans_en":"This year's summer is very hot."}]},{"hanzi":"多","pinyin":"duō","trans":"много; насколько","pos":"нареч.","examples":[{"hanzi":"你多大了？","pinyin":"Nǐ duōdà le?","trans_en":"How old are you?"},{"hanzi":"多喝水。","pinyin":"Duō hē shuǐ.","trans_en":"Drink more water."},{"hanzi":"这里有很多人。","pinyin":"Zhèlǐ yǒu hěn duō rén.","trans_en":"There are many people here."}]},{"hanzi":"大","pinyin":"dà","trans":"большой; старший (о возрасте)","pos":"прил.","examples":[{"hanzi":"中国很大。","pinyin":"Zhōngguó hěn dà.","trans_en":"China is very big."},{"hanzi":"你多大了？","pinyin":"Nǐ duōdà le?","trans_en":"How old are you?"},{"hanzi":"他比我大三岁。","pinyin":"Tā bǐ wǒ dà sān suì.","trans_en":"He is three years older than me."}]}],"dialogs":[{"lines":[["А","你家有几口人？","Nǐ jiā yǒu jǐ kǒu rén?","Сколько у тебя членов семьи?"],["B","我家有五口人。你家呢？","Wǒ jiā yǒu wǔ kǒu rén. Nǐ jiā ne?","У нас пятеро. А у тебя?"],["А","我家有三口人。","Wǒ jiā yǒu sān kǒu rén.","У нас трое."]]},{"lines":[["А","你有女儿吗？","Nǐ yǒu nǚér ma?","У тебя есть дочь?"],["B","有，她今年三岁了。","Yǒu, tā jīnnián sān suì le.","Есть, ей три года."],["А","她多大了？","Tā duōdà le?","Сколько ей лет?"],["B","她今年三岁了。","Tā jīnnián sān suì le.","Ей три года."]]},{"lines":[["А","你有儿子吗？","Nǐ yǒu érzi ma?","У тебя есть сын?"],["B","没有，我家只有女儿，今年三岁了。","Méiyǒu, wǒ jiā zhǐ yǒu nǚér, jīnnián sān suì le.","Нет, только дочь, ей три года."]]}],"exercises":[{"sentence":"你家有几___人？","options":["口","个","本","杯"],"answer":"口","translation":"Сколько человек в семье?"},{"sentence":"她今年三___了。","options":["岁","口","个","本"],"answer":"岁","translation":"Ей три года."},{"sentence":"你___大了？","options":["多","几","什么","哪"],"answer":"多","translation":"Сколько тебе лет?"},{"sentence":"我家___五口人。","options":["有","是","在","叫"],"answer":"有","translation":"У нас пятеро человек."},{"sentence":"他今年45岁___。","options":["了","吗","呢","的"],"answer":"了","translation":"Ему в этом году 45 лет."}]},"6":{"title_ru":"Ты говоришь по-китайски?","words":[{"hanzi":"会","pinyin":"huì","trans":"уметь, быть способным","pos":"модал. гл.","examples":[{"hanzi":"我会说汉语。","pinyin":"Wǒ huì shuō hànyǔ.","trans_en":"I can speak Chinese."},{"hanzi":"她会做中国菜。","pinyin":"Tā huì zuò Zhōngguó cài.","trans_en":"She can cook Chinese food."},{"hanzi":"明天会下雨。","pinyin":"Míngtiān huì xià yǔ.","trans_en":"It will rain tomorrow."}]},{"hanzi":"说","pinyin":"shuō","trans":"говорить, разговаривать","pos":"гл.","examples":[{"hanzi":"他会说汉语。","pinyin":"Tā huì shuō hànyǔ.","trans_en":"He can speak Chinese."},{"hanzi":"请慢慢说。","pinyin":"Qǐng màn man shuō.","trans_en":"Please speak slowly."},{"hanzi":"你说什么？","pinyin":"Nǐ shuō shénme?","trans_en":"What did you say?"}]},{"hanzi":"妈妈","pinyin":"māma","trans":"мама","pos":"сущ.","examples":[{"hanzi":"我的妈妈很爱我。","pinyin":"wǒ de mā ma hěn ài wǒ","trans_en":"My mother loves me very much."},{"hanzi":"妈妈爱我。","pinyin":"mā mā ài wǒ","trans_en":"Mom loves me."},{"hanzi":"妈妈，我回来了。","pinyin":"mā ma wǒ huí lái le","trans_en":"Mom, I'm back."}]},{"hanzi":"菜","pinyin":"cài","trans":"блюдо, еда","pos":"сущ.","examples":[{"hanzi":"中国菜很好吃。","pinyin":"Zhōngguó cài hěn hǎochī.","trans_en":"Chinese food is very delicious."},{"hanzi":"你妈妈会做中国菜吗？","pinyin":"Nǐ māma huì zuò Zhōngguó cài ma?","trans_en":"Can your mother cook Chinese food?"},{"hanzi":"这个菜很好吃。","pinyin":"Zhège cài hěn hǎochī.","trans_en":"This dish is very delicious."}]},{"hanzi":"很","pinyin":"hěn","trans":"очень","pos":"нареч.","examples":[{"hanzi":"中国菜很好吃。","pinyin":"Zhōngguó cài hěn hǎochī.","trans_en":"Chinese food is very delicious."},{"hanzi":"她很高兴。","pinyin":"Tā hěn gāoxìng.","trans_en":"She is very happy."},{"hanzi":"今天天气很好。","pinyin":"Jīntiān tiānqì hěn hǎo.","trans_en":"The weather is very nice today."}]},{"hanzi":"好吃","pinyin":"hǎochī","trans":"вкусный","pos":"прил.","examples":[{"hanzi":"苹果好吃。","pinyin":"píng guǒ hǎo chī","trans_en":"Apples are delicious."},{"hanzi":"这个苹果很好吃。","pinyin":"zhè ge píng guǒ hěn hǎo chī","trans_en":"This apple is very delicious."},{"hanzi":"这个蛋糕真好吃！","pinyin":"zhè ge dàn gāo zhēn hǎo chī","trans_en":"This cake is really delicious!"}]},{"hanzi":"做","pinyin":"zuò","trans":"делать, готовить","pos":"гл.","examples":[{"hanzi":"她会做中国菜。","pinyin":"Tā huì zuò Zhōngguó cài.","trans_en":"She can cook Chinese food."},{"hanzi":"你在做什么？","pinyin":"Nǐ zài zuò shénme?","trans_en":"What are you doing?"},{"hanzi":"我做了三个菜。","pinyin":"Wǒ zuò le sān ge cài.","trans_en":"I cooked three dishes."}]},{"hanzi":"写","pinyin":"xiě","trans":"писать","pos":"гл.","examples":[{"hanzi":"你会写汉字吗？","pinyin":"Nǐ huì xiě hànzì ma?","trans_en":"Can you write Chinese characters?"},{"hanzi":"我在写汉字。","pinyin":"Wǒ zài xiě hànzì.","trans_en":"I am writing Chinese characters."},{"hanzi":"请写你的名字。","pinyin":"Qǐng xiě nǐ de míngzi.","trans_en":"Please write your name."}]},{"hanzi":"汉字","pinyin":"hànzì","trans":"китайский иероглиф","pos":"сущ.","examples":[{"hanzi":"你会写汉字吗？","pinyin":"Nǐ huì xiě hànzì ma?","trans_en":"Can you write Chinese characters?"},{"hanzi":"我每天学习五个汉字。","pinyin":"Wǒ měitiān xuéxí wǔ ge hànzì.","trans_en":"I study five Chinese characters every day."},{"hanzi":"这个汉字很难写。","pinyin":"Zhège hànzì hěn nán xiě.","trans_en":"This character is hard to write."}]},{"hanzi":"怎么","pinyin":"zěnme","trans":"как? каким образом?","pos":"мест.","examples":[{"hanzi":"这个字怎么读？","pinyin":"zhè ge zì zěn me dú","trans_en":"How do you read this character?"},{"hanzi":"你怎么了？","pinyin":"nǐ zěn me le","trans_en":"What's wrong with you?"},{"hanzi":"这个菜怎么做的？","pinyin":"zhè ge cài zěn me zuò de","trans_en":"How is this dish made?"}]},{"hanzi":"读","pinyin":"dú","trans":"читать вслух","pos":"гл.","examples":[{"hanzi":"这个汉字怎么读？","pinyin":"Zhège hànzì zěnme dú?","trans_en":"How do you read this character?"},{"hanzi":"我会读汉字，不会写。","pinyin":"Wǒ huì dú hànzì, bù huì xiě.","trans_en":"I can read characters but not write them."},{"hanzi":"请大声读。","pinyin":"Qǐng dàshēng dú.","trans_en":"Please read aloud."}]},{"hanzi":"字","pinyin":"zì","pos":"сущ.","trans":"иероглиф, знак","examples":[{"hanzi":"我每天学习五个汉字。","pinyin":"wǒ měi tiān xué xí wǔ gè hàn zì","trans_en":"I learn five Chinese characters every day."},{"hanzi":"我认识这个汉字。","pinyin":"wǒ rèn shí zhè ge hàn zì","trans_en":"I recognize this Chinese character."},{"hanzi":"这个汉字很难写。","pinyin":"zhè gè hàn zì hěn nán xiě","trans_en":"This Chinese character is very difficult to write."}]}],"dialogs":[{"lines":[["А","你会说汉语吗？","Nǐ huì shuō hànyǔ ma?","Ты говоришь по-китайски?"],["B","我会说一点儿汉语。","Wǒ huì shuō yīdiǎnr hànyǔ.","Говорю немного."],["А","你会写汉字吗？","Nǐ huì xiě hànzì ma?","А умеешь писать иероглифы?"],["B","我会写，也会读。","Wǒ huì xiě, yě huì dú.","Умею писать и читать."]]},{"lines":[["А","你妈妈会做中国菜吗？","Nǐ māma huì zuò Zhōngguó cài ma?","Твоя мама умеет готовить китайские блюда?"],["B","会做，中国菜很好吃。","Huì zuò, Zhōngguó cài hěn hǎochī.","Умеет, очень вкусно."]]},{"lines":[["А","这个汉字怎么读？","Zhè ge hànzì zěnme dú?","Как читается этот иероглиф?"],["B","对不起，我会写这个字，不会读。","Duìbuqǐ, wǒ huì xiě zhè ge zì, bù huì dú.","Прости, умею писать, но не читать."],["А","没关系。","Méiguānxi.","Ничего страшного."]]}],"exercises":[{"sentence":"你___说汉语吗？","options":["会","是","有","在"],"answer":"会","translation":"Ты говоришь по-китайски?"},{"sentence":"中国菜___好吃。","options":["很","不","太","也"],"answer":"很","translation":"Китайская кухня очень вкусная."},{"sentence":"这个汉字___么写？","options":["怎","什","哪","几"],"answer":"怎","translation":"Как пишется этот иероглиф?"},{"sentence":"他会___汉字。","options":["写","说","读","是"],"answer":"写","translation":"Он умеет писать иероглифы."},{"sentence":"她会___，不会写。","options":["读","说","写","是"],"answer":"读","translation":"Она умеет читать, но не писать."}]},"7":{"title_ru":"Какое сегодня число?","words":[{"hanzi":"请","pinyin":"qǐng","trans":"просить; пожалуйста","pos":"гл.","examples":[{"hanzi":"请坐。","pinyin":"Qǐng zuò.","trans_en":"Please sit down."},{"hanzi":"请问，今天几月几号？","pinyin":"Qǐng wèn, jīntiān jǐ yuè jǐ hào?","trans_en":"Excuse me, what is today's date?"},{"hanzi":"请喝茶。","pinyin":"Qǐng hē chá.","trans_en":"Please have some tea."}]},{"hanzi":"问","pinyin":"wèn","trans":"спрашивать","pos":"гл.","examples":[{"hanzi":"请问，你叫什么名字？","pinyin":"Qǐng wèn, nǐ jiào shénme míngzi?","trans_en":"Excuse me, what is your name?"},{"hanzi":"我想问你一个问题。","pinyin":"Wǒ xiǎng wèn nǐ yī ge wèntí.","trans_en":"I want to ask you a question."},{"hanzi":"老师问我一个问题。","pinyin":"Lǎoshī wèn wǒ yī ge wèntí.","trans_en":"The teacher asked me a question."}]},{"hanzi":"今天","pinyin":"jīntiān","trans":"сегодня","pos":"нареч.","examples":[{"hanzi":"今天天气很好。","pinyin":"jīn tiān tiān qì hěn hǎo","trans_en":"The weather is very nice today."},{"hanzi":"今天是星期一。","pinyin":"jīn tiān shì xīng qī yī","trans_en":"Today is Monday."},{"hanzi":"今天是我的生日。","pinyin":"jīn tiān shì wǒ de shēng rì","trans_en":"Today is my birthday."}]},{"hanzi":"号","pinyin":"hào","trans":"число (дата)","pos":"счётн.","examples":[{"hanzi":"今天几月几号？","pinyin":"Jīntiān jǐ yuè jǐ hào?","trans_en":"What is today's date?"},{"hanzi":"今天五月十七号。","pinyin":"Jīntiān wǔ yuè shíqī hào.","trans_en":"Today is May 17th."}]},{"hanzi":"月","pinyin":"yuè","trans":"месяц","pos":"сущ.","examples":[{"hanzi":"今天几月几号？","pinyin":"Jīntiān jǐ yuè jǐ hào?","trans_en":"What is today's date?"},{"hanzi":"一年有十二个月。","pinyin":"Yī nián yǒu shí er ge yuè.","trans_en":"There are twelve months in a year."},{"hanzi":"我五月去中国。","pinyin":"Wǒ wǔ yuè qù Zhōngguó.","trans_en":"I am going to China in May."}]},{"hanzi":"星期","pinyin":"xīngqī","trans":"неделя; день недели","pos":"сущ.","examples":[{"hanzi":"今天是星期几？","pinyin":"jīn tiān shì xīng qī jǐ","trans_en":"What day is it today?"},{"hanzi":"一个星期有七天。","pinyin":"yī gè xīng qī yǒu qī tiān","trans_en":"There are seven days in a week."},{"hanzi":"这个星期天我们去看电影吧。","pinyin":"zhè ge xīng qī tiān wǒ men qù kàn diàn yǐng ba","trans_en":"Let's go see a movie this Sunday."}]},{"hanzi":"昨天","pinyin":"zuótiān","trans":"вчера","pos":"нареч.","examples":[{"hanzi":"昨天是星期一。","pinyin":"zuó tiān shì xīng qī yī","trans_en":"Yesterday was Monday."},{"hanzi":"昨天天气很好。","pinyin":"zuó tiān tiān qì hěn hǎo","trans_en":"The weather was very good yesterday."},{"hanzi":"昨天的会议你参加了吗？","pinyin":"zuó tiān de huì yì nǐ cān jiā le ma","trans_en":"Did you attend the meeting yesterday?"}]},{"hanzi":"明天","pinyin":"míngtiān","trans":"завтра","pos":"нареч.","examples":[{"hanzi":"明天是星期一。","pinyin":"míng tiān shì xīng qī yī","trans_en":"Tomorrow is Monday."},{"hanzi":"明天是星期六。","pinyin":"míng tiān shì xīng qī liù","trans_en":"Tomorrow is Saturday."},{"hanzi":"我们明天去公园 。","pinyin":"wǒ men míng tiān qù gōng yuán","trans_en":"We are going to the park tomorrow."}]},{"hanzi":"去","pinyin":"qù","trans":"идти, ехать","pos":"гл.","examples":[{"hanzi":"我去学校。","pinyin":"Wǒ qù xuéxiào.","trans_en":"I am going to school."},{"hanzi":"明天我们去商店。","pinyin":"Míngtiān wǒmen qù shāngdiàn.","trans_en":"Tomorrow we are going to the store."},{"hanzi":"你去不去？","pinyin":"Nǐ qù bù qù?","trans_en":"Are you going or not?"}]},{"hanzi":"学校","pinyin":"xuéxiào","trans":"школа","pos":"сущ.","examples":[{"hanzi":"我的学校很大。","pinyin":"wǒ de xué xiào hěn dà","trans_en":"My school is very big."},{"hanzi":"我去学校。","pinyin":"wǒ qù xué xiào","trans_en":"I go to school."},{"hanzi":"我们学校明天放假。","pinyin":"wǒ men xué xiào míng tiān fàng jià","trans_en":"Our school has a holiday tomorrow."}]},{"hanzi":"看","pinyin":"kàn","trans":"смотреть, читать","pos":"гл.","examples":[{"hanzi":"我喜欢看电影。","pinyin":"Wǒ xǐhuan kàn diànyǐng.","trans_en":"I like watching movies."},{"hanzi":"你看什么书？","pinyin":"Nǐ kàn shénme shū?","trans_en":"What book are you reading?"},{"hanzi":"请看黑板。","pinyin":"Qǐng kàn hēibǎn.","trans_en":"Please look at the blackboard."}]},{"hanzi":"书","pinyin":"shū","trans":"книга","pos":"сущ.","examples":[{"hanzi":"桌子上有一本书。","pinyin":"Zhuōzi shàng yǒu yī běn shū.","trans_en":"There is a book on the table."},{"hanzi":"我喜欢看书。","pinyin":"Wǒ xǐhuan kàn shū.","trans_en":"I like reading books."},{"hanzi":"这本书很好看。","pinyin":"Zhè běn shū hěn hǎokàn.","trans_en":"This book is very good."}]}],"dialogs":[{"lines":[["А","请问，今天几月几号？","Qǐng wèn, jīntiān jǐ yuè jǐ hào?","Скажи, пожалуйста, сегодня какое число?"],["B","今天五月十七号，星期六。","Jīntiān wǔ yuè shíqī hào, xīngqīliù.","Сегодня 17 мая, суббота."]]},{"lines":[["А","昨天是几月几号？","Zuótiān shì jǐ yuè jǐ hào?","Вчера какое было число?"],["B","昨天是二月八号，星期二。明天是二月十号，星期四。","Zuótiān shì èr yuè bā hào, xīngqī'èr. Míngtiān shì èr yuè shí hào, xīngqīsì.","Вчера 8 февраля, вторник. Завтра 10 февраля, четверг."]]},{"lines":[["А","明天你去不去学校？","Míngtiān nǐ qù bù qù xuéxiào?","Завтра пойдёшь в школу?"],["B","去，我去学校看书，写字。","Qù, wǒ qù xuéxiào kàn shū, xiě zì.","Пойду — буду читать книги и писать."]]}],"exercises":[{"sentence":"今天几___几号？","options":["月","年","日","时"],"answer":"月","translation":"Сегодня какое число?"},{"sentence":"今天星___六。","options":["期","月","年","日"],"answer":"期","translation":"Сегодня суббота."},{"sentence":"___天是五月十七号。","options":["今","明","昨","星"],"answer":"今","translation":"Сегодня 17 мая."},{"sentence":"明天你去不___学校？","options":["去","来","在","是"],"answer":"去","translation":"Завтра пойдёшь в школу?"},{"sentence":"我去学校看___。","options":["书","菜","人","家"],"answer":"书","translation":"Я пойду в школу читать."}]},"8":{"title_ru":"Что ты хочешь делать?","words":[{"hanzi":"想","pinyin":"xiǎng","trans":"хотеть, думать","pos":"гл.","examples":[{"hanzi":"我想学习汉语。","pinyin":"Wǒ xiǎng xuéxí hànyǔ.","trans_en":"I want to study Chinese."},{"hanzi":"你想喝什么？","pinyin":"Nǐ xiǎng hē shénme?","trans_en":"What do you want to drink?"},{"hanzi":"我想去中国。","pinyin":"Wǒ xiǎng qù Zhōngguó.","trans_en":"I want to go to China."}]},{"hanzi":"喝","pinyin":"hē","trans":"пить","pos":"гл.","examples":[{"hanzi":"你想喝什么？","pinyin":"Nǐ xiǎng hē shénme?","trans_en":"What do you want to drink?"},{"hanzi":"我想喝茶。","pinyin":"Wǒ xiǎng hē chá.","trans_en":"I want to drink tea."},{"hanzi":"多喝水。","pinyin":"Duō hē shuǐ.","trans_en":"Drink more water."}]},{"hanzi":"茶","pinyin":"chá","trans":"чай","pos":"сущ.","examples":[{"hanzi":"请喝茶。","pinyin":"Qǐng hē chá.","trans_en":"Please have some tea."},{"hanzi":"我喜欢喝茶。","pinyin":"Wǒ xǐhuan hē chá.","trans_en":"I like drinking tea."},{"hanzi":"中国茶很好喝。","pinyin":"Zhōngguó chá hěn hǎohē.","trans_en":"Chinese tea is very good."}]},{"hanzi":"吃","pinyin":"chī","trans":"есть (кушать)","pos":"гл.","examples":[{"hanzi":"我想吃米饭。","pinyin":"Wǒ xiǎng chī mǐfàn.","trans_en":"I want to eat rice."},{"hanzi":"你喜欢吃什么？","pinyin":"Nǐ xǐhuan chī shénme?","trans_en":"What do you like to eat?"},{"hanzi":"我们去吃饭吧。","pinyin":"Wǒmen qù chīfàn ba.","trans_en":"Let us go eat."}]},{"hanzi":"米饭","pinyin":"mǐfàn","trans":"варёный рис","pos":"сущ.","examples":[{"hanzi":"我吃米饭。","pinyin":"wǒ chī mǐ fàn","trans_en":"I eat rice."},{"hanzi":"我每天中午都吃米饭。","pinyin":"wǒ měi tiān zhōng wǔ dōu chī mǐ fàn","trans_en":"I eat rice every day at noon."},{"hanzi":"这碗米饭很香 。","pinyin":"zhè wǎn mǐ fàn hěn xiāng","trans_en":"This bowl of rice is very fragrant."}]},{"hanzi":"下午","pinyin":"xiàwǔ","trans":"после полудня","pos":"сущ.","examples":[{"hanzi":"下午好。","pinyin":"xià wǔ hǎo","trans_en":"Good afternoon."},{"hanzi":"今天下午天气很好。","pinyin":"jīn tiān xià wǔ tiān qì hěn hǎo","trans_en":"The weather is very nice this afternoon."},{"hanzi":"我们下午三点见面 。","pinyin":"wǒ men xià wǔ sān diǎn jiàn miàn","trans_en":"We will meet at three o'clock in the afternoon."}]},{"hanzi":"商店","pinyin":"shāngdiàn","trans":"магазин","pos":"сущ.","examples":[{"hanzi":"这是商店。","pinyin":"zhè shì shāng diàn","trans_en":"This is a store."},{"hanzi":"我家旁边有一个商店。","pinyin":"wǒ jiā páng biān yǒu yí gè shāng diàn","trans_en":"There is a shop next to my house."},{"hanzi":"那家商店离我家很近。","pinyin":"nà jiā shāng diàn lí wǒ jiā hěn jìn","trans_en":"That shop is very close to my home."}]},{"hanzi":"买","pinyin":"mǎi","trans":"покупать","pos":"гл.","examples":[{"hanzi":"我想买杯子。","pinyin":"Wǒ xiǎng mǎi bēizi.","trans_en":"I want to buy a cup."},{"hanzi":"你买了什么？","pinyin":"Nǐ mǎi le shénme?","trans_en":"What did you buy?"},{"hanzi":"妈妈去商店买东西了。","pinyin":"Māma qù shāngdiàn mǎi dōngxi le.","trans_en":"Mom went to the store to buy things."}]},{"hanzi":"个","pinyin":"gè","trans":"универсальное счётное слово","pos":"счётн.","examples":[{"hanzi":"我买了三个杯子。","pinyin":"Wǒ mǎi le sān ge bēizi.","trans_en":"I bought three cups."},{"hanzi":"这个苹果多少钱？","pinyin":"Zhège píngguǒ duōshao qián?","trans_en":"How much is this apple?"},{"hanzi":"我有一个女儿。","pinyin":"Wǒ yǒu yī ge nǚér.","trans_en":"I have one daughter."}]},{"hanzi":"杯子","pinyin":"bēizi","trans":"чашка, стакан","pos":"сущ.","examples":[{"hanzi":"这是一个杯子。","pinyin":"zhè shì yí gè bēi zi","trans_en":"This is a cup."},{"hanzi":"这个杯子很漂亮 。","pinyin":"zhè ge bēi zi hěn piào liang","trans_en":"This cup is very beautiful."},{"hanzi":"请给我一个杯子，我想喝水。","pinyin":"qǐng gěi wǒ yí gè bēi zi wǒ xiǎng hē shuǐ","trans_en":"Please give me a cup, I want to drink water."}]},{"hanzi":"这","pinyin":"zhè","trans":"это, этот","pos":"мест.","examples":[{"hanzi":"这是什么？","pinyin":"Zhè shì shénme?","trans_en":"What is this?"},{"hanzi":"这个杯子多少钱？","pinyin":"Zhège bēizi duōshao qián?","trans_en":"How much is this cup?"},{"hanzi":"这是我的书。","pinyin":"Zhè shì wǒ de shū.","trans_en":"This is my book."}]},{"hanzi":"多少","pinyin":"duōshao","trans":"сколько?","pos":"мест.","examples":[{"hanzi":"这个苹果多少钱？","pinyin":"zhè gè píng guǒ duō shǎo qián","trans_en":"How much is this apple?"},{"hanzi":"你们班有多少学生 ？","pinyin":"nǐ men bān yǒu duō shǎo xué shēng","trans_en":"How many students are in your class?"},{"hanzi":"这个班有多少学生 ？","pinyin":"zhè ge bān yǒu duō shǎo xué shēng","trans_en":"How many students are in this class?"}]},{"hanzi":"钱","pinyin":"qián","trans":"деньги","pos":"сущ.","examples":[{"hanzi":"这个多少钱？","pinyin":"Zhège duōshao qián?","trans_en":"How much does this cost?"},{"hanzi":"我没有钱。","pinyin":"Wǒ méiyǒu qián.","trans_en":"I have no money."},{"hanzi":"这个杯子35块钱。","pinyin":"Zhège bēizi sānshíwǔ kuài qián.","trans_en":"This cup costs 35 yuan."}]},{"hanzi":"块","pinyin":"kuài","trans":"юань (счётн. для денег)","pos":"счётн.","examples":[{"hanzi":"这个杯子35块。","pinyin":"Zhège bēizi sānshíwǔ kuài.","trans_en":"This cup costs 35 yuan."},{"hanzi":"苹果两块钱一个。","pinyin":"Píngguǒ liǎng kuài qián yī ge.","trans_en":"Apples are two yuan each."}]},{"hanzi":"那","pinyin":"nà","trans":"то, тот","pos":"мест.","examples":[{"hanzi":"那是什么？","pinyin":"Nà shì shénme?","trans_en":"What is that?"},{"hanzi":"那个杯子15块。","pinyin":"Nàge bēizi shíwǔ kuài.","trans_en":"That cup is 15 yuan."},{"hanzi":"那个人是我老师。","pinyin":"Nàge rén shì wǒ lǎoshī.","trans_en":"That person is my teacher."}]}],"dialogs":[{"lines":[["А","今天下午你想做什么？","Jīntiān xiàwǔ nǐ xiǎng zuò shénme?","Сегодня во второй половине дня что хочешь делать?"],["B","我想去商店买杯子。","Wǒ xiǎng qù shāngdiàn mǎi bēizi.","Хочу пойти в магазин за чашками."],["А","这个杯子多少钱？","Zhè ge bēizi duōshao qián?","Сколько стоит эта чашка?"],["B","这个三十五块，那个十五块。我想买那个。","Zhè ge sānshíwǔ kuài, nà ge shíwǔ kuài. Wǒ xiǎng mǎi nà ge.","Эта 35 юаней, та 15. Хочу купить ту."]]},{"lines":[["А","你想喝什么？","Nǐ xiǎng hē shénme?","Что хочешь выпить?"],["B","我想喝茶。你呢？","Wǒ xiǎng hē chá. Nǐ ne?","Хочу чай. А ты?"],["А","我想吃米饭。","Wǒ xiǎng chī mǐfàn.","Я хочу рис."]]}],"exercises":[{"sentence":"你___喝什么？","options":["想","会","能","是"],"answer":"想","translation":"Что ты хочешь выпить?"},{"sentence":"这个杯子多少___？","options":["钱","块","个","本"],"answer":"钱","translation":"Сколько стоит эта чашка?"},{"sentence":"我想去___店。","options":["商","学","医","饭"],"answer":"商","translation":"Хочу пойти в магазин."},{"sentence":"___个杯子35块。","options":["这","那","哪","几"],"answer":"这","translation":"Эта чашка стоит 35 юаней."},{"sentence":"他想___米饭。","options":["吃","喝","买","看"],"answer":"吃","translation":"Он хочет поесть рис."}]},"9":{"title_ru":"Где ты работаешь?","words":[{"hanzi":"小","pinyin":"xiǎo","trans":"маленький","pos":"прил.","examples":[{"hanzi":"这只猫很小。","pinyin":"Zhè zhī māo hěn xiǎo.","trans_en":"This cat is very small."},{"hanzi":"小狗在椅子下面。","pinyin":"Xiǎo gǒu zài yǐzi xiàmiàn.","trans_en":"The puppy is under the chair."},{"hanzi":"我的房间很小。","pinyin":"Wǒ de fángjiān hěn xiǎo.","trans_en":"My room is very small."}]},{"hanzi":"猫","pinyin":"māo","trans":"кошка","pos":"сущ.","examples":[{"hanzi":"他有一只小猫。","pinyin":"Tā yǒu yī zhī xiǎo māo.","trans_en":"He has a little cat."},{"hanzi":"小猫在那儿。","pinyin":"Xiǎo māo zài nàr.","trans_en":"The cat is over there."},{"hanzi":"这只猫很漂亮。","pinyin":"Zhè zhī māo hěn piàoliang.","trans_en":"This cat is very beautiful."}]},{"hanzi":"在","pinyin":"zài","trans":"находиться; в, на","pos":"гл./предл.","examples":[{"hanzi":"她在家。","pinyin":"Tā zài jiā.","trans_en":"She is at home."},{"hanzi":"他在学校工作。","pinyin":"Tā zài xuéxiào gōngzuò.","trans_en":"He works at school."},{"hanzi":"书在桌子上。","pinyin":"Shū zài zhuōzi shàng.","trans_en":"The book is on the table."}]},{"hanzi":"那儿","pinyin":"nàr","trans":"там","pos":"мест.","examples":[{"hanzi":"我的书在那儿。","pinyin":"wǒ de shū zài nà ér","trans_en":"My book is there."},{"hanzi":"那儿有一家商店。","pinyin":"nà ér yǒu yì jiā shāng diàn","trans_en":"There is a shop over there."}]},{"hanzi":"狗","pinyin":"gǒu","trans":"собака","pos":"сущ.","examples":[{"hanzi":"他有一只狗。","pinyin":"Tā yǒu yī zhī gǒu.","trans_en":"He has a dog."},{"hanzi":"小狗在椅子下面。","pinyin":"Xiǎo gǒu zài yǐzi xiàmiàn.","trans_en":"The puppy is under the chair."},{"hanzi":"这只狗很可爱。","pinyin":"Zhè zhī gǒu hěn ke ai.","trans_en":"This dog is very cute."}]},{"hanzi":"椅子","pinyin":"yǐzi","trans":"стул","pos":"сущ.","examples":[{"hanzi":"这是一把椅子。","pinyin":"zhè shì yī bǎ yǐ zi","trans_en":"This is a chair."},{"hanzi":"房间里有一把椅子。","pinyin":"fáng jiān lǐ yǒu yì bǎ yǐ zi","trans_en":"There is a chair in the room."}]},{"hanzi":"下面","pinyin":"xiàmiàn","trans":"внизу, под","pos":"сущ.","examples":[{"hanzi":"我的书在桌子下面 。","pinyin":"wǒ de shū zài zhuō zi xià miàn","trans_en":"My book is under the table."},{"hanzi":"小猫躲藏在桌子下面 。","pinyin":"xiǎo māo duǒ cáng zài zhuō zi xià miàn","trans_en":"The kitten is hiding under the table."}]},{"hanzi":"哪儿","pinyin":"nǎr","trans":"где?","pos":"мест.","examples":[{"hanzi":"你在哪儿？","pinyin":"nǐ zài nǎ ér","trans_en":"Where are you?"},{"hanzi":"请问洗手间在哪儿？","pinyin":"qǐng wèn xǐ shǒu jiān zài nǎ ér","trans_en":"Excuse me, where is the restroom?"}]},{"hanzi":"工作","pinyin":"gōngzuò","trans":"работа; работать","pos":"сущ./гл.","examples":[{"hanzi":"我每天工作。","pinyin":"wǒ měi tiān gōng zuò","trans_en":"I work every day."},{"hanzi":"我的工作很有意思。","pinyin":"wǒ de gōng zuò hěn yǒu yì si","trans_en":"My job is very interesting."},{"hanzi":"他每天工作八个小时。","pinyin":"tā měi tiān gōng zuò bā gè xiǎo shí","trans_en":"He works eight hours every day."}]},{"hanzi":"儿子","pinyin":"érzi","trans":"сын","pos":"сущ.","examples":[{"hanzi":"这是我的儿子。","pinyin":"zhè shì wǒ de ér zi","trans_en":"This is my son."},{"hanzi":"我的儿子今年五岁。","pinyin":"wǒ de ér zi jīn nián wǔ suì","trans_en":"My son is five years old this year."}]},{"hanzi":"医院","pinyin":"yīyuàn","trans":"больница","pos":"сущ.","examples":[{"hanzi":"我妈妈在医院工作。","pinyin":"wǒ mā ma zài yī yuàn gōng zuò","trans_en":"My mother works at a hospital."},{"hanzi":"他生病了，要去医院 。","pinyin":"tā shēng bìng le yào qù yī yuàn","trans_en":"He is sick and needs to go to the hospital."}]},{"hanzi":"医生","pinyin":"yīshēng","trans":"врач","pos":"сущ.","examples":[{"hanzi":"我妈妈是医生 。","pinyin":"wǒ mā ma shì yī shēng","trans_en":"My mother is a doctor."},{"hanzi":"他是医生 。","pinyin":"tā shì yī shēng","trans_en":"He is a doctor."}]},{"hanzi":"爸爸","pinyin":"bàba","trans":"папа","pos":"сущ.","examples":[{"hanzi":"爸爸在吃饭。","pinyin":"bà bà zài chī fàn","trans_en":"Dad is eating."},{"hanzi":"我爸爸是医生 。","pinyin":"wǒ bà ba shì yī shēng","trans_en":"My father is a doctor."}]}],"dialogs":[{"lines":[["А","你在哪儿工作？","Nǐ zài nǎr gōngzuò?","Где ты работаешь?"],["B","我在医院工作，我是医生。你爸爸在哪儿工作？","Wǒ zài yīyuàn gōngzuò, wǒ shì yīshēng. Nǐ bàba zài nǎr gōngzuò?","Работаю в больнице, я врач. А твой папа?"],["А","我爸爸也在医院工作，他也是医生。","Wǒ bàba yě zài yīyuàn gōngzuò, tā yě shì yīshēng.","Мой папа тоже работает в больнице, тоже врач."]]},{"lines":[["А","小猫在哪儿？","Xiǎo māo zài nǎr?","Где кошечка?"],["B","小猫在那儿，小狗在椅子下面。","Xiǎo māo zài nàr, xiǎo gǒu zài yǐzi xiàmiàn.","Кошечка там, собачка под стулом."]]},{"lines":[["А","你儿子在哪儿工作？","Nǐ érzi zài nǎr gōngzuò?","Где работает твой сын?"],["B","他在医院工作，他是医生。爸爸也是医生。","Tā zài yīyuàn gōngzuò, tā shì yīshēng. Bàba yě shì yīshēng.","Работает в больнице, врач. Папа тоже врач."]]}],"exercises":[{"sentence":"你在___儿工作？","options":["哪","那","这","他"],"answer":"哪","translation":"Где ты работаешь?"},{"sentence":"小猫___那儿。","options":["在","是","有","去"],"answer":"在","translation":"Кошечка там."},{"sentence":"小狗在椅子___面。","options":["下","上","前","后"],"answer":"下","translation":"Собачка под стулом."},{"sentence":"我爸爸在___院工作。","options":["医","学","商","饭"],"answer":"医","translation":"Мой папа работает в больнице."},{"sentence":"他是___生。","options":["医","学","老","先"],"answer":"医","translation":"Он врач."}]},"10":{"title_ru":"Что лежит на столе?","words":[{"hanzi":"桌子","pinyin":"zhuōzi","trans":"стол","pos":"сущ.","examples":[{"hanzi":"桌子上有一本书。","pinyin":"zhuō zi shàng yǒu yī běn shū","trans_en":"There is a book on the table."},{"hanzi":"这是一张桌子。","pinyin":"zhè shì yī zhāng zhuō zi","trans_en":"This is a table."}]},{"hanzi":"上","pinyin":"shàng","trans":"на, сверху","pos":"сущ.","examples":[{"hanzi":"书在桌子上。","pinyin":"Shū zài zhuōzi shàng.","trans_en":"The book is on the table."},{"hanzi":"猫在椅子上。","pinyin":"Māo zài yǐzi shàng.","trans_en":"The cat is on the chair."},{"hanzi":"电脑在桌子上。","pinyin":"Diànnǎo zài zhuōzi shàng.","trans_en":"The computer is on the table."}]},{"hanzi":"电脑","pinyin":"diànnǎo","trans":"компьютер","pos":"сущ.","examples":[{"hanzi":"这是电脑。","pinyin":"zhè shì diàn nǎo","trans_en":"This is a computer."},{"hanzi":"我有一台新电脑。","pinyin":"wǒ yǒu yī tái xīn diàn nǎo","trans_en":"I have a new computer."},{"hanzi":"他用电脑工作。","pinyin":"tā yòng diàn nǎo gōng zuò","trans_en":"He uses a computer to work."}]},{"hanzi":"和","pinyin":"hé","trans":"и, а также","pos":"союз","examples":[{"hanzi":"我和他是朋友。","pinyin":"Wǒ hé tā shì péngyou.","trans_en":"He and I are friends."},{"hanzi":"桌子上有电脑和书。","pinyin":"Zhuōzi shàng yǒu diànnǎo hé shū.","trans_en":"There is a computer and books on the table."},{"hanzi":"我喜欢喝茶和咖啡。","pinyin":"Wǒ xǐhuan hē chá hé kāfēi.","trans_en":"I like tea and coffee."}]},{"hanzi":"本","pinyin":"běn","trans":"счётн. для книг","pos":"счётн.","examples":[{"hanzi":"桌子上有一本书。","pinyin":"Zhuōzi shàng yǒu yī běn shū.","trans_en":"There is a book on the table."},{"hanzi":"我有三本汉语书。","pinyin":"Wǒ yǒu sān běn hànyǔ shū.","trans_en":"I have three Chinese books."}]},{"hanzi":"里","pinyin":"lǐ","trans":"внутри, в","pos":"сущ.","examples":[{"hanzi":"书在桌子里。","pinyin":"Shū zài zhuōzi lǐ.","trans_en":"The book is in the drawer."},{"hanzi":"商店里有很多东西。","pinyin":"Shāngdiàn lǐ yǒu hěn duō dōngxi.","trans_en":"There are many things in the store."},{"hanzi":"家里有人吗？","pinyin":"Jiā lǐ yǒu rén ma?","trans_en":"Is anyone at home?"}]},{"hanzi":"前面","pinyin":"qiánmiàn","trans":"спереди, перед","pos":"сущ.","examples":[{"hanzi":"前面有一棵树。","pinyin":"qián miàn yǒu yī kē shù","trans_en":"There is a tree in front."},{"hanzi":"前面就是地铁站 ，很近。","pinyin":"qián miàn jiù shì dì tiě zhàn hěn jìn","trans_en":"The subway station is just ahead, very close."}]},{"hanzi":"后面","pinyin":"hòumiàn","trans":"сзади, за","pos":"сущ.","examples":[{"hanzi":"我的座位在教室的后面 。","pinyin":"wǒ de zuò wèi zài jiào shì de hòu miàn","trans_en":"My seat is at the back of the classroom."},{"hanzi":"我的书在桌子后面 。","pinyin":"wǒ de shū zài zhuō zi hòu miàn","trans_en":"My book is behind the table."}]},{"hanzi":"这儿","pinyin":"zhèr","trans":"здесь","pos":"мест.","examples":[{"hanzi":"我在这儿。","pinyin":"wǒ zài zhè ér","trans_en":"I am here."},{"hanzi":"他不在这儿。","pinyin":"tā bú zài zhè ér","trans_en":"He is not here."}]},{"hanzi":"没有","pinyin":"méiyǒu","trans":"не иметь; нет","pos":"гл.","examples":[{"hanzi":"我没有苹果。","pinyin":"wǒ méi yǒu píng guǒ","trans_en":"I don't have an apple."},{"hanzi":"桌子上没有书。","pinyin":"zhuō zi shàng méi yǒu shū","trans_en":"There are no books on the table."}]},{"hanzi":"能","pinyin":"néng","trans":"мочь, быть в состоянии","pos":"модал. гл.","examples":[{"hanzi":"我能坐这儿吗？","pinyin":"Wǒ néng zuò zhèr ma?","trans_en":"Can I sit here?"},{"hanzi":"你能说汉语吗？","pinyin":"Nǐ néng shuō hànyǔ ma?","trans_en":"Can you speak Chinese?"},{"hanzi":"她能帮我吗？","pinyin":"Tā néng bāng wǒ ma?","trans_en":"Can she help me?"}]},{"hanzi":"坐","pinyin":"zuò","trans":"сидеть; ехать (на транспорте)","pos":"гл.","examples":[{"hanzi":"请坐。","pinyin":"Qǐng zuò.","trans_en":"Please sit down."},{"hanzi":"我能坐这儿吗？","pinyin":"Wǒ néng zuò zhèr ma?","trans_en":"Can I sit here?"},{"hanzi":"我坐飞机去北京。","pinyin":"Wǒ zuò fēijī qù Běijīng.","trans_en":"I am flying to Beijing."}]}],"dialogs":[{"lines":[["А","桌子上有什么？","Zhuōzi shàng yǒu shénme?","Что на столе?"],["B","桌子上有一个电脑和一本书。桌子里有没有书？","Zhuōzi shàng yǒu yī ge diànnǎo hé yī běn shū. Zhuōzi lǐ yǒu méiyǒu shū?","На столе компьютер и книга. А в ящике есть книги?"],["А","桌子里也有书。","Zhuōzi lǐ yě yǒu shū.","В ящике тоже есть книги."]]},{"lines":[["А","这儿有人吗？我能坐这儿吗？","Zhèr yǒu rén ma? Wǒ néng zuò zhèr ma?","Здесь занято? Могу я сесть?"],["B","没有人，请坐。","Méiyǒu rén, qǐng zuò.","Не занято, садитесь."]]},{"lines":[["А","你的电脑在哪儿？","Nǐ de diànnǎo zài nǎr?","Где твой компьютер?"],["B","在桌子上，前面那个。桌子后面没有电脑。","Zài zhuōzi shàng, qiánmiàn nà ge. Zhuōzi hòumiàn méiyǒu diànnǎo.","На столе, вот тот спереди. Сзади компьютера нет."]]}],"exercises":[{"sentence":"桌子___有什么？","options":["上","下","里","前"],"answer":"上","translation":"Что на столе?"},{"sentence":"桌子里___有书。","options":["没有","是","在","有"],"answer":"没有","translation":"В ящике стола нет книг."},{"sentence":"我___坐这儿吗？","options":["能","会","想","是"],"answer":"能","translation":"Я могу здесь сесть?"},{"sentence":"电脑___桌子前面。","options":["在","是","有","去"],"answer":"在","translation":"Компьютер перед столом."},{"sentence":"桌子上有电脑___书。","options":["和","的","也","都"],"answer":"和","translation":"На столе компьютер и книга."}]},"11":{"title_ru":"Который сейчас час?","words":[{"hanzi":"现在","pinyin":"xiànzài","trans":"сейчас, теперь","pos":"нареч.","examples":[{"hanzi":"现在几点了？","pinyin":"xiàn zài jǐ diǎn le","trans_en":"What time is it now?"},{"hanzi":"我现在去学校。","pinyin":"wǒ xiàn zài qù xué xiào","trans_en":"I am going to school now."}]},{"hanzi":"点","pinyin":"diǎn","trans":"час (время)","pos":"счётн.","examples":[{"hanzi":"现在八点二十分。","pinyin":"Xiànzài bā diǎn èrshí fēn.","trans_en":"It is now 8:20."},{"hanzi":"你几点去吃饭？","pinyin":"Nǐ jǐ diǎn qù chīfàn?","trans_en":"At what time do you go to eat?"},{"hanzi":"我们三点见面。","pinyin":"Wǒmen sān diǎn jiànmiàn.","trans_en":"We will meet at three o'clock."}]},{"hanzi":"分","pinyin":"fēn","trans":"минута","pos":"счётн.","examples":[{"hanzi":"现在八点二十分。","pinyin":"Xiànzài bā diǎn èrshí fēn.","trans_en":"It is now 8:20."},{"hanzi":"还有五分钟。","pinyin":"Hái yǒu wǔ fēnzhōng.","trans_en":"There are five more minutes."},{"hanzi":"我等了十分钟。","pinyin":"Wǒ děng le shí fēnzhōng.","trans_en":"I waited ten minutes."}]},{"hanzi":"中午","pinyin":"zhōngwǔ","trans":"полдень","pos":"сущ.","examples":[{"hanzi":"现在是中午。","pinyin":"xiàn zài shì zhōng wǔ","trans_en":"It is noon now."},{"hanzi":"我们中午十二点吃饭。","pinyin":"wǒ men zhōng wǔ shí èr diǎn chī fàn","trans_en":"We eat at twelve noon."}]},{"hanzi":"吃饭","pinyin":"chīfàn","trans":"есть, принимать пищу","pos":"гл.","examples":[{"hanzi":"爸爸在吃饭。","pinyin":"bà bà zài chī fàn","trans_en":"Dad is eating."},{"hanzi":"我们去饭店吃饭。","pinyin":"wǒ men qù fàn diàn chī fàn","trans_en":"We go to the restaurant to eat."}]},{"hanzi":"时候","pinyin":"shíhou","trans":"время, момент","pos":"сущ.","examples":[{"hanzi":"你什么时候回家？","pinyin":"nǐ shén me shí hou huí jiā","trans_en":"When are you going home?"},{"hanzi":"你什么时候来我家？","pinyin":"nǐ shén me shí hòu lái wǒ jiā","trans_en":"When are you coming to my house?"}]},{"hanzi":"回","pinyin":"huí","trans":"возвращаться","pos":"гл.","examples":[{"hanzi":"你几点回家？","pinyin":"Nǐ jǐ diǎn huí jiā?","trans_en":"What time do you go home?"},{"hanzi":"我下午六点回家。","pinyin":"Wǒ xiàwǔ liù diǎn huí jiā.","trans_en":"I go home at 6 pm."},{"hanzi":"他已经回来了。","pinyin":"Tā yǐjīng huílai le.","trans_en":"He has already come back."}]},{"hanzi":"我们","pinyin":"wǒmen","trans":"мы","pos":"мест.","examples":[{"hanzi":"我们是朋友。","pinyin":"wǒ men shì péng yǒu","trans_en":"We are friends."},{"hanzi":"我们晚上七点吃饭。","pinyin":"wǒ men wǎn shang qī diǎn chī fàn","trans_en":"We eat dinner at seven o'clock in the evening."}]},{"hanzi":"电影","pinyin":"diànyǐng","trans":"кино, фильм","pos":"сущ.","examples":[{"hanzi":"我喜欢看中国电影。","pinyin":"wǒ xǐ huan kàn zhōng guó diàn yǐng","trans_en":"I like watching Chinese movies."},{"hanzi":"今天晚上我们一起看电影吧。","pinyin":"jīn tiān wǎn shang wǒ men yì qǐ kàn diàn yǐng ba","trans_en":"Let's watch a movie together tonight."}]},{"hanzi":"住","pinyin":"zhù","trans":"жить, проживать","pos":"гл.","examples":[{"hanzi":"你住在哪儿？","pinyin":"Nǐ zhù zài nǎr?","trans_en":"Where do you live?"},{"hanzi":"我住在北京。","pinyin":"Wǒ zhù zài Běijīng.","trans_en":"I live in Beijing."},{"hanzi":"我想在北京住五天。","pinyin":"Wǒ xiǎng zài Běijīng zhù wǔ tiān.","trans_en":"I want to stay in Beijing for five days."}]},{"hanzi":"前","pinyin":"qián","trans":"перед, до","pos":"сущ.","examples":[{"hanzi":"三天前我去了商店。","pinyin":"Sān tiān qián wǒ qù le shāngdiàn.","trans_en":"Three days ago I went to the store."},{"hanzi":"吃饭前请洗手。","pinyin":"Chīfàn qián qǐng xǐ shǒu.","trans_en":"Please wash your hands before eating."}]},{"hanzi":"北京","pinyin":"Běijīng","trans":"Пекин","pos":"сущ.","examples":[{"hanzi":"北京是中国的首都。","pinyin":"běi jīng shì zhōng guó de shǒu dū","trans_en":"Beijing is the capital of China."},{"hanzi":"我还没去过北京呢。","pinyin":"wǒ hái méi qù guò běi jīng ne","trans_en":"I haven't been to Beijing yet."}]}],"dialogs":[{"lines":[["А","请问，现在几点？","Qǐng wèn, xiànzài jǐ diǎn?","Скажи, который сейчас час?"],["B","现在八点二十分。你几点去吃饭？","Xiànzài bā diǎn èrshí fēn. Nǐ jǐ diǎn qù chīfàn?","Сейчас 8:20. Во сколько идёшь есть?"],["А","我中午十二点去吃饭。","Wǒ zhōngwǔ shí'èr diǎn qù chīfàn.","В полдень в 12."]]},{"lines":[["А","你什么时候回家？","Nǐ shénme shíhou huí jiā?","Во сколько вернёшься домой?"],["B","我下午六点回家。我们去看电影吧。","Wǒ xiàwǔ liù diǎn huí jiā. Wǒmen qù kàn diànyǐng ba.","Вернусь в шесть. Пойдём в кино."],["А","好，我们几点去？","Hǎo, wǒmen jǐ diǎn qù?","Хорошо, во сколько?"],["B","八点三十分。","Bā diǎn sānshí fēn.","В восемь тридцать."]]},{"lines":[["А","你想在北京住几天？","Nǐ xiǎng zài Běijīng zhù jǐ tiān?","Сколько хочешь прожить в Пекине?"],["B","五天。现在是中午，我们去吃饭吧。","Wǔ tiān. Xiànzài shì zhōngwǔ, wǒmen qù chīfàn ba.","Пять дней. Сейчас полдень — пойдём есть."]]}],"exercises":[{"sentence":"现在八___二十分。","options":["点","分","时","号"],"answer":"点","translation":"Сейчас 8:20."},{"sentence":"你几点去吃___？","options":["饭","茶","书","菜"],"answer":"饭","translation":"Во сколько идёшь есть?"},{"sentence":"我___午十二点吃饭。","options":["中","上","下","前"],"answer":"中","translation":"В полдень в 12 иду есть."},{"sentence":"你什么___候回家？","options":["时","日","月","年"],"answer":"时","translation":"Во сколько вернёшься домой?"},{"sentence":"我们去看电___，好吗？","options":["影","视","脑","话"],"answer":"影","translation":"Пойдём в кино?"}]},"12":{"title_ru":"Какая погода?","words":[{"hanzi":"天气","pinyin":"tiānqì","trans":"погода","pos":"сущ.","examples":[{"hanzi":"今天天气很好。","pinyin":"jīn tiān tiān qì hěn hǎo","trans_en":"The weather is very nice today."},{"hanzi":"你喜欢什么样的天气？","pinyin":"nǐ xǐ huan shén me yàng de tiān qì","trans_en":"What kind of weather do you like?"}]},{"hanzi":"怎么样","pinyin":"zěnmeyàng","trans":"как? каково?","pos":"мест.","examples":[{"hanzi":"这个苹果怎么样 ？","pinyin":"zhè ge píng guǒ zěn me yàng","trans_en":"How is this apple?"},{"hanzi":"我们明天去看电影，怎么样 ？","pinyin":"wǒ men míng tiān qù kàn diàn yǐng zěn me yàng","trans_en":"How about we go see a movie tomorrow?"}]},{"hanzi":"太","pinyin":"tài","trans":"слишком","pos":"нареч.","examples":[{"hanzi":"天气太热了。","pinyin":"Tiānqì tài rè le.","trans_en":"The weather is too hot."},{"hanzi":"这个太贵了。","pinyin":"Zhège tài guì le.","trans_en":"This is too expensive."},{"hanzi":"我不太好。","pinyin":"Wǒ bù tài hǎo.","trans_en":"I am not very well."}]},{"hanzi":"热","pinyin":"rè","trans":"жарко, горячий","pos":"прил.","examples":[{"hanzi":"天气太热了。","pinyin":"Tiānqì tài rè le.","trans_en":"The weather is too hot."},{"hanzi":"今天很热。","pinyin":"Jīntiān hěn rè.","trans_en":"It is very hot today."},{"hanzi":"这个茶太热了。","pinyin":"Zhège chá tài rè le.","trans_en":"This tea is too hot."}]},{"hanzi":"冷","pinyin":"lěng","trans":"холодно, холодный","pos":"прил.","examples":[{"hanzi":"今天很冷。","pinyin":"Jīntiān hěn lěng.","trans_en":"It is very cold today."},{"hanzi":"天气太冷了。","pinyin":"Tiānqì tài lěng le.","trans_en":"The weather is too cold."},{"hanzi":"不冷不热，很好。","pinyin":"Bù lěng bù rè, hěn hǎo.","trans_en":"Neither cold nor hot, very nice."}]},{"hanzi":"下雨","pinyin":"xià yǔ","trans":"идёт дождь","pos":"гл.","examples":[{"hanzi":"今天下雨了。","pinyin":"jīn tiān xià yǔ le","trans_en":"It rained today."},{"hanzi":"今天下午会下雨。","pinyin":"jīn tiān xià wǔ huì xià yǔ","trans_en":"It will rain this afternoon."}]},{"hanzi":"小姐","pinyin":"xiǎojiě","trans":"барышня, мисс","pos":"сущ.","examples":[{"hanzi":"这位小姐是我的朋友。","pinyin":"zhè wèi xiǎo jiě shì wǒ de péng yǒu","trans_en":"This young lady is my friend."}]},{"hanzi":"来","pinyin":"lái","trans":"приходить, приезжать","pos":"гл.","examples":[{"hanzi":"他今天会来吗？","pinyin":"Tā jīntiān huì lái ma?","trans_en":"Will he come today?"},{"hanzi":"请来我家。","pinyin":"Qǐng lái wǒ jiā.","trans_en":"Please come to my house."},{"hanzi":"她明天来北京。","pinyin":"Tā míngtiān lái Běijīng.","trans_en":"She is coming to Beijing tomorrow."}]},{"hanzi":"身体","pinyin":"shēntǐ","trans":"тело, здоровье","pos":"сущ.","examples":[{"hanzi":"他每天跑步，身体很好。","pinyin":"tā měi tiān pǎo bù shēn tǐ hěn hǎo","trans_en":"He runs every day and is in good health."},{"hanzi":"你最近身体怎么样 ？","pinyin":"nǐ zuì jìn shēn tǐ zěn me yàng","trans_en":"How has your health been lately?"}]},{"hanzi":"爱","pinyin":"ài","trans":"любить","pos":"гл.","examples":[{"hanzi":"我爱中国菜。","pinyin":"Wǒ ài Zhōngguó cài.","trans_en":"I love Chinese food."},{"hanzi":"她不爱热天气。","pinyin":"Tā bù ài rè tiānqì.","trans_en":"She does not like hot weather."},{"hanzi":"我爱喝茶。","pinyin":"Wǒ ài hē chá.","trans_en":"I love drinking tea."}]},{"hanzi":"些","pinyin":"xiē","trans":"немного, несколько","pos":"счётн.","examples":[{"hanzi":"多吃些水果。","pinyin":"Duō chī xiē shuǐguǒ.","trans_en":"Eat more fruit."},{"hanzi":"请给我一些茶。","pinyin":"Qǐng gěi wǒ yīxiē chá.","trans_en":"Please give me some tea."},{"hanzi":"我买了一些苹果。","pinyin":"Wǒ mǎi le yīxiē píngguǒ.","trans_en":"I bought some apples."}]},{"hanzi":"水果","pinyin":"shuǐguǒ","trans":"фрукты","pos":"сущ.","examples":[{"hanzi":"我喜欢吃水果。","pinyin":"wǒ xǐ huan chī shuǐ guǒ","trans_en":"I like to eat fruit."},{"hanzi":"妈妈买了很多水果。","pinyin":"mā ma mǎi le hěn duō shuǐ guǒ","trans_en":"Mom bought a lot of fruit."}]},{"hanzi":"水","pinyin":"shuǐ","trans":"вода","pos":"сущ.","examples":[{"hanzi":"多喝水。","pinyin":"Duō hē shuǐ.","trans_en":"Drink more water."},{"hanzi":"请给我一杯水。","pinyin":"Qǐng gěi wǒ yī bēi shuǐ.","trans_en":"Please give me a glass of water."},{"hanzi":"这里的水很好喝。","pinyin":"Zhèlǐ de shuǐ hěn hǎohē.","trans_en":"The water here is very good."}]}],"dialogs":[{"lines":[["А","今天天气怎么样？","Jīntiān tiānqì zěnmeyàng?","Как сегодня погода?"],["B","太热了！你那儿的天气怎么样？","Tài rè le! Nǐ nàr de tiānqì zěnmeyàng?","Слишком жарко! А у тебя?"],["А","这儿不冷也不热，天气很好。","Zhèr bù lěng yě bù rè, tiānqì hěn hǎo.","Здесь не холодно и не жарко."]]},{"lines":[["А","明天会下雨吗？","Míngtiān huì xià yǔ ma?","Завтра будет дождь?"],["B","会下雨，天气太冷了，李小姐不来了。","Huì xià yǔ, tiānqì tài lěng le, Lǐ xiǎojie bù lái le.","Будет, погода слишком холодная, мисс Ли не придёт."]]},{"lines":[["А","你身体怎么样？","Nǐ shēntǐ zěnmeyàng?","Как твоё здоровье?"],["B","不太好，天气太热，我不爱热天气，也不爱吃饭。","Bù tài hǎo, tiānqì tài rè, wǒ bù ài rè tiānqì.","Не очень, жарко, не люблю жару, нет аппетита."],["А","多喝水，多吃些水果。","Duō hē shuǐ, duō chī xiē shuǐguǒ.","Пей больше воды, ешь фрукты."]]}],"exercises":[{"sentence":"今天天气怎么___？","options":["样","么","吗","呢"],"answer":"样","translation":"Как сегодня погода?"},{"sentence":"天气太热___！","options":["了","吗","呢","的"],"answer":"了","translation":"Погода слишком жаркая!"},{"sentence":"明天___下雨。","options":["会","想","能","是"],"answer":"会","translation":"Завтра возможен дождь."},{"sentence":"不___不热，很好。","options":["冷","热","大","多"],"answer":"冷","translation":"Не холодно и не жарко — хорошо."},{"sentence":"多吃些水___。","options":["果","茶","饭","菜"],"answer":"果","translation":"Ешь больше фруктов."}]},"13":{"title_ru":"Чем ты занимаешься?","words":[{"hanzi":"喂","pinyin":"wèi","trans":"алло!","pos":"межд.","examples":[{"hanzi":"喂，你好！","pinyin":"Wèi, nǐ hǎo!","trans_en":"Hello! (on the phone)"},{"hanzi":"喂，你在做什么？","pinyin":"Wèi, nǐ zài zuò shénme?","trans_en":"Hello, what are you doing?"}]},{"hanzi":"也","pinyin":"yě","trans":"тоже, также","pos":"нареч.","examples":[{"hanzi":"他也是学生。","pinyin":"Tā yě shì xuéshēng.","trans_en":"He is also a student."},{"hanzi":"我也喜欢看电影。","pinyin":"Wǒ yě xǐhuan kàn diànyǐng.","trans_en":"I also like watching movies."},{"hanzi":"她也在学习汉语。","pinyin":"Tā yě zài xuéxí hànyǔ.","trans_en":"She is also studying Chinese."}]},{"hanzi":"学习","pinyin":"xuéxí","trans":"учиться, изучать","pos":"гл.","examples":[{"hanzi":"我在学习中文。","pinyin":"wǒ zài xué xí zhōng wén","trans_en":"I am learning Chinese."},{"hanzi":"我每天学习汉语。","pinyin":"wǒ měi tiān xué xí hàn yǔ","trans_en":"I study Chinese every day."}]},{"hanzi":"上午","pinyin":"shàngwǔ","trans":"утро, первая половина дня","pos":"сущ.","examples":[{"hanzi":"上午好。","pinyin":"shàng wǔ hǎo","trans_en":"Good morning."},{"hanzi":"我上午去学校。","pinyin":"wǒ shàng wǔ qù xué xiào","trans_en":"I go to school in the morning."}]},{"hanzi":"睡觉","pinyin":"shuìjiào","trans":"спать","pos":"гл.","examples":[{"hanzi":"我每天晚上十点睡觉。","pinyin":"wǒ měi tiān wǎn shang shí diǎn shuì jiào","trans_en":"I go to bed at ten o'clock every night."},{"hanzi":"我太累了，想早点睡觉。","pinyin":"wǒ tài lèi le xiǎng zǎo diǎn shuì jiào","trans_en":"I'm too tired and want to go to bed early."}]},{"hanzi":"电视","pinyin":"diànshì","trans":"телевизор","pos":"сущ.","examples":[{"hanzi":"我晚上喜欢看电视。","pinyin":"wǒ wǎn shang xǐ huan kàn diàn shì","trans_en":"I like to watch TV in the evening."}]},{"hanzi":"喜欢","pinyin":"xǐhuan","trans":"нравиться, любить","pos":"гл.","examples":[{"hanzi":"我喜欢吃苹果。","pinyin":"wǒ xǐ huan chī píng guǒ","trans_en":"I like to eat apples."},{"hanzi":"他喜欢打篮球。","pinyin":"tā xǐ huan dǎ lán qiú","trans_en":"He likes to play basketball."}]},{"hanzi":"给","pinyin":"gěi","trans":"давать; для, кому","pos":"гл./предл.","examples":[{"hanzi":"请给我一杯茶。","pinyin":"Qǐng gěi wǒ yī bēi chá.","trans_en":"Please give me a cup of tea."},{"hanzi":"我每天给妈妈打电话。","pinyin":"Wǒ měitiān gěi māma dǎ diànhuà.","trans_en":"I call my mom every day."},{"hanzi":"他给我一本书。","pinyin":"Tā gěi wǒ yī běn shū.","trans_en":"He gave me a book."}]},{"hanzi":"打电话","pinyin":"dǎ diànhuà","trans":"звонить по телефону","pos":"гл.","examples":[{"hanzi":"我每天给妈妈打电话。","pinyin":"wǒ měi tiān gěi mā ma dǎ diàn huà","trans_en":"I call my mom every day."},{"hanzi":"他正在给朋友打电话。","pinyin":"tā zhèng zài gěi péng you dǎ diàn huà","trans_en":"He is calling his friend right now."}]},{"hanzi":"吧","pinyin":"ba","trans":"модальная частица","pos":"частица","examples":[{"hanzi":"请坐吧。","pinyin":"Qǐng zuò ba.","trans_en":"Please sit down."},{"hanzi":"我们走吧。","pinyin":"Wǒmen zǒu ba.","trans_en":"Let us go."},{"hanzi":"你是学生吧？","pinyin":"Nǐ shì xuéshēng ba?","trans_en":"You are a student, right?"}]},{"hanzi":"卫","pinyin":"Wèi","pos":"имя собств.","trans":"Дэвид (транскрипция)","examples":[{"hanzi":"大卫是我的朋友。","pinyin":"dà wèi shì wǒ de péng you","trans_en":"David is my friend."},{"hanzi":"大卫在学做中国菜。","pinyin":"dà wèi zài xué zuò zhōng guó cài","trans_en":"David is learning to cook Chinese food."}]}],"dialogs":[{"lines":[["А","喂，你好！你在做什么？","Wèi, nǐ hǎo! Nǐ zài zuò shénme?","Алло, привет! Чем занимаешься?"],["B","我在学习汉语。你也在学习吗？","Wǒ zài xuéxí hànyǔ. Nǐ yě zài xuéxí ma?","Учу китайский. Ты тоже учишься?"],["А","不，我在看电视。你喜欢看电视吗？","Bù, wǒ zài kàn diànshì. Nǐ xǐhuan kàn diànshì ma?","Нет, смотрю телевизор. Ты любишь смотреть?"],["B","不太喜欢，我喜欢学习。","Bù tài xǐhuan, wǒ xǐhuan xuéxí.","Не очень, я люблю учиться."]]},{"lines":[["А","昨天上午你在做什么？","Zuótiān shàngwǔ nǐ zài zuò shénme?","Что ты делал вчера утром?"],["B","我在睡觉。你呢？","Wǒ zài shuìjiào. Nǐ ne?","Я спал. А ты?"],["А","我也在睡觉，我很喜欢睡觉！","Wǒ yě zài shuìjiào, wǒ hěn xǐhuan shuìjiào!","Я тоже спал, очень люблю поспать!"]]},{"lines":[["А","我能给你打电话吗？","Wǒ néng gěi nǐ dǎ diànhuà ma?","Могу я тебе позвонить?"],["B","给我打电话吧。","Gěi wǒ dǎ diànhuà ba.","Звони мне."]]}],"exercises":[{"sentence":"我在___习汉语。","options":["学","看","写","读"],"answer":"学","translation":"Я учу китайский."},{"sentence":"他___看电视，我喜欢看电影。","options":["不太喜欢","会","想","能"],"answer":"不太喜欢","translation":"Он не очень любит телевизор, я люблю кино."},{"sentence":"昨天上午你在做什么___？","options":["呢","吗","的","了"],"answer":"呢","translation":"Что ты вчера делал до обеда?"},{"sentence":"我能___你打电话吗？","options":["给","和","在","从"],"answer":"给","translation":"Могу я тебе позвонить?"},{"sentence":"下午打___。","options":["吧","吗","呢","了"],"answer":"吧","translation":"Позвони после обеда."}]},"14":{"title_ru":"Где ты был?","words":[{"hanzi":"东西","pinyin":"dōngxi","trans":"вещь, предмет","pos":"сущ.","examples":[{"hanzi":"这是你的东西吗？","pinyin":"zhè shì nǐ de dōng xi ma","trans_en":"Is this your thing?"},{"hanzi":"你的东西放在桌子上了。","pinyin":"nǐ de dōng xī fàng zài zhuō zi shàng le","trans_en":"Your things are on the table."}]},{"hanzi":"一点儿","pinyin":"yìdiǎnr","trans":"немного, чуть-чуть","pos":"нареч.","examples":[{"hanzi":"这道菜需要加一点儿盐。","pinyin":"zhè dào cài xū yào jiā yì diǎn ér yán","trans_en":"This dish needs a bit more salt."}]},{"hanzi":"苹果","pinyin":"píngguǒ","trans":"яблоко","pos":"сущ.","examples":[{"hanzi":"这是一个苹果。","pinyin":"zhè shì yí gè píng guǒ","trans_en":"This is an apple."},{"hanzi":"我喜欢吃苹果。","pinyin":"wǒ xǐ huan chī píng guǒ","trans_en":"I like to eat apples."},{"hanzi":"这个苹果很甜。","pinyin":"zhè ge píng guǒ hěn tián","trans_en":"This apple is very sweet."}]},{"hanzi":"看见","pinyin":"kànjiàn","trans":"увидеть","pos":"гл.","examples":[{"hanzi":"我看见一只猫在树上 。","pinyin":"wǒ kàn jiàn yì zhī māo zài shù shàng","trans_en":"I see a cat in the tree."},{"hanzi":"你看见我的钥匙了吗？","pinyin":"nǐ kàn jiàn wǒ de yào shi le ma","trans_en":"Did you see my keys?"}]},{"hanzi":"先生","pinyin":"xiānsheng","trans":"господин, мистер","pos":"сущ.","examples":[{"hanzi":"王先生是我的老师。","pinyin":"wáng xiān sheng shì wǒ de lǎo shī","trans_en":"Mr. Wang is my teacher."}]},{"hanzi":"开","pinyin":"kāi","trans":"открывать; вести (машину)","pos":"гл.","examples":[{"hanzi":"他开车回来了。","pinyin":"Tā kāichē huílai le.","trans_en":"He drove back."},{"hanzi":"请开门。","pinyin":"Qǐng kāi mén.","trans_en":"Please open the door."},{"hanzi":"我不会开车。","pinyin":"Wǒ bù huì kāi chē.","trans_en":"I cannot drive."}]},{"hanzi":"车","pinyin":"chē","trans":"машина, транспорт","pos":"сущ.","examples":[{"hanzi":"他开车去学校。","pinyin":"Tā kāichē qù xuéxiào.","trans_en":"He drives to school."},{"hanzi":"出租车在哪儿？","pinyin":"Chūzūchē zài nǎr?","trans_en":"Where is the taxi?"},{"hanzi":"他的车是红色的。","pinyin":"Tā de chē shì hóngsè de.","trans_en":"His car is red."}]},{"hanzi":"回来","pinyin":"huílai","trans":"вернуться","pos":"гл.","examples":[{"hanzi":"我三天后回来。","pinyin":"wǒ sān tiān hòu huí lái","trans_en":"I will be back in three days."},{"hanzi":"我爸爸五点下班回来。","pinyin":"wǒ bà ba wǔ diǎn xià bān huí lai","trans_en":"My father comes back from work at five."}]},{"hanzi":"分钟","pinyin":"fēnzhōng","trans":"минута","pos":"сущ.","examples":[{"hanzi":"我等了五分钟 。","pinyin":"wǒ děng le wǔ fēn zhōng","trans_en":"I waited for five minutes."},{"hanzi":"请等我三分钟 ，马上回来。","pinyin":"qǐng děng wǒ sān fēn zhōng mǎ shàng huí lái","trans_en":"Please wait for me for three minutes."}]},{"hanzi":"后","pinyin":"hòu","trans":"после, за","pos":"сущ.","examples":[{"hanzi":"三十分钟后我们走。","pinyin":"Sānshí fēnzhōng hòu wǒmen zǒu.","trans_en":"We leave in thirty minutes."},{"hanzi":"吃饭后我们去看电影。","pinyin":"Chīfàn hòu wǒmen qù kàn diànyǐng.","trans_en":"After eating we go to the movies."},{"hanzi":"他下课后回家。","pinyin":"Tā xià kè hòu huí jiā.","trans_en":"He goes home after class."}]},{"hanzi":"衣服","pinyin":"yīfu","trans":"одежда","pos":"сущ.","examples":[{"hanzi":"这件衣服很漂亮 。","pinyin":"zhè jiàn yī fu hěn piào liang","trans_en":"This piece of clothing is very beautiful."},{"hanzi":"你的衣服真好看，在哪里买的？","pinyin":"nǐ de yī fu zhēn hǎo kàn zài nǎ lǐ mǎi de","trans_en":"Your clothes are really nice, where did you buy them?"}]},{"hanzi":"漂亮","pinyin":"piàoliang","trans":"красивый","pos":"прил.","examples":[{"hanzi":"她的裙子很漂亮 。","pinyin":"tā de qún zi hěn piào liàng","trans_en":"Her dress is very beautiful."},{"hanzi":"你的新发型真漂亮 ！","pinyin":"nǐ de xīn fà xíng zhēn piào liang","trans_en":"Your new hairstyle is really beautiful!"}]},{"hanzi":"啊","pinyin":"a","trans":"частица восклицания","pos":"частица","examples":[{"hanzi":"好啊！","pinyin":"Hǎo a!","trans_en":"Great!"},{"hanzi":"你的衣服真漂亮啊！","pinyin":"Nǐ de yīfu zhēn piàoliang a!","trans_en":"Your clothes are really beautiful!"},{"hanzi":"原来是你啊！","pinyin":"Yuánlái shì nǐ a!","trans_en":"Oh, it's you!"}]},{"hanzi":"少","pinyin":"shǎo","trans":"мало, немного","pos":"прил.","examples":[{"hanzi":"这些苹果太少了。","pinyin":"Zhèxiē píngguǒ tài shǎo le.","trans_en":"There are too few apples."},{"hanzi":"你吃得太少了。","pinyin":"Nǐ chī de tài shǎo le.","trans_en":"You eat too little."},{"hanzi":"商店里东西不少。","pinyin":"Shāngdiàn lǐ dōngxi bù shǎo.","trans_en":"There are quite a lot of things in the store."}]},{"hanzi":"这些","pinyin":"zhèxiē","trans":"эти","pos":"мест.","examples":[{"hanzi":"这些是我的朋友。","pinyin":"zhè xiē shì wǒ de péng you","trans_en":"These are my friends."},{"hanzi":"这些苹果很新鲜。","pinyin":"zhè xiē píng guǒ hěn xīn xiān","trans_en":"These apples are very fresh."}]},{"hanzi":"都","pinyin":"dōu","trans":"все, оба","pos":"нареч.","examples":[{"hanzi":"这些都是我的书。","pinyin":"Zhèxiē dōu shì wǒ de shū.","trans_en":"These are all my books."},{"hanzi":"他们都是学生。","pinyin":"Tāmen dōu shì xuéshēng.","trans_en":"They are all students."},{"hanzi":"我们都很高兴。","pinyin":"Wǒmen dōu hěn gāoxìng.","trans_en":"We are all very happy."}]},{"hanzi":"张","pinyin":"zhāng","pos":"счётн.","trans":"счётное слово для плоских предметов","examples":[{"hanzi":"我买了三张纸。","pinyin":"Wǒ mǎi le sān zhāng zhǐ.","trans_en":"I bought three sheets of paper."},{"hanzi":"桌子上有一张照片。","pinyin":"Zhuōzi shàng yǒu yī zhāng zhàopiàn.","trans_en":"There is a photo on the table."}]}],"dialogs":[{"lines":[["А","你看见我的东西了吗？","Nǐ kànjiàn wǒ de dōngxi le ma?","Ты видел мои вещи?"],["B","看见了，在桌子上。这些都是你的吗？","Kànjiàn le, zài zhuōzi shàng. Zhèxiē dōu shì nǐ de ma?","Видел, на столе. Всё это твоё?"],["А","是，都是我的。","Shì, dōu shì wǒ de.","Да, всё моё."]]},{"lines":[["А","你的衣服很漂亮！","Nǐ de yīfu hěn piàoliang!","Твоя одежда очень красивая!"],["B","谢谢！你看见我的苹果了吗？","Xièxie! Nǐ kànjiàn wǒ de píngguǒ le ma?","Спасибо! Ты не видел моё яблоко?"],["А","看见了，在这儿，一点儿也不少。","Kànjiàn le, zài zhèr, yīdiǎnr yě bù shǎo.","Видел, вот здесь."]]},{"lines":[["А","先生，你好！你的车回来了吗？","Xiānsheng, nǐ hǎo! Nǐ de chē huílai le ma?","Господин, здравствуйте! Ваша машина вернулась?"],["B","回来了，三十分钟后我们走。","Huílai le, sānshí fēnzhōng hòu wǒmen zǒu.","Да, через 30 минут выедем."]]}],"exercises":[{"sentence":"他去商店买东___了。","options":["西","南","北","上"],"answer":"西","translation":"Он ходил в магазин за покупками."},{"sentence":"你___见王先生了吗？","options":["看","想","会","能"],"answer":"看","translation":"Ты видел господина Вана?"},{"sentence":"他开车___来了。","options":["回","去","来","在"],"answer":"回","translation":"Он вернулся на машине."},{"sentence":"这些衣服___是你的吗？","options":["都","也","很","太"],"answer":"都","translation":"Вся эта одежда твоя?"},{"sentence":"三十分钟___我们走。","options":["后","前","里","上"],"answer":"后","translation":"Через 30 минут выедем."}]},"15":{"title_ru":"Где вы познакомились?","words":[{"hanzi":"认识","pinyin":"rènshi","trans":"знать, быть знакомым","pos":"гл.","examples":[{"hanzi":"我认识他。","pinyin":"wǒ rèn shí tā","trans_en":"I know him."},{"hanzi":"你认识他吗？","pinyin":"nǐ rèn shi tā ma","trans_en":"Do you know him?"}]},{"hanzi":"年","pinyin":"nián","trans":"год","pos":"сущ.","examples":[{"hanzi":"我们是2021年认识的。","pinyin":"Wǒmen shì 2021 nián rènshi de.","trans_en":"We met in 2021."},{"hanzi":"今年天气很好。","pinyin":"Jīnnián tiānqì hěn hǎo.","trans_en":"The weather is very nice this year."},{"hanzi":"一年有十二个月。","pinyin":"Yī nián yǒu shí er ge yuè.","trans_en":"There are twelve months in a year."}]},{"hanzi":"大学","pinyin":"dàxué","trans":"университет","pos":"сущ.","examples":[{"hanzi":"这是我的大学。","pinyin":"zhè shì wǒ de dà xué","trans_en":"This is my university."},{"hanzi":"我在大学学习。","pinyin":"wǒ zài dà xué xué xí","trans_en":"I study at university."},{"hanzi":"他是大学生 。","pinyin":"tā shì dà xué shēng","trans_en":"He is a university student."}]},{"hanzi":"饭店","pinyin":"fàndiàn","trans":"гостиница, ресторан","pos":"сущ.","examples":[{"hanzi":"我们去饭店吃饭。","pinyin":"wǒ men qù fàn diàn chī fàn","trans_en":"We go to the restaurant to eat."},{"hanzi":"这家饭店的菜很好吃。","pinyin":"zhè jiā fàn diàn de cài hěn hǎo chī","trans_en":"The food at this restaurant is very delicious."}]},{"hanzi":"出租车","pinyin":"chūzūchē","trans":"такси","pos":"сущ.","examples":[{"hanzi":"我坐出租车去学校。","pinyin":"wǒ zuò chū zū chē qù xué xiào","trans_en":"I take a taxi to school."},{"hanzi":"那辆出租车是黄色的。","pinyin":"nà liàng chū zū chē shì huáng sè de","trans_en":"That taxi is yellow."}]},{"hanzi":"一起","pinyin":"yìqǐ","trans":"вместе","pos":"нареч.","examples":[{"hanzi":"我们一起吃饭。","pinyin":"wǒ men yì qǐ chī fàn","trans_en":"We eat together."},{"hanzi":"我们一起去公园吧。","pinyin":"wǒ men yì qǐ qù gōng yuán ba","trans_en":"Let's go to the park together."}]},{"hanzi":"高兴","pinyin":"gāoxìng","trans":"радоваться, рад","pos":"прил.","examples":[{"hanzi":"我很高兴。","pinyin":"wǒ hěn gāo xìng","trans_en":"I am very happy."},{"hanzi":"他高兴地笑了。","pinyin":"tā gāo xìng de xiào le","trans_en":"He smiled happily."}]},{"hanzi":"听","pinyin":"tīng","trans":"слушать","pos":"гл.","examples":[{"hanzi":"我喜欢听音乐。","pinyin":"Wǒ xǐhuan tīng yīnyuè.","trans_en":"I like listening to music."},{"hanzi":"请听我说。","pinyin":"Qǐng tīng wǒ shuō.","trans_en":"Please listen to me."},{"hanzi":"你听！飞机来了。","pinyin":"Nǐ tīng! Fēijī lái le.","trans_en":"Listen! The plane is coming."}]},{"hanzi":"飞机","pinyin":"fēijī","trans":"самолёт","pos":"сущ.","examples":[{"hanzi":"我坐飞机去北京。","pinyin":"wǒ zuò fēi jī qù běi jīng","trans_en":"I take a plane to Beijing."},{"hanzi":"天上的飞机很大。","pinyin":"tiān shàng de fēi jī hěn dà","trans_en":"The plane in the sky is very big."}]}],"dialogs":[{"lines":[["А","你们是在哪儿认识的？","Nǐmen shì zài nǎr rènshi de?","Где вы познакомились?"],["B","我们在大学认识的，那一年我们都很高兴。","Wǒmen zài dàxué rènshi de, nà yī nián wǒmen dōu hěn gāoxìng.","Познакомились в университете, в тот год все были рады."]]},{"lines":[["А","你们去饭店了吗？","Nǐmen qù fàndiàn le ma?","Вы ходили в ресторан?"],["B","去了，我们一起去饭店，很高兴。你们坐出租车去的吗？","Qù le, wǒmen yīqǐ qù fàndiàn, hěn gāoxìng. Nǐmen zuò chūzūchē qù de ma?","Да, вместе сходили, было весело. Вы на такси?"],["А","不，我们坐飞机去的！你听！","Bù, wǒmen zuò fēijī qù de! Nǐ tīng!","Нет, полетели на самолёте! Слышишь!"]]}],"exercises":[{"sentence":"你们是在哪儿___识的？","options":["认","知","看","找"],"answer":"认","translation":"Где вы познакомились?"},{"sentence":"我们在大___认识的。","options":["学","校","书","习"],"answer":"学","translation":"Мы познакомились в университете."},{"sentence":"我们是坐飞___去的。","options":["机","车","船","马"],"answer":"机","translation":"Мы полетели на самолёте."},{"sentence":"我们一___去饭店。","options":["起","同","共","都"],"answer":"起","translation":"Мы вместе пошли в ресторан."},{"sentence":"我很高___认识你！","options":["兴","趣","心","好"],"answer":"兴","translation":"Очень рад познакомиться с вами!"}]}};
+
+const CHAR_PINYIN = {"你":"nǐ","好":"hǎo","您":"nín","不":"bù","叫":"jiào","我":"wǒ","是":"shì","吗":"ma","人":"rén","国":"guó","她":"tā","谁":"shéi","的":"de","语":"yǔ","哪":"nǎ","呢":"ne","他":"tā","家":"jiā","有":"yǒu","口":"kǒu","几":"jǐ","岁":"suì","了":"le","多":"duō","大":"dà","会":"huì","说":"shuō","菜":"cài","很":"hěn","做":"zuò","写":"xiě","字":"zì","读":"dú","请":"qǐng","问":"wèn","号":"hào","月":"yuè","去":"qù","看":"kàn","书":"shū","想":"xiǎng","喝":"hē","茶":"chá","吃":"chī","买":"mǎi","个":"gè","这":"zhè","钱":"qián","块":"kuài","那":"nà","小":"xiǎo","猫":"māo","在":"zài","狗":"gǒu","上":"shàng","和":"hé","本":"běn","里":"lǐ","能":"néng","坐":"zuò","点":"diǎn","分":"fēn","回":"huí","住":"zhù","前":"qián","太":"tài","热":"rè","冷":"lěng","来":"lái","爱":"ài","些":"xiē","水":"shuǐ","喂":"wèi","也":"yě","给":"gěi","吧":"ba","卫":"wèi","开":"kāi","车":"chē","后":"hòu","啊":"a","少":"shǎo","都":"dōu","张":"zhāng","年":"nián","听":"tīng","一":"yī","下":"xià","东":"dōng","中":"zhōng","么":"me","习":"xí","京":"jīng","亮":"liàng","什":"shén","今":"jīn","们":"men","体":"tǐ","作":"zuò","候":"hòu","儿":"ér","先":"xiān","关":"guān","兴":"xìng","再":"zài","出":"chū","北":"běi","医":"yī","午":"wǔ","友":"yǒu","同":"tóng","名":"míng","商":"shāng","喜":"xǐ","天":"tiān","女":"nǚ","妈":"mā","姐":"jiě","子":"zi","学":"xué","客":"kè","对":"duì","工":"gōng","师":"shī","店":"diàn","影":"yǐng","怎":"zěn","打":"dǎ","时":"shí","明":"míng","星":"xīng","昨":"zuó","朋":"péng","服":"fú","期":"qī","机":"jī","李":"lǐ","杯":"bēi","果":"guǒ","校":"xiào","样":"yàng","桌":"zhuō","椅":"yǐ","欢":"huān","气":"qì","汉":"hàn","没":"méi","漂":"piào","爸":"bà","现":"xiàn","生":"shēng","电":"diàn","睡":"shuì","租":"zū","米":"mǐ","系":"xi","美":"měi","老":"lǎo","脑":"nǎo","苹":"píng","衣":"yī","西":"xī","见":"jiàn","视":"shì","觉":"jiào","认":"rèn","识":"shi","话":"huà","谢":"xiè","起":"qǐ","身":"shēn","钟":"zhōng","院":"yuàn","雨":"yǔ","面":"miàn","飞":"fēi","饭":"fàn","高":"gāo"};
+
+const DIALOGS_EXTRA = {
+  1:[
+    {title:"На улице",lines:[["А","你好！你好吗？","Nǐ hǎo! Nǐ hǎo ma?","Привет! Как дела?"],["B","你好！我很好。","Nǐ hǎo! Wǒ hěn hǎo.","Привет! Всё хорошо."],["А","再见！","Zàijiàn!","До свидания!"],["B","再见！","Zàijiàn!","До свидания!"]]},
+    {title:"В классе",lines:[["А","老师，你好！","Lǎoshī, nǐ hǎo!","Учитель, здравствуйте!"],["B","同学们好！","Tóngxuémen hǎo!","Здравствуйте, ученики!"],["А","老师，再见！","Lǎoshī, zàijiàn!","Учитель, до свидания!"],["B","再见！","Zàijiàn!","До свидания!"]]}
+  ]
+};
+
+const GRAMMAR_DATA = {
+  1:`<div class="g-block"><div class="g-title">Тоны китайского языка</div><div class="g-body">В китайском языке 4 тона. От тона зависит значение слова: mā — мама, má — конопля, mǎ — лошадь, mà — ругать.</div><div class="tone-grid"><div class="tone-card"><div class="t-mark">ā</div><div class="t-name">1-й тон</div><div class="t-desc">Высокий, ровный</div><div class="t-ex">mā 妈</div></div><div class="tone-card"><div class="t-mark">á</div><div class="t-name">2-й тон</div><div class="t-desc">Восходящий</div><div class="t-ex">má 麻</div></div><div class="tone-card"><div class="t-mark">ǎ</div><div class="t-name">3-й тон</div><div class="t-desc">Нисх.-восходящий</div><div class="t-ex">mǎ 马</div></div><div class="tone-card"><div class="t-mark">à</div><div class="t-name">4-й тон</div><div class="t-desc">Нисходящий, резкий</div><div class="t-ex">mà 骂</div></div></div></div><div class="g-block"><div class="g-title">Правила изменения тонов</div><div class="rule-box"><div class="rule-row"><span class="rn">1.</span><span class="rt">Два 3-х тона подряд → первый становится 2-м: <span class="re">nǐ hǎo → ní hǎo</span></span></div><div class="rule-row"><span class="rn">2.</span><span class="rt">不 (bù) перед 4-м тоном → 2-й: <span class="re">bù shì → bú shì</span></span></div><div class="rule-row"><span class="rn">3.</span><span class="rt">一 (yī) перед 4-м тоном → 2-й; перед 1/2/3 → 4-й тон</span></div></div></div><div class="g-block"><div class="g-title">Суффикс 们 (men)</div><div class="g-body">Суффикс множественного числа личных местоимений.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我 wǒ (я) → 我们 wǒmen (мы)</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">你 nǐ (ты) → 你们 nǐmen (вы)</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">他/她 tā → 他们 tāmen (они)</span></div></div></div>`,
+  2:`<div class="g-block"><div class="g-title">Отрицание 不 (bù)</div><div class="g-body">Универсальное отрицание. Ставится перед глаголом или прилагательным.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我会说汉语。→ 我<span class="re">不</span>会说汉语。</span></div><div class="rule-row"><span class="rn">!</span><span class="rt">Перед 4-м тоном: bù → bú: <span class="re">bú kèqi</span></span></div></div></div>`,
+  3:`<div class="g-block"><div class="g-title">Связка 是 (shì)</div><div class="g-body">Глагол-связка «быть». Соединяет только два существительных.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">我是学生。<span class="re">Wǒ shì xuéshēng.</span> — Я студент.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">我不是老师。<span class="re">Wǒ bù shì lǎoshī.</span> — Я не учитель.</span></div><div class="rule-row"><span class="rn">?</span><span class="rt">你是学生<span class="re">吗</span>？<span class="re">Nǐ shì xuéshēng ma?</span> — Ты студент?</span></div></div></div><div class="g-block"><div class="g-title">Вопросительное слово 什么 (shénme)</div><div class="g-body">«Что? Какой?» — ставится на место ожидаемого ответа. Частица 吗 при этом не употребляется.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你叫什么名字？<span class="re">Nǐ jiào shénme míngzi?</span> — Как тебя зовут?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">这是什么？<span class="re">Zhè shì shénme?</span> — Это что?</span></div></div></div>`,
+  4:`<div class="g-block"><div class="g-title">Вопросительные слова 哪 (nǎ) и 谁 (shéi)</div><div class="g-body">哪 — «который?» — выбор из ограниченного числа вариантов. 谁 — «кто?» — к подлежащему или дополнению.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你是哪国人？<span class="re">Nǐ shì nǎ guó rén?</span> — Ты из которой страны?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">她是谁？<span class="re">Tā shì shéi?</span> — Она кто?</span></div></div></div><div class="g-block"><div class="g-title">Частица 的 (de) — притяжание</div><div class="g-body">Структура: кому принадлежит + 的 + что принадлежит. С близкими людьми 的 обычно опускается.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我的书 <span class="re">wǒ de shū</span> — моя книга</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">我妈妈 <span class="re">wǒ māma</span> — без 的 (близкий человек)</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">王明的朋友 — имя собственное, 的 обязательно</span></div></div></div><div class="g-block"><div class="g-title">Частица 呢 (ne)</div><div class="g-body">Сокращает вопрос. Значение «а ...?», «ну а ...?»</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我是中国人，你呢？<span class="re">Nǐ ne?</span> — Я из Китая, а ты?</span></div></div></div>`,
+  5:`<div class="g-block"><div class="g-title">Счётные слова</div><div class="g-body">Перед существительным всегда нужно счётное слово. Универсальное — 个 (ge). Пропустить — грубая ошибка.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">一个老师 <span class="re">yī ge lǎoshī</span> — один учитель</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">三口人 <span class="re">sān kǒu rén</span> — три члена семьи (口 для людей)</span></div></div></div><div class="g-block"><div class="g-title">Вопрос о количестве 几 (jǐ) и 多大 (duōdà)</div><div class="g-body">几 — ответ 10 и менее, нужно счётное слово. 多大 — возраст взрослых. 几岁 — возраст детей.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你家有几口人？<span class="re">jǐ kǒu rén?</span> — Сколько человек в семье?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">你几岁了？<span class="re">jǐ suì le?</span> — Сколько лет? (детям)</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">你多大了？<span class="re">duōdà le?</span> — Сколько лет? (взрослым)</span></div></div></div><div class="g-block"><div class="g-title">Модальная частица 了 (le) — изменение состояния</div><div class="g-body">Ставится в конце фразы. Передаёт новый факт или изменение.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">他15岁了。<span class="re">Tā shíwǔ suì le.</span> — Ему уже 15 лет.</span></div></div></div>`,
+  6:`<div class="g-block"><div class="g-title">Модальный глагол 会 (huì) — умение</div><div class="g-body">Выражает приобретённые умения и знания.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">她会说汉语。<span class="re">Tā huì shuō hànyǔ.</span> — Умеет говорить по-китайски.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">我不会做俄罗斯菜。 — Не умею готовить русскую кухню.</span></div><div class="rule-row"><span class="rn">?</span><span class="rt">你会写汉字吗？ — Умеешь писать иероглифы?</span></div></div></div><div class="g-block"><div class="g-title">怎么 (zěnme) — «как?» и наречие 很 (hěn)</div><div class="g-body">怎么: вопросы к обстоятельствам. 很: «очень» — в отрицании и вопросе опускается.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">这个字怎么写？<span class="re">zěnme xiě?</span> — Как пишется?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">中国菜很好吃。/ 不好吃。/ 好吃吗？— 很 опускается в − и ?</span></div></div></div>`,
+  7:`<div class="g-block"><div class="g-title">Даты в китайском языке</div><div class="g-body">Всегда от большего к меньшему: год → месяц → число → день недели.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">今天五月十七号，星期六。<span class="re">Jīntiān wǔ yuè shíqī hào, xīngqīliù.</span></span></div><div class="rule-row"><span class="rn">•</span><span class="rt">Дни: 星期一 пн, 二 вт, 三 ср, 四 чт, 五 пт, 六 сб, 天/日 вс</span></div></div></div><div class="g-block"><div class="g-title">Альтернативный вопрос V不V</div><div class="g-body">Повтор глагола через отрицание — эквивалент 吗.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你去不去学校？<span class="re">Nǐ qù bù qù xuéxiào?</span> — Пойдёшь в школу или нет?</span></div></div></div>`,
+  8:`<div class="g-block"><div class="g-title">Модальный глагол 想 (xiǎng) — желание</div><div class="g-body">Мягкое желание. 不想 — не хочется (мягко). 不要 — не надо (твёрдо).</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我想学习汉语。<span class="re">Wǒ xiǎng xuéxí hànyǔ.</span> — Хочу учить китайский.</span></div></div></div><div class="g-block"><div class="g-title">Вопрос о количестве 多少 (duōshao)</div><div class="g-body">Ответ больше 10. После 多少 счётное слово обычно не нужно.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">这个杯子多少钱？<span class="re">duōshao qián?</span> — Сколько стоит чашка?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">Юань устно: 块 kuài. Письменно: 元 yuán.</span></div></div></div>`,
+  9:`<div class="g-block"><div class="g-title">Глагол и предлог 在 (zài)</div><div class="g-body">Как глагол — «находиться». Как предлог — вводит место действия перед сказуемым.</div><div class="rule-box"><div class="rule-row"><span class="rn">гл.</span><span class="rt">她在家。<span class="re">Tā zài jiā.</span> — Она дома.</span></div><div class="rule-row"><span class="rn">пр.</span><span class="rt">他在中国工作。— Он в Китае работает.</span></div></div></div><div class="g-block"><div class="g-title">Местоимения места 哪儿/那儿</div><div class="g-body">哪儿 nǎr — «где?» (вопрос). 那儿 nàr — «там» (указание). Не путать!</div><div class="rule-box"><div class="rule-row"><span class="rn">?</span><span class="rt">他在哪儿？<span class="re">Tā zài nǎr?</span> — Где он?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">他在那儿。<span class="re">Tā zài nàr.</span> — Он там.</span></div></div></div>`,
+  10:`<div class="g-block"><div class="g-title">Глагол 有 (yǒu) — наличие в месте</div><div class="g-body">Структура: место + 有 + предмет. Отрицание — 没有 (méiyǒu), НЕ 不有.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">桌子上有一个电脑。— На столе компьютер.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">商店里没有人。— В магазине нет людей.</span></div><div class="rule-row"><span class="rn">?</span><span class="rt">桌子上有没有书？— На столе есть книги?</span></div></div></div><div class="g-block"><div class="g-title">Слова места: 上/下面/里/前面/后面/这儿</div><div class="g-body">Ставятся после существительного и обозначают положение предмета.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">桌子上 shàng — на столе | 桌子里 lǐ — в ящике стола</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">椅子下面 xiàmiàn — под стулом | 这儿 zhèr — здесь</span></div></div></div>`,
+  11:`<div class="g-block"><div class="g-title">Время суток и часы</div><div class="g-body">Часть дня указывается перед числом: 上午 до полудня, 中午 полдень, 下午 после полудня.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">现在八点二十分。<span class="re">Bā diǎn èrshí fēn.</span> — Сейчас 8:20</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">下午六点回家。<span class="re">Xiàwǔ liù diǎn huí jiā.</span> — Вернусь в 6 вечера.</span></div></div></div><div class="g-block"><div class="g-title">Обстоятельство времени</div><div class="g-body">Ставится после подлежащего или выносится в начало предложения.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你什么时候回家？<span class="re">shénme shíhou huí jiā?</span> — Во сколько вернёшься?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">星期日我们去看电影，好吗？— Время вынесено вперёд.</span></div></div></div>`,
+  12:`<div class="g-block"><div class="g-title">怎么样 (zěnmeyàng) — «как?»</div><div class="g-body">Спрашивает мнение или оценку. 你怎么样？= «Как у тебя дела?»</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">天气怎么样？<span class="re">Tiānqì zěnmeyàng?</span> — Как погода?</span></div></div></div><div class="g-block"><div class="g-title">Наречие 太 (tài) — «слишком»</div><div class="g-body">В утвердительных предложениях часто сочетается с 了 в конце. В отрицательных — без 了.</div><div class="rule-box"><div class="rule-row"><span class="rn">+了</span><span class="rt">天气太热了。— Погода слишком жаркая.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">天气不太好。— Не очень хорошо. (без 了)</span></div></div></div><div class="g-block"><div class="g-title">会 (huì) в будущем времени</div><div class="g-body">Выражает вероятность события в будущем.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">明天会下雨。<span class="re">Míngtiān huì xià yǔ.</span> — Завтра возможен дождь.</span></div></div></div>`,
+  13:`<div class="g-block"><div class="g-title">Продолженное действие 在 + глагол</div><div class="g-body">Действие происходит прямо сейчас. Отрицание — 没 (без 在). Вопрос через 吗 или 呢.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">我在写汉字。<span class="re">Wǒ zài xiě hànzì.</span> — Прописываю иероглифы.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">她没看电视。<span class="re">Tā méi kàn diànshì.</span> — Не смотрит телевизор.</span></div></div></div><div class="g-block"><div class="g-title">Частица 吧 (ba)</div><div class="g-body">Смягчает просьбу, предложение или команду. Ставится в конце предложения.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">请坐吧。<span class="re">Qǐng zuò ba.</span> — Присаживайтесь!</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">下午打吧。— Позвони после обеда.</span></div></div></div>`,
+  14:`<div class="g-block"><div class="g-title">Глагольное 了 (le) — совершённое действие</div><div class="g-body">Действие с результатом, важным в момент речи. Отрицание — 没(有), 了 при этом опускается.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">她去买书了。<span class="re">Qù mǎishū le.</span> — Ходила покупать книги.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">我没有买苹果。<span class="re">Méiyou mǎi píngguǒ.</span> — Не купил яблок.</span></div><div class="rule-row"><span class="rn">?</span><span class="rt">你买了苹果吗？/ 你买没买苹果？<span class="re">Mǎi méi mǎi?</span></span></div></div></div><div class="g-block"><div class="g-title">Наречия 都 (dōu) и 也 (yě)</div><div class="g-body">都 — «все, оба». 也 — «тоже». Если оба стоят вместе — 也 идёт первым.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">这些都是我的。<span class="re">Zhèxiē dōu shì wǒ de.</span> — Всё это моё.</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">他也是医生。<span class="re">Tā yě shì yīshēng.</span> — Он тоже врач.</span></div></div></div>`,
+  15:`<div class="g-block"><div class="g-title">Конструкция 是…的 — выделение обстоятельства</div><div class="g-body">Выделяет время, место, способ уже свершившегося действия. В будущем не употребляется. 了 не ставится.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我们是在大学认识的。— Познакомились <em>в университете</em>.</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">你是怎么来北京的？— Как добрался до Пекина?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">我是坐飞机来的。<span class="re">Zuò fēijī lái de.</span> — Прилетел на самолёте.</span></div></div></div><div class="g-block"><div class="g-title">Год и транспорт</div><div class="g-body">Год произносится цифрами: 2021年 = 二零二一年. Транспорт: 坐 + средство; за рулём: 开车.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">坐出租车 <span class="re">zuò chūzūchē</span> — на такси</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">坐飞机 <span class="re">zuò fēijī</span> — на самолёте</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">开车来 <span class="re">kāi chē lái</span> — приехать за рулём</span></div></div></div>`
+};;
+
+// STATE
+let currentLesson = null;
+let currentTab = 'vocab';
+let hideState = {pinyin:false, trans:false, hanzi:false};
+let dHideState = {pinyin:false, trans:false};
+let quizScope = 'lesson', quizMode = 'all';
+let quizState = {q:0, correct:0, total:0, answered:false, queue:[], wrongQueue:[], totalWrong:0};
+let strokeCache = {};
+let activeWordIdx = null;
+
+// NAV
+function buildNav() {
+  const nav = document.getElementById('lesson-nav');
+  let html = '';
+  for (let i = 1; i <= 15; i++) {
+    html += `<button class="lesson-btn" id="lbtn-${i}" onclick="selectLesson(${i})">У${i}</button>`;
+  }
+  html += `<button class="lesson-btn dict-btn" id="lbtn-dict" onclick="showDict()">Словарь</button>`;
+  nav.innerHTML = html;
+}
+
+function updateNavActive(id) {
+  document.querySelectorAll('.lesson-btn').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+function goHome() {
+  currentLesson = null;
+  document.getElementById('lesson-view').style.display = 'none';
+  document.getElementById('dict-view').style.display = 'none';
+  document.getElementById('home-screen').style.display = '';
+  updateNavActive(null);
+}
+
+function selectLesson(n) {
+  currentLesson = n;
+  document.getElementById('lesson-view').style.display = '';
+  document.getElementById('dict-view').style.display = 'none';
+  document.getElementById('home-screen').style.display = 'none';
+  updateNavActive('lbtn-' + n);
+  document.getElementById('lesson-meta').textContent = `HSK 1 · Урок ${n}`;
+  document.getElementById('lesson-ru').textContent = LESSONS_DATA[n].title_ru;
+  activeWordIdx = null;
+  showTab(currentTab);
+}
+
+function showDict() {
+  document.getElementById('lesson-view').style.display = 'none';
+  document.getElementById('dict-view').style.display = '';
+  document.getElementById('home-screen').style.display = 'none';
+  updateNavActive('lbtn-dict');
+  closeWordPage();
+  renderDict();
+}
+
+// TABS
+function showTab(id) {
+  currentTab = id;
+  const tabIds = ['vocab','strokes','dialog','grammar','quiz','exercises'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', tabIds[i]===id));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  activeWordIdx = null;
+  document.getElementById('vocab-detail').innerHTML = '';
+  if(id==='vocab') renderVocab();
+  else if(id==='strokes') renderStrokes();
+  else if(id==='dialog') renderDialogs();
+  else if(id==='grammar') renderGrammar();
+  else if(id==='quiz') resetQuiz();
+  else if(id==='exercises') resetExercises();
+}
+
+// VOCAB GRID
+function renderVocab() {
+  const words = LESSONS_DATA[currentLesson].words;
+  document.getElementById('vocab-grid').innerHTML = words.map((w,i) => `
+    <div class="vocab-cell" onclick="openWordDetail(${i})">
+      <div class="vc-pinyin${hideState.pinyin?' blur':''}">${w.pinyin}</div>
+      <div class="vc-hanzi${hideState.hanzi?' blur':''}">${w.hanzi}</div>
+      <div class="vc-trans${hideState.trans?' blur':''}">${w.trans}</div>
+    </div>`).join('');
+}
+
+function toggleHide(type) {
+  hideState[type] = !hideState[type];
+  document.getElementById('btn-'+type).classList.toggle('on', hideState[type]);
+  renderVocab();
+}
+
+function findDialogsWithWord(hanzi) {
+  // Ищем диалоги во всех уроках где встречается данный иероглиф
+  const results = [];
+  const chars = [...hanzi].filter(c => /[一-鿿]/.test(c));
+  for (let num = 1; num <= 15; num++) {
+    const lesson = LESSONS_DATA[num];
+    lesson.dialogs.forEach((d, di) => {
+      const hasWord = d.lines.some(line => chars.some(ch => line[1].includes(ch)));
+      if (hasWord) results.push({lessonNum: num, lessonTitle: lesson.title_ru, dialog: d, di});
+    });
+  }
+  return results.slice(0, 3); // максимум 3 диалога
+}
+
+function renderDialogMini(d, lessonNum, lessonTitle) {
+  const lines = d.lines.map(([sp, hz, py, tr]) =>
+    `<div class="d-row"><div class="d-sp${sp==='B'?' b':''}">${sp}</div><div>
+      <div class="d-hz" style="font-size:13px">${hz}</div>
+      <div class="d-py" style="font-size:11px;color:var(--red)">${py}</div>
+      <div class="d-tr" style="font-size:11px;color:var(--text2)">${tr}</div>
+    </div></div>`
+  ).join('');
+  return `<div class="d-block" style="margin-bottom:8px">
+    <div class="d-block-title">Урок ${lessonNum} · ${lessonTitle}</div>
+    ${lines}
+  </div>`;
+}
+
+function openWordDetail(idx) {
+  if (activeWordIdx === idx) {
+    activeWordIdx = null;
+    document.getElementById('vocab-detail').innerHTML = '';
+    return;
+  }
+  activeWordIdx = idx;
+  const w = LESSONS_DATA[currentLesson].words[idx];
+  const exHtml = w.examples.length ? w.examples.map(e => `
+    <div class="ex-row">
+      <div class="ex-hz">${e.hanzi}</div>
+      <div class="ex-py">${e.pinyin}</div>
+      <div class="ex-tr">${e.trans_en||''}</div>
+    </div>`).join('') : '<div style="font-size:13px;color:var(--text3)">Нет примеров</div>';
+
+  const dialogs = findDialogsWithWord(w.hanzi);
+  const dlgHtml = dialogs.length
+    ? dialogs.map(({lessonNum, lessonTitle, dialog}) => renderDialogMini(dialog, lessonNum, lessonTitle)).join('')
+    : '<div style="font-size:13px;color:var(--text3)">Слово не встречается в диалогах</div>';
+
+  document.getElementById('vocab-detail').innerHTML = `
+    <div style="margin-bottom:14px">
+      <button class="close-detail" onclick="openWordDetail(${idx})">✕ Закрыть</button>
+      <div class="word-detail">
+        <div class="wd-top">
+          <div class="wd-hanzi">${w.hanzi}</div>
+          <div class="wd-info">
+            <div class="wd-pinyin">${w.pinyin}</div>
+            <div class="wd-pos">${w.pos}</div>
+            <div class="wd-trans">${w.trans}</div>
+          </div>
+        </div>
+        <div class="wd-label">Примеры предложений</div>
+        ${exHtml}
+        <div class="wd-label" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">Диалоги где встречается</div>
+        ${dlgHtml}
+      </div>
+    </div>`;
+}
+
+// STROKES
+function getCharPinyin(ch) {
+  return CHAR_PINYIN[ch] || '?';
+}
+
+async function renderStrokes() {
+  const cont = document.getElementById('strokes-content');
+  const words = LESSONS_DATA[currentLesson].words;
+  const chars = new Set();
+  words.forEach(w => [...w.hanzi].forEach(ch => { if(/[一-鿿]/.test(ch)) chars.add(ch); }));
+  const missing = [...chars].filter(ch => !strokeCache[ch]);
+  if (missing.length > 0) {
+    cont.innerHTML = '<div class="loading-s">Загрузка данных черт...</div>';
+    await Promise.all(missing.map(async ch => {
+      try {
+        const r = await fetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${encodeURIComponent(ch)}.json`);
+        if (r.ok) strokeCache[ch] = await r.json();
+      } catch(e) {}
+    }));
+  }
+  const CELL=70, PAD=6, sc=(CELL-PAD*2)/1024;
+  cont.innerHTML = words.map(w => {
+    const wordChars = [...w.hanzi].filter(ch => /[一-鿿]/.test(ch));
+    if (!wordChars.length) return '';
+    const charBlocks = wordChars.map(ch => {
+      const data = strokeCache[ch];
+      if (!data) return '';
+      const n = data.strokes.length;
+      const chPy = getCharPinyin(ch);
+      const steps = Array.from({length:n},(_,i)=>{
+        const paths = data.strokes.map((s,j)=>
+          `<path d="${s}" fill="${j<=i?(j===i?'#c0392b':'#222'):'#e8e8e8'}" transform="translate(${PAD},${CELL-PAD}) scale(${sc},${-sc})"/>`
+        ).join('');
+        return `<div class="sc"><svg class="sc-svg" width="${CELL}" height="${CELL}">${paths}</svg><div class="sc-num">${i+1}</div></div>`;
+      }).join('');
+      return `<div class="stroke-char-block">
+        <div class="stroke-char-hdr">
+          <span class="sch-hanzi">${ch}</span>
+          <span class="sch-py">${chPy}</span>
+          <span class="sch-count">${n} черт</span>
+        </div>
+        <div class="strokes-row">${steps}</div>
+      </div>`;
+    }).join('<div class="sep"></div>');
+    return `<div class="stroke-word-block">
+      <div class="stroke-word-title">
+        <span style="font-size:18px">${w.hanzi}</span>
+        <span style="color:var(--red);font-size:13px">${w.pinyin}</span>
+        <span style="color:var(--text3);font-size:13px">— ${w.trans}</span>
+      </div>
+      ${charBlocks}
+    </div>`;
+  }).join('<div style="height:1px;background:var(--border2);margin:20px 0"></div>');
+}
+
+// DIALOGS
+function renderDialogs() {
+  const lesson = LESSONS_DATA[currentLesson];
+  const hide = dHideState;
+  function renderLines(lines) {
+    return lines.map(([s,hz,py,tr]) => `
+      <div class="d-row">
+        <div class="d-sp${s==='B'?' b':''}">${s}</div>
+        <div>
+          <div class="d-hz">${hz}</div>
+          <div class="d-py${hide.pinyin?' blur':''}">${py}</div>
+          <div class="d-tr${hide.trans?' blur':''}">${tr}</div>
+        </div>
+      </div>`).join('');
+  }
+  let html = '';
+  if (lesson.dialogs && lesson.dialogs.length) {
+    html += `<div class="d-section-label">Из учебника <span class="dsrc src-book">Москаленко</span></div>
+    <div class="d-grid">${lesson.dialogs.map((d,i)=>`
+      <div class="d-block">
+        <div class="d-block-title">Диалог ${i+1}</div>
+        ${renderLines(d.lines)}
+      </div>`).join('')}
+    </div>`;
+  }
+  const extras = DIALOGS_EXTRA[currentLesson];
+  if (extras && extras.length) {
+    html += `<div class="d-section-label">Дополнительные ситуации <span class="dsrc src-extra">расширение</span></div>
+    <div class="d-grid">${extras.map(d=>`
+      <div class="d-block">
+        <div class="d-block-title">${d.title}</div>
+        ${renderLines(d.lines)}
+      </div>`).join('')}
+    </div>`;
+  }
+  if (!html) html = '<div style="font-size:13px;color:var(--text3);padding:20px 0">Диалоги для этого урока будут добавлены.</div>';
+  document.getElementById('dialog-content').innerHTML = html;
+}
+
+function toggleDHide(type) {
+  dHideState[type] = !dHideState[type];
+  document.getElementById('dbtn-'+type).classList.toggle('on', dHideState[type]);
+  renderDialogs();
+}
+
+// GRAMMAR
+function renderGrammar() {
+  const html = GRAMMAR_DATA[currentLesson] ||
+    `<div class="g-block"><div class="g-title">Грамматика урока ${currentLesson}</div><div class="g-body" style="color:var(--text3)">Грамматические правила для этого урока будут добавлены.</div></div>`;
+  document.getElementById('grammar-content').innerHTML = html;
+}
+
+// QUIZ
+function getPool() {
+  if (quizScope === 'all') {
+    const pool = [];
+    for (let i = 1; i <= currentLesson; i++) pool.push(...LESSONS_DATA[i].words);
+    return pool;
+  }
+  return LESSONS_DATA[currentLesson].words;
+}
+
+function shuffle(a) { return [...a].sort(() => Math.random() - .5); }
+
+function buildQuestions(mode) {
+  const pool = getPool();
+  const qs = [];
+  pool.forEach(v => {
+    if (mode==='all'||mode==='cn2ru') {
+      const wrong = shuffle(pool.filter(x=>x.hanzi!==v.hanzi).map(x=>x.trans)).slice(0,3);
+      qs.push({type:'cn2ru', prompt:v.hanzi, sub:v.pinyin, answer:v.trans, options:shuffle([v.trans,...wrong])});
+    }
+    if (mode==='all'||mode==='ru2cn') {
+      const wrong = shuffle(pool.filter(x=>x.hanzi!==v.hanzi).map(x=>x.hanzi)).slice(0,3);
+      qs.push({type:'ru2cn', prompt:v.trans, sub:'', answer:v.hanzi, options:shuffle([v.hanzi,...wrong])});
+    }
+    if (mode==='all'||mode==='pinyin') {
+      const wrong = shuffle(pool.filter(x=>x.hanzi!==v.hanzi).map(x=>x.pinyin)).slice(0,3);
+      qs.push({type:'pinyin', prompt:v.hanzi, sub:'', answer:v.pinyin, options:shuffle([v.pinyin,...wrong])});
+    }
+  });
+  return shuffle(qs);
+}
+
+function resetQuiz() {
+  const qs = buildQuestions(quizMode);
+  quizState = {q:0, correct:0, total:0, answered:false, queue:qs, wrongQueue:[], totalWrong:0};
+  const scope = quizScope==='all' ? `Уроки 1–${currentLesson}` : `Урок ${currentLesson}`;
+  document.getElementById('quiz-title').textContent = `Проверка · ${scope}`;
+  document.getElementById('quiz-correct').textContent = '0';
+  document.getElementById('quiz-total').textContent = '0';
+  document.getElementById('q-pbar').style.width = '0%';
+  renderQuiz();
+}
+
+function setScope(s) {
+  quizScope = s;
+  ['lesson','all'].forEach(x => document.getElementById('qscope-'+x).classList.toggle('active', x===s));
+  resetQuiz();
+}
+function setMode(m) {
+  quizMode = m;
+  ['all','cn2ru','ru2cn','pinyin'].forEach(x => document.getElementById('qmode-'+x).classList.toggle('active', x===m));
+  resetQuiz();
+}
+
+function renderQuiz() {
+  const {queue, wrongQueue, q, correct, total, totalWrong} = quizState;
+  const done = q >= queue.length && wrongQueue.length === 0;
+  const pct = queue.length ? Math.min(Math.round(total / (queue.length + totalWrong) * 100), 100) : 0;
+  document.getElementById('q-pbar').style.width = pct + '%';
+  document.getElementById('quiz-correct').textContent = correct;
+  document.getElementById('quiz-total').textContent = total;
+  const area = document.getElementById('quiz-area');
+  if (done) {
+    area.innerHTML = `<div class="q-done">
+      <div class="q-done-score">${correct} / ${total}</div>
+      <div class="q-done-label">правильных ответов</div>
+      ${totalWrong ? `<div class="q-done-stat">Ошибок повторено: ${totalWrong}</div>` : ''}
+      <button class="q-restart" onclick="resetQuiz()">Начать заново</button>
+    </div>`;
+    return;
+  }
+  const isRetry = q >= queue.length;
+  const curQ = isRetry ? wrongQueue[0] : queue[q];
+  const labels = {cn2ru:'Что значит?', ru2cn:'Напиши по-китайски:', pinyin:'Как читается?'};
+  const isCN = curQ.type==='cn2ru' || curQ.type==='pinyin';
+  area.innerHTML = `
+    <div class="q-card">
+      <div class="q-label">${labels[curQ.type]}</div>
+      ${isCN ? `<div class="q-cn">${curQ.prompt}</div>${curQ.sub?`<div class="q-sub">${curQ.sub}</div>`:''}` : `<div class="q-ru">${curQ.prompt}</div>`}
+      ${isRetry ? `<div class="q-retry">⟳ повтор</div>` : ''}
+    </div>
+    <div class="q-opts" id="q-opts-container">
+      ${curQ.options.map((o,oi) => {
+        const display = curQ.type==='ru2cn' ? `<span style="font-size:24px">${o}</span>` : o;
+        return `<button class="q-opt" data-val="${o.replace(/"/g,'&quot;')}" data-answer="${curQ.answer.replace(/"/g,'&quot;')}" data-retry="${isRetry}" onclick="handleAnswer(this)">${display}</button>`;
+      }).join('')}
+    </div>
+    <div id="q-fb" style="display:none" class="q-fb"></div>
+    <button id="q-next" style="display:none" class="q-next" onclick="nextQ()">Следующий →</button>`;
+}
+
+function handleAnswer(btn) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  quizState.total++;
+  const chosen = btn.dataset.val;
+  const answer = btn.dataset.answer;
+  const isRetry = btn.dataset.retry === 'true';
+  const ok = chosen === answer;
+  if (ok) quizState.correct++;
+
+  const allBtns = document.querySelectorAll('.q-opt');
+  allBtns.forEach(b => {
+    b.classList.add('disabled');
+    if (b.dataset.val === answer) b.classList.add('correct');
+    else if (b.dataset.val === chosen && !ok) b.classList.add('wrong');
+  });
+
+  if (!ok) {
+    const curQ = isRetry ? quizState.wrongQueue[0] : quizState.queue[quizState.q];
+    quizState.wrongQueue.push({...curQ});
+    quizState.totalWrong++;
+  }
+
+  const fb = document.getElementById('q-fb');
+  fb.style.display = 'block';
+  fb.className = 'q-fb ' + (ok ? 'ok' : 'no');
+  fb.textContent = ok ? '✓ Верно!' : '✗ Правильно: ' + answer;
+  document.getElementById('q-next').style.display = 'block';
+  document.getElementById('quiz-correct').textContent = quizState.correct;
+  document.getElementById('quiz-total').textContent = quizState.total;
+}
+
+function nextQ() {
+  const isRetry = quizState.q >= quizState.queue.length;
+  quizState.answered = false;
+  if (isRetry) quizState.wrongQueue.shift();
+  else quizState.q++;
+  renderQuiz();
+}
+
+// EXERCISES
+let exState = {q:0, correct:0, total:0, answered:false, queue:[]};
+
+function resetExercises() {
+  const lesson = LESSONS_DATA[currentLesson];
+  const exs = lesson.exercises || [];
+  exState = {q:0, correct:0, total:0, answered:false, queue:[...exs]};
+  document.getElementById('ex-correct').textContent = '0';
+  document.getElementById('ex-total').textContent = '0';
+  document.getElementById('ex-pbar').style.width = '0%';
+  renderExercise();
+}
+
+function renderExercise() {
+  const {queue, q, correct, total} = exState;
+  const area = document.getElementById('exercises-area');
+  const pct = queue.length ? Math.round(q / queue.length * 100) : 0;
+  document.getElementById('ex-pbar').style.width = pct + '%';
+
+  if (q >= queue.length) {
+    area.innerHTML = `<div class="ex-done">
+      <div class="ex-done-score">${correct} / ${total}</div>
+      <div class="ex-done-label">правильных ответов</div>
+      <button class="ex-restart" onclick="resetExercises()">Начать заново</button>
+    </div>`;
+    return;
+  }
+
+  const ex = queue[q];
+  const display = ex.sentence.replace('___', '<span style="color:var(--red);font-weight:500;border-bottom:2px solid var(--red);padding:0 4px">___</span>');
+
+  area.innerHTML = `
+    <div class="ex-q-block">
+      <div class="ex-q-num">Вопрос ${q+1} из ${queue.length}</div>
+      <div class="ex-sentence">${display}</div>
+      <div class="ex-translation">${ex.translation}</div>
+      <div class="ex-opts">
+        ${ex.options.map(o => `<button class="ex-opt" data-val="${o}" data-answer="${ex.answer}" onclick="checkEx(this)">${o}</button>`).join('')}
+      </div>
+    </div>
+    <div id="ex-fb" style="display:none" class="ex-fb"></div>
+    <button id="ex-next" style="display:none" class="ex-next" onclick="nextEx()">Следующий →</button>`;
+}
+
+function checkEx(btn) {
+  if (exState.answered) return;
+  exState.answered = true;
+  exState.total++;
+  const chosen = btn.dataset.val;
+  const answer = btn.dataset.answer;
+  const ok = chosen === answer;
+  if (ok) exState.correct++;
+
+  document.querySelectorAll('.ex-opt').forEach(b => {
+    b.classList.add('disabled');
+    if (b.dataset.val === answer) b.classList.add('correct');
+    else if (b.dataset.val === chosen && !ok) b.classList.add('wrong');
+  });
+
+  const ex = exState.queue[exState.q];
+  const fullSentence = ex.sentence.replace('___', `<span style="color:var(--green);font-weight:500">${answer}</span>`);
+
+  const fb = document.getElementById('ex-fb');
+  fb.style.display = 'block';
+  fb.className = 'ex-fb ' + (ok ? 'ok' : 'no');
+  fb.innerHTML = (ok ? '✓ Верно! ' : '✗ Правильно: ' + answer + ' — ') + fullSentence;
+
+  document.getElementById('ex-next').style.display = 'block';
+  document.getElementById('ex-correct').textContent = exState.correct;
+  document.getElementById('ex-total').textContent = exState.total;
+}
+
+function nextEx() {
+  exState.answered = false;
+  exState.q++;
+  renderExercise();
+}
+
+// DICT
+function buildDictData() {
+  const all = [];
+  for (let num = 1; num <= 15; num++) {
+    LESSONS_DATA[num].words.forEach(w => all.push({...w, lesson:num}));
+  }
+  return all;
+}
+
+// Кэш всех слов словаря для поиска по индексу
+let _dictAllWords = null;
+function getDictAllWords() {
+  if (!_dictAllWords) _dictAllWords = buildDictData();
+  return _dictAllWords;
+}
+
+function renderDict(filter='') {
+  const all = buildDictData();
+  _dictAllWords = all;
+  const q = filter.toLowerCase();
+  const rows = all.filter(w => !q || w.hanzi.includes(q) || w.pinyin.toLowerCase().includes(q) || w.trans.toLowerCase().includes(q));
+  document.getElementById('dict-body').innerHTML = rows.map((w,i) => {
+    const idx = all.indexOf(w);
+    return `<tr onclick="openWordByIndex(${idx})" style="cursor:pointer">
+      <td class="dict-hz">${w.hanzi}</td>
+      <td class="dict-py">${w.pinyin}</td>
+      <td>${w.trans}</td>
+      <td style="color:var(--text3)">${w.pos}</td>
+      <td><span class="dict-lesson">Урок ${w.lesson}</span></td>`;
+  }).join('</tr>') + '</tr>';
+}
+
+function openWordByIndex(idx) {
+  const all = getDictAllWords();
+  if (all && all[idx]) openWordPage(all[idx]);
+}
+
+function filterDict() {
+  renderDict(document.getElementById('dict-search').value);
+}
+
+// WORD PAGE
+async function openWordPage(w) {
+  if (typeof w === 'string') w = JSON.parse(w);
+  document.getElementById('dict-main').style.display = 'none';
+  document.getElementById('word-page').classList.add('active');
+
+  document.getElementById('wp-hanzi').textContent = w.hanzi;
+  document.getElementById('wp-pinyin').textContent = w.pinyin;
+  document.getElementById('wp-pos').textContent = w.pos;
+  document.getElementById('wp-trans').textContent = w.trans;
+
+  // Примеры
+  const exSec = document.getElementById('wp-examples-section');
+  const exDiv = document.getElementById('wp-examples');
+  if (w.examples && w.examples.length) {
+    exSec.style.display = '';
+    exDiv.innerHTML = w.examples.map(e => `
+      <div class="ex-row">
+        <div class="ex-hz">${e.hanzi}</div>
+        <div class="ex-py">${e.pinyin}</div>
+        <div class="ex-tr">${e.trans_en||''}</div>
+      </div>`).join('');
+  } else {
+    exSec.style.display = 'none';
+  }
+
+  // Диалоги где встречается слово
+  const dlgSec = document.getElementById('wp-dialogs-section');
+  const dlgDiv = document.getElementById('wp-dialogs');
+  if (dlgSec && dlgDiv) {
+    const dialogs = findDialogsWithWord(w.hanzi);
+    if (dialogs.length) {
+      dlgSec.style.display = '';
+      dlgDiv.innerHTML = dialogs.map(({lessonNum, lessonTitle, dialog}) =>
+        renderDialogMini(dialog, lessonNum, lessonTitle)
+      ).join('');
+    } else {
+      dlgSec.style.display = 'none';
+    }
+  }
+
+  // Strokes
+  const chars = [...w.hanzi].filter(ch => /[一-鿿]/.test(ch));
+  const missing = chars.filter(ch => !strokeCache[ch]);
+  const wpStrokes = document.getElementById('wp-strokes');
+  if (missing.length) {
+    wpStrokes.innerHTML = '<div class="loading-s">Загрузка черт...</div>';
+    await Promise.all(missing.map(async ch => {
+      try {
+        const r = await fetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${encodeURIComponent(ch)}.json`);
+        if (r.ok) strokeCache[ch] = await r.json();
+      } catch(e) {}
+    }));
+  }
+  const CELL=70, PAD=6, sc=(CELL-PAD*2)/1024;
+  wpStrokes.innerHTML = chars.map(ch => {
+    const data = strokeCache[ch];
+    if (!data) return `<div style="font-size:12px;color:var(--text3)">нет данных для ${ch}</div>`;
+    const n = data.strokes.length;
+    const chPy = getCharPinyin(ch);
+    const steps = Array.from({length:n},(_,i)=>{
+      const paths = data.strokes.map((s,j)=>
+        `<path d="${s}" fill="${j<=i?(j===i?'#c0392b':'#222'):'#e8e8e8'}" transform="translate(${PAD},${CELL-PAD}) scale(${sc},${-sc})"/>`
+      ).join('');
+      return `<div class="sc"><svg class="sc-svg" width="${CELL}" height="${CELL}">${paths}</svg><div class="sc-num">${i+1}</div></div>`;
+    }).join('');
+    return `<div class="stroke-char-block" style="margin-bottom:14px">
+      <div class="stroke-char-hdr"><span class="sch-hanzi">${ch}</span><span class="sch-py">${chPy}</span><span class="sch-count">${n} черт</span></div>
+      <div class="strokes-row">${steps}</div>
+    </div>`;
+  }).join('<div class="sep"></div>');
+}
+
+function closeWordPage() {
+  document.getElementById('word-page').classList.remove('active');
+  document.getElementById('dict-main').style.display = '';
+}
+
+// HOME SCREEN
+const LESSON_WORD_COUNTS = {1:8,2:4,3:13,4:11,5:10,6:12,7:12,8:15,9:13,10:12,11:12,12:13,13:11,14:17,15:9};
+
+function buildLessonGrid() {
+  const grid = document.getElementById('hs-lesson-grid');
+  let html = '';
+  for (let i = 1; i <= 15; i++) {
+    const d = LESSONS_DATA[i];
+    const wc = d.words.length;
+    html += `<div class="hs-lesson-card" onclick="selectLesson(${i})">
+      <div class="hs-lc-num">Урок ${i}</div>
+      <div class="hs-lc-title">${d.title_ru}</div>
+      <div class="hs-lc-meta">${wc} ${wc===1?'слово':wc<5?'слова':'слов'}</div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+const STROKE_RULES = [
+  {num:1, name:'Сверху вниз', desc:'Черты пишутся от верхних элементов к нижним', ex:'二 三', ch:'二'},
+  {num:2, name:'Слева направо', desc:'Горизонтальные элементы — слева направо', ex:'川 人', ch:'川'},
+  {num:3, name:'Горизонталь перед вертикалью', desc:'Если черты пересекаются — горизонталь первой', ex:'十', ch:'十'},
+  {num:4, name:'Левый наклон перед правым', desc:'Левая косая черта (撇) перед правой (捺)', ex:'人 八', ch:'人'},
+  {num:5, name:'Снаружи вовнутрь', desc:'Внешняя «рамка» — до внутреннего содержимого', ex:'月 同', ch:'月'},
+  {num:6, name:'Внутреннее перед закрытием', desc:'Сначала всё внутри, потом закрывающая черта снизу', ex:'国 回', ch:'国'},
+  {num:7, name:'Центр перед боками', desc:'Центральная вертикальная черта — первой', ex:'小 水', ch:'小'},
+  {num:8, name:'Точки — последними', desc:'Точки справа или внутри пишутся в самом конце', ex:'犬 玉', ch:'犬'}
+];
+
+function buildRulesGrid() {
+  const grid = document.getElementById('hs-rules-grid');
+  grid.innerHTML = STROKE_RULES.map((r,i) =>
+    `<div class="rule-card">
+      <div>
+        <div class="rule-num">Правило ${r.num}</div>
+        <div class="rule-name">${r.name}</div>
+        <div class="rule-desc">${r.desc}</div>
+        <div class="rule-exs"><span>${r.ex.split(' ').join('</span> <span>')}</span></div>
+      </div>
+      <div class="rule-anim" id="ranim-${i}" onclick="animateRule(${i})" title="Нажми для анимации">
+        <svg id="ranim-svg-${i}" width="62" height="62"></svg>
+      </div>
+    </div>`
+  ).join('');
+}
+
+const ruleAnimState = {};
+
+async function loadRuleChar(ch) {
+  if (strokeCache[ch]) return strokeCache[ch];
+  try {
+    const r = await fetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${encodeURIComponent(ch)}.json`);
+    if (r.ok) { strokeCache[ch] = await r.json(); return strokeCache[ch]; }
+  } catch(e) {}
+  return null;
+}
+
+function renderRuleFrame(idx, strokeIdx) {
+  const rule = STROKE_RULES[idx];
+  const data = strokeCache[rule.ch];
+  if (!data) return;
+  const n = data.strokes.length;
+  const si = ((strokeIdx % n) + n) % n;
+  const CELL=62, PAD=5, sc=(CELL-PAD*2)/1024;
+  const paths = data.strokes.map((s,j) =>
+    `<path d="${s}" fill="${j<si?'#555':j===si?'#c0392b':'#e0ddd8'}" transform="translate(${PAD},${CELL-PAD}) scale(${sc},${-sc})"/>`
+  ).join('');
+  const svg = document.getElementById(`ranim-svg-${idx}`);
+  if (svg) svg.innerHTML = paths;
+}
+
+async function initRuleAnims() {
+  for (let i = 0; i < STROKE_RULES.length; i++) {
+    const ch = STROKE_RULES[i].ch;
+    await loadRuleChar(ch);
+    renderRuleFrame(i, 0);
+    ruleAnimState[i] = {step: 0, playing: false, timer: null};
+  }
+}
+
+function animateRule(idx) {
+  const state = ruleAnimState[idx];
+  if (!state) return;
+  if (state.playing) {
+    clearInterval(state.timer);
+    state.playing = false;
+    state.step = 0;
+    renderRuleFrame(idx, 0);
+    return;
+  }
+  const ch = STROKE_RULES[idx].ch;
+  const data = strokeCache[ch];
+  if (!data) return;
+  const n = data.strokes.length;
+  state.step = 0;
+  state.playing = true;
+  renderRuleFrame(idx, 0);
+  state.timer = setInterval(() => {
+    state.step++;
+    if (state.step >= n) {
+      clearInterval(state.timer);
+      state.playing = false;
+      return;
+    }
+    renderRuleFrame(idx, state.step);
+  }, 500);
+}
+
+// INIT
+buildNav();
+buildLessonGrid();
+buildRulesGrid();
+document.getElementById('lesson-view').style.display = 'none';
+renderDict();
+initRuleAnims();
+</script>
+</body>
+</html>
