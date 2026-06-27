@@ -449,7 +449,7 @@ function nextCard() {
   // Строим клетки для рисования
   const writeCells = document.getElementById('write-cells');
   writeCells.innerHTML = chars.map((ch, i) => {
-    const hint = nChars > 1 ? `<div class="write-cell-hint">${ch}</div>` : '';
+    const hint = ''; // подсказка убрана — иероглиф показывается только в ответе
     return `<div class="write-cell-group">${hint}${makeWriteCell(i)}</div>`;
   }).join('');
 
