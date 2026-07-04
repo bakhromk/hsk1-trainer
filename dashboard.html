@@ -2,10 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HSK 1 Dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -16,7 +13,7 @@
   --red:#c0392b;--red-bg:#fde8e8;--red-border:#e8a0a0;
   --green:#27ae60;--green-bg:#eafaf1;
   --blue:#1a5276;--blue-bg:#e8f4fd;
-  --radius:10px;--font:'Noto Sans SC','Inter',sans-serif;
+  --radius:10px;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px}
 .app{max-width:800px;margin:0 auto;padding:16px}
@@ -110,6 +107,22 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .d-py{font-size:12px;color:var(--red)}
 .d-tr{font-size:12px;color:var(--text2)}
 
+/* GRAMMAR */
+.g-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.g-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:8px}
+.g-body{font-size:13px;color:var(--text2);line-height:1.7}
+.tone-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.tone-card{background:var(--bg2);border-radius:8px;padding:10px 8px;text-align:center}
+.t-mark{font-size:22px;color:var(--red);font-weight:500}
+.t-name{font-size:11px;color:var(--text2);margin-top:2px}
+.t-desc{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4}
+.t-ex{font-size:13px;color:var(--text);margin-top:4px}
+.rule-box{background:var(--bg2);border-radius:8px;padding:10px 12px;margin-top:8px}
+.rule-row{display:flex;gap:8px;font-size:12px;margin-bottom:4px;align-items:baseline}
+.rn{color:var(--text3);min-width:16px;font-weight:500}
+.rt{color:var(--text2);line-height:1.5}
+.re{color:var(--red)}
+
 /* QUIZ */
 .quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .quiz-score{font-size:13px;color:var(--text2)}
@@ -196,6 +209,39 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .wp-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
 .wp-section-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
 .sep{height:1px;background:var(--border);margin:14px 0}
+
+/* HOME SCREEN */
+.hs-hero{text-align:center;padding:32px 0 24px}
+.hs-hero-cn{font-size:52px;letter-spacing:10px;color:var(--text);line-height:1;margin-bottom:8px}
+.hs-hero-title{font-size:19px;font-weight:500;color:var(--text);margin-bottom:5px}
+.hs-hero-sub{font-size:13px;color:var(--text2)}
+.hs-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+.hs-stat{background:var(--bg2);border-radius:var(--radius);padding:14px 10px;text-align:center}
+.hs-stat-n{font-size:24px;font-weight:500;color:var(--red)}
+.hs-stat-l{font-size:11px;color:var(--text2);margin-top:3px}
+.hs-section-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.hs-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.hs-lesson-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px 12px;cursor:pointer;transition:all .15s;text-align:center}
+.hs-lesson-card:hover{border-color:var(--red);background:var(--red-bg)}
+.hs-lc-num{font-size:10px;font-weight:500;color:var(--red);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.hs-lc-title{font-size:12px;color:var(--text);font-weight:500;line-height:1.35;margin-bottom:5px;min-height:32px;display:flex;align-items:center;justify-content:center}
+.hs-lc-meta{font-size:10px;color:var(--text3)}
+.hs-dict-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.hs-dict-card:hover{border-color:var(--blue);background:var(--blue-bg)}
+.hs-dict-hz{font-size:32px;line-height:1;color:var(--text)}
+.hs-dict-info{}
+.hs-dict-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px}
+.hs-dict-sub{font-size:12px;color:var(--text2)}
+.rules-divider{border-top:1px solid var(--border);margin-bottom:20px;padding-top:20px}
+.rules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.rule-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:grid;grid-template-columns:1fr 70px;gap:12px;align-items:center}
+.rule-num{font-size:10px;font-weight:500;color:var(--red);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.rule-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.rule-desc{font-size:11px;color:var(--text2);line-height:1.45;margin-bottom:6px}
+.rule-exs{font-size:12px;color:var(--text3)}
+.rule-exs span{color:var(--text);font-size:14px}
+.rule-anim{width:70px;height:70px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+.rule-anim svg{display:block}
 </style>
 </head>
 <body>
@@ -204,6 +250,35 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
   <div class="top-header">
     <div class="logo">HSK 1 · Дашборд</div>
     <div class="lesson-nav" id="lesson-nav"></div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen">
+    <div class="hs-hero">
+      <div class="hs-hero-cn">汉语</div>
+      <div class="hs-hero-title">HSK 1 · Интерактивный курс</div>
+      <div class="hs-hero-sub">Словарь, диалоги, грамматика и упражнения по учебнику Москаленко</div>
+    </div>
+    <div class="hs-stats">
+      <div class="hs-stat"><div class="hs-stat-n">15</div><div class="hs-stat-l">уроков</div></div>
+      <div class="hs-stat"><div class="hs-stat-n">172</div><div class="hs-stat-l">слова</div></div>
+      <div class="hs-stat"><div class="hs-stat-n">41</div><div class="hs-stat-l">диалог</div></div>
+      <div class="hs-stat"><div class="hs-stat-n">75</div><div class="hs-stat-l">упражнений</div></div>
+    </div>
+    <div class="hs-section-label">Уроки</div>
+    <div class="hs-grid" id="hs-lesson-grid"></div>
+    <div class="hs-dict-card" onclick="showDict()">
+      <div class="hs-dict-hz">字</div>
+      <div class="hs-dict-info">
+        <div class="hs-dict-title">Словарь HSK 1</div>
+        <div class="hs-dict-sub">Все 172 слова — поиск, карточки, порядок черт</div>
+      </div>
+    </div>
+    <div class="rules-divider">
+      <div class="hs-section-label">8 правил порядка черт 笔顺 (bǐshùn)</div>
+    </div>
+    <div class="rules-grid" id="hs-rules-grid"></div>
+    <div style="height:24px"></div>
   </div>
 
   <!-- LESSON VIEW -->
@@ -222,6 +297,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
       <button class="tab active" onclick="showTab('vocab')">📖 Словарь</button>
       <button class="tab" onclick="showTab('strokes')">✏️ Штрихи</button>
       <button class="tab" onclick="showTab('dialog')">💬 Диалоги</button>
+      <button class="tab" onclick="showTab('grammar')">📐 Грамматика</button>
       <button class="tab" onclick="showTab('quiz')">🔁 Проверка</button>
       <button class="tab" onclick="showTab('exercises')">✍️ Упражнения</button>
     </div>
@@ -255,6 +331,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     </div>
 
     <!-- ГРАММАТИКА -->
+    <div class="panel" id="panel-grammar">
+      <div id="grammar-content"></div>
+    </div>
 
     <!-- ПРОВЕРКА -->
     <div class="panel" id="panel-quiz">
@@ -349,6 +428,23 @@ const DIALOGS_EXTRA = {
   ]
 };
 
+const GRAMMAR_DATA = {
+  1:`<div class="g-block"><div class="g-title">Тоны китайского языка</div><div class="g-body">В китайском языке 4 тона. От тона зависит значение слова: mā — мама, má — конопля, mǎ — лошадь, mà — ругать.</div><div class="tone-grid"><div class="tone-card"><div class="t-mark">ā</div><div class="t-name">1-й тон</div><div class="t-desc">Высокий, ровный</div><div class="t-ex">mā 妈</div></div><div class="tone-card"><div class="t-mark">á</div><div class="t-name">2-й тон</div><div class="t-desc">Восходящий</div><div class="t-ex">má 麻</div></div><div class="tone-card"><div class="t-mark">ǎ</div><div class="t-name">3-й тон</div><div class="t-desc">Нисх.-восходящий</div><div class="t-ex">mǎ 马</div></div><div class="tone-card"><div class="t-mark">à</div><div class="t-name">4-й тон</div><div class="t-desc">Нисходящий, резкий</div><div class="t-ex">mà 骂</div></div></div></div><div class="g-block"><div class="g-title">Правила изменения тонов</div><div class="rule-box"><div class="rule-row"><span class="rn">1.</span><span class="rt">Два 3-х тона подряд → первый становится 2-м: <span class="re">nǐ hǎo → ní hǎo</span></span></div><div class="rule-row"><span class="rn">2.</span><span class="rt">不 (bù) перед 4-м тоном → 2-й: <span class="re">bù shì → bú shì</span></span></div><div class="rule-row"><span class="rn">3.</span><span class="rt">一 (yī) перед 4-м тоном → 2-й; перед 1/2/3 → 4-й тон</span></div></div></div><div class="g-block"><div class="g-title">Суффикс 们 (men)</div><div class="g-body">Суффикс множественного числа личных местоимений.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我 wǒ (я) → 我们 wǒmen (мы)</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">你 nǐ (ты) → 你们 nǐmen (вы)</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">他/她 tā → 他们 tāmen (они)</span></div></div></div>`,
+  2:`<div class="g-block"><div class="g-title">Отрицание 不 (bù)</div><div class="g-body">Универсальное отрицание. Ставится перед глаголом или прилагательным.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我会说汉语。→ 我<span class="re">不</span>会说汉语。</span></div><div class="rule-row"><span class="rn">!</span><span class="rt">Перед 4-м тоном: bù → bú: <span class="re">bú kèqi</span></span></div></div></div>`,
+  3:`<div class="g-block"><div class="g-title">Связка 是 (shì)</div><div class="g-body">Глагол-связка «быть». Соединяет только два существительных.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">我是学生。<span class="re">Wǒ shì xuéshēng.</span> — Я студент.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">我不是老师。<span class="re">Wǒ bù shì lǎoshī.</span> — Я не учитель.</span></div><div class="rule-row"><span class="rn">?</span><span class="rt">你是学生<span class="re">吗</span>？<span class="re">Nǐ shì xuéshēng ma?</span> — Ты студент?</span></div></div></div><div class="g-block"><div class="g-title">Вопросительное слово 什么 (shénme)</div><div class="g-body">«Что? Какой?» — ставится на место ожидаемого ответа. Частица 吗 при этом не употребляется.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你叫什么名字？<span class="re">Nǐ jiào shénme míngzi?</span> — Как тебя зовут?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">这是什么？<span class="re">Zhè shì shénme?</span> — Это что?</span></div></div></div>`,
+  4:`<div class="g-block"><div class="g-title">Вопросительные слова 哪 (nǎ) и 谁 (shéi)</div><div class="g-body">哪 — «который?» — выбор из ограниченного числа вариантов. 谁 — «кто?» — к подлежащему или дополнению.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你是哪国人？<span class="re">Nǐ shì nǎ guó rén?</span> — Ты из которой страны?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">她是谁？<span class="re">Tā shì shéi?</span> — Она кто?</span></div></div></div><div class="g-block"><div class="g-title">Частица 的 (de) — притяжание</div><div class="g-body">Структура: кому принадлежит + 的 + что принадлежит. С близкими людьми 的 обычно опускается.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我的书 <span class="re">wǒ de shū</span> — моя книга</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">我妈妈 <span class="re">wǒ māma</span> — без 的 (близкий человек)</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">王明的朋友 — имя собственное, 的 обязательно</span></div></div></div><div class="g-block"><div class="g-title">Частица 呢 (ne)</div><div class="g-body">Сокращает вопрос. Значение «а ...?», «ну а ...?»</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我是中国人，你呢？<span class="re">Nǐ ne?</span> — Я из Китая, а ты?</span></div></div></div>`,
+  5:`<div class="g-block"><div class="g-title">Счётные слова</div><div class="g-body">Перед существительным всегда нужно счётное слово. Универсальное — 个 (ge). Пропустить — грубая ошибка.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">一个老师 <span class="re">yī ge lǎoshī</span> — один учитель</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">三口人 <span class="re">sān kǒu rén</span> — три члена семьи (口 для людей)</span></div></div></div><div class="g-block"><div class="g-title">Вопрос о количестве 几 (jǐ) и 多大 (duōdà)</div><div class="g-body">几 — ответ 10 и менее, нужно счётное слово. 多大 — возраст взрослых. 几岁 — возраст детей.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你家有几口人？<span class="re">jǐ kǒu rén?</span> — Сколько человек в семье?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">你几岁了？<span class="re">jǐ suì le?</span> — Сколько лет? (детям)</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">你多大了？<span class="re">duōdà le?</span> — Сколько лет? (взрослым)</span></div></div></div><div class="g-block"><div class="g-title">Модальная частица 了 (le) — изменение состояния</div><div class="g-body">Ставится в конце фразы. Передаёт новый факт или изменение.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">他15岁了。<span class="re">Tā shíwǔ suì le.</span> — Ему уже 15 лет.</span></div></div></div>`,
+  6:`<div class="g-block"><div class="g-title">Модальный глагол 会 (huì) — умение</div><div class="g-body">Выражает приобретённые умения и знания.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">她会说汉语。<span class="re">Tā huì shuō hànyǔ.</span> — Умеет говорить по-китайски.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">我不会做俄罗斯菜。 — Не умею готовить русскую кухню.</span></div><div class="rule-row"><span class="rn">?</span><span class="rt">你会写汉字吗？ — Умеешь писать иероглифы?</span></div></div></div><div class="g-block"><div class="g-title">怎么 (zěnme) — «как?» и наречие 很 (hěn)</div><div class="g-body">怎么: вопросы к обстоятельствам. 很: «очень» — в отрицании и вопросе опускается.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">这个字怎么写？<span class="re">zěnme xiě?</span> — Как пишется?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">中国菜很好吃。/ 不好吃。/ 好吃吗？— 很 опускается в − и ?</span></div></div></div>`,
+  7:`<div class="g-block"><div class="g-title">Даты в китайском языке</div><div class="g-body">Всегда от большего к меньшему: год → месяц → число → день недели.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">今天五月十七号，星期六。<span class="re">Jīntiān wǔ yuè shíqī hào, xīngqīliù.</span></span></div><div class="rule-row"><span class="rn">•</span><span class="rt">Дни: 星期一 пн, 二 вт, 三 ср, 四 чт, 五 пт, 六 сб, 天/日 вс</span></div></div></div><div class="g-block"><div class="g-title">Альтернативный вопрос V不V</div><div class="g-body">Повтор глагола через отрицание — эквивалент 吗.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你去不去学校？<span class="re">Nǐ qù bù qù xuéxiào?</span> — Пойдёшь в школу или нет?</span></div></div></div>`,
+  8:`<div class="g-block"><div class="g-title">Модальный глагол 想 (xiǎng) — желание</div><div class="g-body">Мягкое желание. 不想 — не хочется (мягко). 不要 — не надо (твёрдо).</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我想学习汉语。<span class="re">Wǒ xiǎng xuéxí hànyǔ.</span> — Хочу учить китайский.</span></div></div></div><div class="g-block"><div class="g-title">Вопрос о количестве 多少 (duōshao)</div><div class="g-body">Ответ больше 10. После 多少 счётное слово обычно не нужно.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">这个杯子多少钱？<span class="re">duōshao qián?</span> — Сколько стоит чашка?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">Юань устно: 块 kuài. Письменно: 元 yuán.</span></div></div></div>`,
+  9:`<div class="g-block"><div class="g-title">Глагол и предлог 在 (zài)</div><div class="g-body">Как глагол — «находиться». Как предлог — вводит место действия перед сказуемым.</div><div class="rule-box"><div class="rule-row"><span class="rn">гл.</span><span class="rt">她在家。<span class="re">Tā zài jiā.</span> — Она дома.</span></div><div class="rule-row"><span class="rn">пр.</span><span class="rt">他在中国工作。— Он в Китае работает.</span></div></div></div><div class="g-block"><div class="g-title">Местоимения места 哪儿/那儿</div><div class="g-body">哪儿 nǎr — «где?» (вопрос). 那儿 nàr — «там» (указание). Не путать!</div><div class="rule-box"><div class="rule-row"><span class="rn">?</span><span class="rt">他在哪儿？<span class="re">Tā zài nǎr?</span> — Где он?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">他在那儿。<span class="re">Tā zài nàr.</span> — Он там.</span></div></div></div>`,
+  10:`<div class="g-block"><div class="g-title">Глагол 有 (yǒu) — наличие в месте</div><div class="g-body">Структура: место + 有 + предмет. Отрицание — 没有 (méiyǒu), НЕ 不有.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">桌子上有一个电脑。— На столе компьютер.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">商店里没有人。— В магазине нет людей.</span></div><div class="rule-row"><span class="rn">?</span><span class="rt">桌子上有没有书？— На столе есть книги?</span></div></div></div><div class="g-block"><div class="g-title">Слова места: 上/下面/里/前面/后面/这儿</div><div class="g-body">Ставятся после существительного и обозначают положение предмета.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">桌子上 shàng — на столе | 桌子里 lǐ — в ящике стола</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">椅子下面 xiàmiàn — под стулом | 这儿 zhèr — здесь</span></div></div></div>`,
+  11:`<div class="g-block"><div class="g-title">Время суток и часы</div><div class="g-body">Часть дня указывается перед числом: 上午 до полудня, 中午 полдень, 下午 после полудня.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">现在八点二十分。<span class="re">Bā diǎn èrshí fēn.</span> — Сейчас 8:20</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">下午六点回家。<span class="re">Xiàwǔ liù diǎn huí jiā.</span> — Вернусь в 6 вечера.</span></div></div></div><div class="g-block"><div class="g-title">Обстоятельство времени</div><div class="g-body">Ставится после подлежащего или выносится в начало предложения.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">你什么时候回家？<span class="re">shénme shíhou huí jiā?</span> — Во сколько вернёшься?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">星期日我们去看电影，好吗？— Время вынесено вперёд.</span></div></div></div>`,
+  12:`<div class="g-block"><div class="g-title">怎么样 (zěnmeyàng) — «как?»</div><div class="g-body">Спрашивает мнение или оценку. 你怎么样？= «Как у тебя дела?»</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">天气怎么样？<span class="re">Tiānqì zěnmeyàng?</span> — Как погода?</span></div></div></div><div class="g-block"><div class="g-title">Наречие 太 (tài) — «слишком»</div><div class="g-body">В утвердительных предложениях часто сочетается с 了 в конце. В отрицательных — без 了.</div><div class="rule-box"><div class="rule-row"><span class="rn">+了</span><span class="rt">天气太热了。— Погода слишком жаркая.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">天气不太好。— Не очень хорошо. (без 了)</span></div></div></div><div class="g-block"><div class="g-title">会 (huì) в будущем времени</div><div class="g-body">Выражает вероятность события в будущем.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">明天会下雨。<span class="re">Míngtiān huì xià yǔ.</span> — Завтра возможен дождь.</span></div></div></div>`,
+  13:`<div class="g-block"><div class="g-title">Продолженное действие 在 + глагол</div><div class="g-body">Действие происходит прямо сейчас. Отрицание — 没 (без 在). Вопрос через 吗 или 呢.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">我在写汉字。<span class="re">Wǒ zài xiě hànzì.</span> — Прописываю иероглифы.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">她没看电视。<span class="re">Tā méi kàn diànshì.</span> — Не смотрит телевизор.</span></div></div></div><div class="g-block"><div class="g-title">Частица 吧 (ba)</div><div class="g-body">Смягчает просьбу, предложение или команду. Ставится в конце предложения.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">请坐吧。<span class="re">Qǐng zuò ba.</span> — Присаживайтесь!</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">下午打吧。— Позвони после обеда.</span></div></div></div>`,
+  14:`<div class="g-block"><div class="g-title">Глагольное 了 (le) — совершённое действие</div><div class="g-body">Действие с результатом, важным в момент речи. Отрицание — 没(有), 了 при этом опускается.</div><div class="rule-box"><div class="rule-row"><span class="rn">+</span><span class="rt">她去买书了。<span class="re">Qù mǎishū le.</span> — Ходила покупать книги.</span></div><div class="rule-row"><span class="rn">−</span><span class="rt">我没有买苹果。<span class="re">Méiyou mǎi píngguǒ.</span> — Не купил яблок.</span></div><div class="rule-row"><span class="rn">?</span><span class="rt">你买了苹果吗？/ 你买没买苹果？<span class="re">Mǎi méi mǎi?</span></span></div></div></div><div class="g-block"><div class="g-title">Наречия 都 (dōu) и 也 (yě)</div><div class="g-body">都 — «все, оба». 也 — «тоже». Если оба стоят вместе — 也 идёт первым.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">这些都是我的。<span class="re">Zhèxiē dōu shì wǒ de.</span> — Всё это моё.</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">他也是医生。<span class="re">Tā yě shì yīshēng.</span> — Он тоже врач.</span></div></div></div>`,
+  15:`<div class="g-block"><div class="g-title">Конструкция 是…的 — выделение обстоятельства</div><div class="g-body">Выделяет время, место, способ уже свершившегося действия. В будущем не употребляется. 了 не ставится.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">我们是在大学认识的。— Познакомились <em>в университете</em>.</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">你是怎么来北京的？— Как добрался до Пекина?</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">我是坐飞机来的。<span class="re">Zuò fēijī lái de.</span> — Прилетел на самолёте.</span></div></div></div><div class="g-block"><div class="g-title">Год и транспорт</div><div class="g-body">Год произносится цифрами: 2021年 = 二零二一年. Транспорт: 坐 + средство; за рулём: 开车.</div><div class="rule-box"><div class="rule-row"><span class="rn">•</span><span class="rt">坐出租车 <span class="re">zuò chūzūchē</span> — на такси</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">坐飞机 <span class="re">zuò fēijī</span> — на самолёте</span></div><div class="rule-row"><span class="rn">•</span><span class="rt">开车来 <span class="re">kāi chē lái</span> — приехать за рулём</span></div></div></div>`
+};;
 
 // STATE
 let currentLesson = null;
@@ -381,6 +477,7 @@ function goHome() {
   currentLesson = null;
   document.getElementById('lesson-view').style.display = 'none';
   document.getElementById('dict-view').style.display = 'none';
+  document.getElementById('home-screen').style.display = '';
   updateNavActive(null);
 }
 
@@ -388,6 +485,7 @@ function selectLesson(n) {
   currentLesson = n;
   document.getElementById('lesson-view').style.display = '';
   document.getElementById('dict-view').style.display = 'none';
+  document.getElementById('home-screen').style.display = 'none';
   updateNavActive('lbtn-' + n);
   document.getElementById('lesson-meta').textContent = `HSK 1 · Урок ${n}`;
   document.getElementById('lesson-ru').textContent = LESSONS_DATA[n].title_ru;
@@ -398,6 +496,7 @@ function selectLesson(n) {
 function showDict() {
   document.getElementById('lesson-view').style.display = 'none';
   document.getElementById('dict-view').style.display = '';
+  document.getElementById('home-screen').style.display = 'none';
   updateNavActive('lbtn-dict');
   closeWordPage();
   renderDict();
@@ -406,7 +505,7 @@ function showDict() {
 // TABS
 function showTab(id) {
   currentTab = id;
-  const tabIds = ['vocab','strokes','dialog','quiz','exercises'];
+  const tabIds = ['vocab','strokes','dialog','grammar','quiz','exercises'];
   document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', tabIds[i]===id));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
@@ -415,6 +514,7 @@ function showTab(id) {
   if(id==='vocab') renderVocab();
   else if(id==='strokes') renderStrokes();
   else if(id==='dialog') renderDialogs();
+  else if(id==='grammar') renderGrammar();
   else if(id==='quiz') resetQuiz();
   else if(id==='exercises') resetExercises();
 }
@@ -604,7 +704,12 @@ function toggleDHide(type) {
   renderDialogs();
 }
 
-
+// GRAMMAR
+function renderGrammar() {
+  const html = GRAMMAR_DATA[currentLesson] ||
+    `<div class="g-block"><div class="g-title">Грамматика урока ${currentLesson}</div><div class="g-body" style="color:var(--text3)">Грамматические правила для этого урока будут добавлены.</div></div>`;
+  document.getElementById('grammar-content').innerHTML = html;
+}
 
 // QUIZ
 function getPool() {
@@ -934,11 +1039,121 @@ function closeWordPage() {
   document.getElementById('dict-main').style.display = '';
 }
 
+// HOME SCREEN
+const LESSON_WORD_COUNTS = {1:8,2:4,3:13,4:11,5:10,6:12,7:12,8:15,9:13,10:12,11:12,12:13,13:11,14:17,15:9};
+
+function buildLessonGrid() {
+  const grid = document.getElementById('hs-lesson-grid');
+  let html = '';
+  for (let i = 1; i <= 15; i++) {
+    const d = LESSONS_DATA[i];
+    const wc = d.words.length;
+    html += `<div class="hs-lesson-card" onclick="selectLesson(${i})">
+      <div class="hs-lc-num">Урок ${i}</div>
+      <div class="hs-lc-title">${d.title_ru}</div>
+      <div class="hs-lc-meta">${wc} ${wc===1?'слово':wc<5?'слова':'слов'}</div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+const STROKE_RULES = [
+  {num:1, name:'Сверху вниз', desc:'Черты пишутся от верхних элементов к нижним', ex:'二 三', ch:'二'},
+  {num:2, name:'Слева направо', desc:'Горизонтальные элементы — слева направо', ex:'川 人', ch:'川'},
+  {num:3, name:'Горизонталь перед вертикалью', desc:'Если черты пересекаются — горизонталь первой', ex:'十', ch:'十'},
+  {num:4, name:'Левый наклон перед правым', desc:'Левая косая черта (撇) перед правой (捺)', ex:'人 八', ch:'人'},
+  {num:5, name:'Снаружи вовнутрь', desc:'Внешняя «рамка» — до внутреннего содержимого', ex:'月 同', ch:'月'},
+  {num:6, name:'Внутреннее перед закрытием', desc:'Сначала всё внутри, потом закрывающая черта снизу', ex:'国 回', ch:'国'},
+  {num:7, name:'Центр перед боками', desc:'Центральная вертикальная черта — первой', ex:'小 水', ch:'小'},
+  {num:8, name:'Точки — последними', desc:'Точки справа или внутри пишутся в самом конце', ex:'犬 玉', ch:'犬'}
+];
+
+function buildRulesGrid() {
+  const grid = document.getElementById('hs-rules-grid');
+  grid.innerHTML = STROKE_RULES.map((r,i) =>
+    `<div class="rule-card">
+      <div>
+        <div class="rule-num">Правило ${r.num}</div>
+        <div class="rule-name">${r.name}</div>
+        <div class="rule-desc">${r.desc}</div>
+        <div class="rule-exs"><span>${r.ex.split(' ').join('</span> <span>')}</span></div>
+      </div>
+      <div class="rule-anim" id="ranim-${i}" onclick="animateRule(${i})" title="Нажми для анимации">
+        <svg id="ranim-svg-${i}" width="62" height="62"></svg>
+      </div>
+    </div>`
+  ).join('');
+}
+
+const ruleAnimState = {};
+
+async function loadRuleChar(ch) {
+  if (strokeCache[ch]) return strokeCache[ch];
+  try {
+    const r = await fetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${encodeURIComponent(ch)}.json`);
+    if (r.ok) { strokeCache[ch] = await r.json(); return strokeCache[ch]; }
+  } catch(e) {}
+  return null;
+}
+
+function renderRuleFrame(idx, strokeIdx) {
+  const rule = STROKE_RULES[idx];
+  const data = strokeCache[rule.ch];
+  if (!data) return;
+  const n = data.strokes.length;
+  const si = ((strokeIdx % n) + n) % n;
+  const CELL=62, PAD=5, sc=(CELL-PAD*2)/1024;
+  const paths = data.strokes.map((s,j) =>
+    `<path d="${s}" fill="${j<si?'#555':j===si?'#c0392b':'#e0ddd8'}" transform="translate(${PAD},${CELL-PAD}) scale(${sc},${-sc})"/>`
+  ).join('');
+  const svg = document.getElementById(`ranim-svg-${idx}`);
+  if (svg) svg.innerHTML = paths;
+}
+
+async function initRuleAnims() {
+  for (let i = 0; i < STROKE_RULES.length; i++) {
+    const ch = STROKE_RULES[i].ch;
+    await loadRuleChar(ch);
+    renderRuleFrame(i, 0);
+    ruleAnimState[i] = {step: 0, playing: false, timer: null};
+  }
+}
+
+function animateRule(idx) {
+  const state = ruleAnimState[idx];
+  if (!state) return;
+  if (state.playing) {
+    clearInterval(state.timer);
+    state.playing = false;
+    state.step = 0;
+    renderRuleFrame(idx, 0);
+    return;
+  }
+  const ch = STROKE_RULES[idx].ch;
+  const data = strokeCache[ch];
+  if (!data) return;
+  const n = data.strokes.length;
+  state.step = 0;
+  state.playing = true;
+  renderRuleFrame(idx, 0);
+  state.timer = setInterval(() => {
+    state.step++;
+    if (state.step >= n) {
+      clearInterval(state.timer);
+      state.playing = false;
+      return;
+    }
+    renderRuleFrame(idx, state.step);
+  }, 500);
+}
+
 // INIT
 buildNav();
-// Показываем пустой экран — ждём выбора урока
+buildLessonGrid();
+buildRulesGrid();
 document.getElementById('lesson-view').style.display = 'none';
 renderDict();
+initRuleAnims();
 </script>
 </body>
 </html>
