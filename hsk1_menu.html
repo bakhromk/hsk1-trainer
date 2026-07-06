@@ -24,7 +24,14 @@ body{
   padding:16px 20px 12px;
   border-bottom:1px solid var(--border);
   text-align:center;
+  position:relative;
 }
+.levels-btn{
+  position:absolute; left:20px; top:16px;
+  font-size:12px; color:var(--text2); text-decoration:none;
+  border:1px solid var(--border); padding:6px 10px; border-radius:8px;
+}
+.levels-btn:hover,.levels-btn:active{border-color:var(--red);color:var(--red)}
 .header-hz{font-size:40px;line-height:1;margin-bottom:6px}
 .header-title{font-size:18px;font-weight:500;color:var(--text);margin-bottom:3px}
 .header-sub{font-size:13px;color:var(--text2)}
@@ -58,6 +65,7 @@ body{
 <body>
 
 <div class="header">
+  <a class="levels-btn" href="index.html">← Уровни</a>
   <div class="header-hz">汉语</div>
   <div class="header-title">HSK 1 · Китайский язык</div>
   <div class="header-sub">По учебнику Москаленко · 15 уроков · 172 слова</div>
