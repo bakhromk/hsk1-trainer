@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HSK 2 · Дашборд</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg:#faf9f6; --bg2:#f2f0eb; --border:#ddd9d0;
+  --text:#1a1a18; --text2:#6b6860; --text3:#a09d96;
+  --red:#c0392b; --red-bg:#fdf0ef;
+  --green:#2e7d4f; --green-bg:#eaf6ef;
+  --font:'Noto Sans SC','Inter',sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{font-family:var(--font); background:var(--bg); color:var(--text); -webkit-tap-highlight-color:transparent;}
+.app{max-width:960px; margin:0 auto; padding:0 16px 40px;}
+
+/* HEADER */
+.top-header{display:flex; align-items:center; gap:12px; padding:16px 0; flex-wrap:wrap; position:sticky; top:0; background:var(--bg); z-index:10; border-bottom:1px solid var(--border);}
+.logo{font-size:16px; font-weight:500; color:var(--text); white-space:nowrap; cursor:pointer;}
+.lesson-nav{display:flex; gap:6px; flex-wrap:wrap; flex:1;}
+.lesson-nav button{border:1px solid var(--border); background:#fff; color:var(--text2); font-size:12px; padding:6px 10px; border-radius:8px; cursor:pointer; font-family:var(--font);}
+.lesson-nav button.active{background:var(--red); color:#fff; border-color:var(--red);}
+.dict-btn{border:1px solid var(--red); background:var(--red-bg); color:var(--red); font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:500; white-space:nowrap; font-family:var(--font);}
+
+/* HOME SCREEN */
+#home-screen{padding:24px 0;}
+.home-title{text-align:center; margin-bottom:24px;}
+.home-hanzi{font-size:40px; font-weight:500; letter-spacing:4px;}
+.home-sub{font-size:18px; font-weight:500; margin-top:6px;}
+.home-desc{font-size:13px; color:var(--text2); margin-top:4px;}
+.stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;}
+.stat-card{background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center;}
+.stat-card.muted{background:var(--bg2);}
+.stat-num{font-size:24px; font-weight:500; color:var(--red);}
+.stat-card.muted .stat-num{color:var(--text3);}
+.stat-label{font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; margin-top:2px;}
+.stat-card.muted .stat-label{color:var(--text3);}
+.section-label{font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;}
+.lesson-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:20px;}
+.lesson-card{background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px; cursor:pointer; transition:border-color .15s;}
+.lesson-card:hover{border-color:var(--red);}
+.lesson-card-num{font-size:11px; color:var(--red); font-weight:500;}
+.lesson-card-hanzi{font-size:13px; margin-top:4px; line-height:1.3;}
+.lesson-card-trans{font-size:10px; color:var(--text3); margin-top:3px; line-height:1.25;}
+.dict-banner{background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px 20px; display:flex; align-items:center; gap:14px; cursor:pointer;}
+.dict-banner-icon{font-size:26px;}
+.dict-banner-title{font-size:15px; font-weight:500;}
+.dict-banner-sub{font-size:12px; color:var(--text2);}
+
+@media (max-width:640px){
+  .lesson-grid{grid-template-columns:repeat(3,1fr);}
+  .stat-grid{grid-template-columns:repeat(3,1fr);}
+}
+
+/* LESSON VIEW */
+#lesson-view{display:none;}
+.lesson-header{display:flex; align-items:center; gap:14px; padding:16px 0;}
+.back-btn{border:1px solid var(--border); background:#fff; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:13px; color:var(--text2); font-family:var(--font); white-space:nowrap;}
+.lesson-meta{font-size:11px; color:var(--red); font-weight:500; text-transform:uppercase; letter-spacing:.5px;}
+.lesson-title-row{font-size:17px; font-weight:500; margin-top:2px;}
+.lesson-title-sub{font-size:12px; color:var(--text2); margin-top:1px;}
+
+.tabs{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:16px; overflow-x:auto;}
+.tab{background:none; border:none; padding:10px 14px; font-size:13px; color:var(--text2); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; font-family:var(--font);}
+.tab.active{color:var(--red); border-bottom-color:var(--red); font-weight:500;}
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* СЛОВАРЬ */
+.vc-bar{display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+.vc-label{font-size:12px; color:var(--text3);}
+.toggle-btn{border:1px solid var(--border); background:#fff; font-size:11px; padding:5px 10px; border-radius:6px; cursor:pointer; color:var(--text2); font-family:var(--font);}
+.toggle-btn.active{background:var(--text); color:#fff; border-color:var(--text);}
+.vocab-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px;}
+.vocab-cell{background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 6px; text-align:center; cursor:pointer;}
+.vc-pinyin{font-size:12px; color:var(--red); min-height:14px;}
+.vc-hanzi{font-size:22px; margin:4px 0; min-height:26px;}
+.vc-trans{font-size:10px; color:var(--text2); min-height:12px; line-height:1.25;}
+.vc-hidden{visibility:hidden;}
+
+.word-page{background:#fff; border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:14px;}
+.wp-hanzi{font-size:56px; text-align:center; margin-bottom:6px;}
+.wp-pinyin{font-size:20px; color:var(--red); text-align:center;}
+.wp-pos{font-size:11px; color:var(--text3); text-align:center; margin-top:2px;}
+.wp-trans{font-size:16px; color:var(--text2); text-align:center; margin-top:4px;}
+.wp-section{margin-top:16px; padding-top:14px; border-top:1px solid var(--border);}
+.wp-section-label{font-size:11px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;}
+.wp-example{font-size:14px; margin-bottom:2px;}
+.wp-example-pinyin{font-size:11px; color:var(--red); margin-bottom:2px;}
+.wp-example-trans{font-size:12px; color:var(--text2); margin-bottom:10px;}
+.wp-common{font-size:14px; margin-bottom:8px;}
+.wp-common-pinyin{font-size:11px; color:var(--red);}
+.wp-common-trans{color:var(--text2); font-size:12px;}
+.wp-close{display:block; margin:0 auto; border:1px solid var(--border); background:#fff; padding:8px 20px; border-radius:8px; cursor:pointer; font-size:13px; font-family:var(--font);}
+
+/* ШТРИХИ */
+.stroke-intro{font-size:12px; color:var(--text2); margin-bottom:14px;}
+.stroke-word-block{background:#fff; border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:12px;}
+.stroke-word-head{font-size:13px; color:var(--text2); margin-bottom:10px;}
+.stroke-char-row{margin-bottom:12px;}
+.stroke-char-label{font-size:15px; margin-bottom:6px;}
+.stroke-char-pinyin{font-size:11px; color:var(--red); font-weight:normal;}
+.stroke-frames{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px;}
+.stroke-frame{text-align:center; flex-shrink:0;}
+.stroke-frame-svg{width:44px; height:44px; border:1px solid var(--border); border-radius:6px; background:var(--bg2);}
+.stroke-frame-num{font-size:9px; color:var(--text3); margin-top:2px;}
+.stroke-loading{font-size:11px; color:var(--text3);}
+
+/* ПРОВЕРКА (quiz) */
+.quiz-bar{display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;}
+.quiz-scope-btn, .quiz-mode-btn{border:1px solid var(--border); background:#fff; font-size:11px; padding:6px 10px; border-radius:6px; cursor:pointer; color:var(--text2); font-family:var(--font);}
+.quiz-scope-btn.active, .quiz-mode-btn.active{background:var(--red); color:#fff; border-color:var(--red);}
+.quiz-progress-wrap{height:5px; background:var(--bg2); border-radius:3px; margin:10px 0 16px; overflow:hidden;}
+.quiz-progress{height:100%; background:var(--red); width:0%; transition:width .2s;}
+.quiz-score{font-size:12px; color:var(--text2); margin-bottom:10px;}
+.q-card{background:#fff; border:1px solid var(--border); border-radius:12px; padding:24px; text-align:center; margin-bottom:16px;}
+.q-label{font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px;}
+.q-cn{font-size:32px;}
+.q-sub{font-size:13px; color:var(--text3); margin-top:6px;}
+.q-ru{font-size:18px;}
+.q-opts{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.q-opt{border:1px solid var(--border); background:#fff; border-radius:10px; padding:14px 10px; cursor:pointer; font-size:15px; font-family:var(--font); text-align:center;}
+.q-opt:hover{border-color:var(--red);}
+.q-opt.correct{background:var(--green-bg); border-color:var(--green); color:var(--green);}
+.q-opt.wrong{background:var(--red-bg); border-color:var(--red); color:var(--red);}
+.q-done{background:#fff; border:1px solid var(--border); border-radius:12px; padding:32px; text-align:center;}
+.q-done-score{font-size:32px; font-weight:500; color:var(--red);}
+.q-done-label{font-size:13px; color:var(--text2); margin-top:4px;}
+.q-restart{margin-top:16px; border:1px solid var(--red); background:var(--red-bg); color:var(--red); padding:10px 20px; border-radius:8px; cursor:pointer; font-family:var(--font); font-size:13px;}
+
+/* УПРАЖНЕНИЯ */
+.ex-card{background:#fff; border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:12px;}
+.ex-num{font-size:11px; color:var(--text3); margin-bottom:6px;}
+.ex-sentence{font-size:18px; margin-bottom:4px;}
+.ex-trans{font-size:12px; color:var(--text2); margin-bottom:14px;}
+.ex-opts{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.ex-opt{border:1px solid var(--border); background:#fff; border-radius:8px; padding:10px; cursor:pointer; font-size:15px; font-family:var(--font); text-align:center;}
+.ex-opt.correct{background:var(--green-bg); border-color:var(--green); color:var(--green);}
+.ex-opt.wrong{background:var(--red-bg); border-color:var(--red); color:var(--red);}
+.ex-summary{background:#fff; border:1px solid var(--border); border-radius:12px; padding:24px; text-align:center;}
+
+/* СЛОВАРЬ HSK2 (глобальный) */
+#dict-view{display:none;}
+.dict-header{padding:16px 0;}
+.dict-search{width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px; font-size:14px; font-family:var(--font); margin-bottom:14px;}
+.dict-table{width:100%; border-collapse:collapse;}
+.dict-table tr{border-bottom:1px solid var(--border); cursor:pointer;}
+.dict-table tr:hover{background:var(--bg2);}
+.dict-table td{padding:10px 6px; font-size:13px;}
+.dict-td-hanzi{font-size:18px; width:70px;}
+.dict-td-pinyin{color:var(--red); width:90px;}
+.dict-td-lesson{color:var(--text3); font-size:11px; width:50px;}
+
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="top-header">
+    <div class="logo" onclick="goHome()">HSK 2 · Дашборд</div>
+    <div class="lesson-nav" id="lesson-nav"></div>
+    <button class="dict-btn" onclick="openDict()">字 Словарь</button>
+  </div>
+
+  <!-- HOME -->
+  <div id="home-screen">
+    <div class="home-title">
+      <div class="home-hanzi">汉语</div>
+      <div class="home-sub">HSK 2 · Интерактивный курс</div>
+      <div class="home-desc">Словарь, штрихи, проверка и упражнения по HSK 2 Writing Workbook</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num" id="stat-lessons">15</div><div class="stat-label">уроков</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-words">170</div><div class="stat-label">слов</div></div>
+      <div class="stat-card muted"><div class="stat-num">0</div><div class="stat-label">диалогов (искл.)</div></div>
+    </div>
+    <div class="section-label">Уроки</div>
+    <div class="lesson-grid" id="lesson-grid"></div>
+    <div class="dict-banner" onclick="openDict()">
+      <div class="dict-banner-icon">字</div>
+      <div>
+        <div class="dict-banner-title">Словарь HSK 2</div>
+        <div class="dict-banner-sub">Все 170 слов — поиск, карточки, порядок черт</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LESSON VIEW -->
+  <div id="lesson-view">
+    <div class="lesson-header">
+      <button class="back-btn" onclick="goHome()">← Уроки</button>
+      <div>
+        <div class="lesson-meta" id="lesson-meta"></div>
+        <div class="lesson-title-row" id="lesson-hanzi-title"></div>
+        <div class="lesson-title-sub" id="lesson-trans-title"></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('vocab')">字 Словарь</button>
+      <button class="tab" onclick="showTab('strokes')">✎ Штрихи</button>
+      <button class="tab" onclick="showTab('quiz')">↻ Проверка</button>
+      <button class="tab" onclick="showTab('exercises')">✓ Упражнения</button>
+    </div>
+
+    <!-- СЛОВАРЬ -->
+    <div class="panel active" id="panel-vocab">
+      <div class="vc-bar">
+        <span class="vc-label">Скрыть:</span>
+        <button class="toggle-btn" id="btn-hide-pinyin" onclick="toggleHide('pinyin')">пиньинь</button>
+        <button class="toggle-btn" id="btn-hide-trans" onclick="toggleHide('trans')">перевод</button>
+        <button class="toggle-btn" id="btn-hide-hanzi" onclick="toggleHide('hanzi')">иероглиф</button>
+      </div>
+      <div id="word-detail"></div>
+      <div class="vocab-grid" id="vocab-grid"></div>
+    </div>
+
+    <!-- ШТРИХИ -->
+    <div class="panel" id="panel-strokes">
+      <p class="stroke-intro">Порядок черт для каждого иероглифа слова. Загружается с CDN.</p>
+      <div id="strokes-list"></div>
+    </div>
+
+    <!-- ПРОВЕРКА -->
+    <div class="panel" id="panel-quiz">
+      <div class="quiz-bar">
+        <button class="quiz-scope-btn active" id="qscope-lesson" onclick="setQuizScope('lesson')">Этот урок</button>
+        <button class="quiz-scope-btn" id="qscope-all" onclick="setQuizScope('all')">Уроки 1–N</button>
+      </div>
+      <div class="quiz-bar">
+        <button class="quiz-mode-btn active" id="qmode-all" onclick="setQuizMode('all')">Все типы</button>
+        <button class="quiz-mode-btn" id="qmode-cn2ru" onclick="setQuizMode('cn2ru')">CN→RU</button>
+        <button class="quiz-mode-btn" id="qmode-ru2cn" onclick="setQuizMode('ru2cn')">RU→CN</button>
+        <button class="quiz-mode-btn" id="qmode-pinyin" onclick="setQuizMode('pinyin')">Иероглиф→Пиньинь</button>
+      </div>
+      <div class="quiz-score">Правильно: <b id="quiz-correct">0</b> / <span id="quiz-total">0</span></div>
+      <div class="quiz-progress-wrap"><div class="quiz-progress" id="quiz-pbar"></div></div>
+      <div id="quiz-area"></div>
+    </div>
+
+    <!-- УПРАЖНЕНИЯ -->
+    <div class="panel" id="panel-exercises">
+      <div id="exercises-list"></div>
+    </div>
+  </div>
+
+  <!-- СЛОВАРЬ HSK2 -->
+  <div id="dict-view">
+    <div class="dict-header">
+      <button class="back-btn" onclick="goHome()">← Уроки</button>
+      <input class="dict-search" id="dict-search" placeholder="Поиск: иероглиф, пиньинь, перевод..." oninput="renderDictTable()">
+    </div>
+    <div id="dict-word-detail"></div>
+    <table class="dict-table" id="dict-table"><tbody id="dict-table-body"></tbody></table>
+  </div>
+
+</div>
+
+<script>
+const LESSONS_DATA = {"lessons": [{"lesson": 1, "title_hanzi": "九月去北京旅游最好", "title_translation": "September is the best time to visit Beijing", "words": [{"hanzi": "旅游", "pinyin": "lǚyóu", "pos": "v.", "translation": "to travel, to take a trip", "examples": [{"hanzi": "我喜欢旅游。", "translation": "I like traveling."}, {"hanzi": "我们计划明年去北京旅游。", "translation": "We plan to travel to Beijing for tourism next year."}, {"hanzi": "这个假期你打算去旅游吗？", "translation": "Do you plan to go traveling during this holiday?"}]}, {"hanzi": "觉得", "pinyin": "juéde", "pos": "v.", "translation": "to think, to feel", "examples": [{"hanzi": "我觉得很好。", "translation": "I think it's very good."}, {"hanzi": "我觉得今天很热。", "translation": "I think it's very hot today."}, {"hanzi": "你觉得这个电影好看吗？", "translation": "Do you think this movie is good?"}]}, {"hanzi": "最", "pinyin": "zuì", "pos": "adv.", "translation": "most, to the greatest extent", "common_words": [{"hanzi": "最好", "translation": "best"}, {"hanzi": "最后", "translation": "last, final"}, {"hanzi": "最近", "translation": "recently, nearest"}]}, {"hanzi": "为什么", "pinyin": "wèishénme", "pos": "pron.", "translation": "why", "examples": [{"hanzi": "你为什么这么晚才回家？", "translation": "Why did you come home so late?"}, {"hanzi": "你为什么哭？", "translation": "Why are you crying?"}, {"hanzi": "你为什么不吃早饭？", "translation": "Why don't you eat breakfast?"}]}, {"hanzi": "也", "pinyin": "yě", "pos": "adv.", "translation": "also, too", "common_words": [{"hanzi": "也是", "translation": "also is; too"}, {"hanzi": "我也", "translation": "me too; I also"}, {"hanzi": "也去", "translation": "also go"}]}, {"hanzi": "运动", "pinyin": "yùndòng", "pos": "n./v.", "translation": "sport; to take physical exercise, to work out", "examples": [{"hanzi": "我每天下午都去运动。", "translation": "I go to do sports every afternoon."}, {"hanzi": "我喜欢运动。", "translation": "I like sports."}, {"hanzi": "我们下午一起去运动吧。", "translation": "Let's go exercise together this afternoon."}]}, {"hanzi": "踢足球", "pinyin": "tī zúqiú", "pos": "v.", "translation": "to play football", "examples": [{"hanzi": "我哥哥喜欢在公园里踢足球。", "translation": "My older brother likes to play football in the park."}, {"hanzi": "他喜欢踢足球。", "translation": "He likes to play football (lit. kick football)."}, {"hanzi": "你想和我一起踢足球吗？", "translation": "Do you want to play football with me?"}]}, {"hanzi": "一起", "pinyin": "yìqǐ", "pos": "adv.", "translation": "together", "examples": [{"hanzi": "我们一起吃饭。", "translation": "We eat together."}, {"hanzi": "我们一起去公园吧。", "translation": "Let's go to the park together."}, {"hanzi": "我们一起去公园散步吧。", "translation": "Let's go for a walk in the park together."}]}, {"hanzi": "要", "pinyin": "yào", "pos": "aux.", "translation": "to want to, would like to", "common_words": [{"hanzi": "想要", "translation": "to want"}, {"hanzi": "不要", "translation": "do not want; do not"}, {"hanzi": "要去", "translation": "want to go; will go"}]}, {"hanzi": "新", "pinyin": "xīn", "pos": "adj.", "translation": "new", "common_words": [{"hanzi": "新年", "translation": "New Year"}, {"hanzi": "新衣服", "translation": "new clothes"}, {"hanzi": "新书", "translation": "new book"}]}, {"hanzi": "它", "pinyin": "tā", "pos": "pron.", "translation": "it", "common_words": [{"hanzi": "它们", "translation": "they (for non-human things)"}, {"hanzi": "它的", "translation": "its"}, {"hanzi": "它自己", "translation": "itself"}]}, {"hanzi": "眼睛", "pinyin": "yǎnjing", "pos": "n.", "translation": "eye", "examples": [{"hanzi": "她的眼睛很漂亮。", "translation": "Her eyes are very beautiful."}, {"hanzi": "我的眼睛很大。", "translation": "My eyes are big."}, {"hanzi": "请看着我的眼睛说话。", "translation": "Please look into my eyes when you speak."}]}, {"hanzi": "花花", "pinyin": "Huāhua", "pos": "n.", "translation": "name of a cat", "examples": [{"hanzi": "花花是我的猫。", "translation": "Huahua is my cat."}, {"hanzi": "花花喜欢在九月睡觉。", "translation": "Huahua likes to sleep in September."}, {"hanzi": "我每天和花花一起玩。", "translation": "I play with Huahua every day."}]}]}, {"lesson": 2, "title_hanzi": "我每天六点起床", "title_translation": "I get up at six every day", "words": [{"hanzi": "生病", "pinyin": "shēngbìng", "pos": "v.", "translation": "to fall ill, to be sick", "examples": [{"hanzi": "他今天生病了，不能来学校。", "translation": "He is sick today and cannot come to school."}, {"hanzi": "我生病了。", "translation": "I am sick."}, {"hanzi": "我妹妹昨天生病了。", "translation": "My younger sister fell ill yesterday."}]}, {"hanzi": "每", "pinyin": "měi", "pos": "pron.", "translation": "every, each", "common_words": [{"hanzi": "每天", "translation": "every day"}, {"hanzi": "每个", "translation": "every, each"}, {"hanzi": "每年", "translation": "every year"}]}, {"hanzi": "早上", "pinyin": "zǎoshang", "pos": "n.", "translation": "morning", "examples": [{"hanzi": "早上好。", "translation": "Good morning."}, {"hanzi": "我每天早上七点起床。", "translation": "I get up at seven o'clock every morning."}, {"hanzi": "我每天早上都喝一杯牛奶。", "translation": "I drink a glass of milk every morning."}]}, {"hanzi": "跑步", "pinyin": "pǎobù", "pos": "v.", "translation": "to run, to jog", "examples": [{"hanzi": "我每天早上都去公园跑步。", "translation": "I go jogging in the park every morning."}, {"hanzi": "我每天跑步。", "translation": "I run every day."}, {"hanzi": "我们一起跑步吧。", "translation": "Let's go running together."}]}, {"hanzi": "起床", "pinyin": "qǐchuáng", "pos": "v.", "translation": "to get up, to get out of bed", "examples": [{"hanzi": "我每天七点起床。", "translation": "I get up at seven o'clock every day."}, {"hanzi": "我每天早上七点起床。", "translation": "I get up at seven o'clock every morning."}, {"hanzi": "你明天打算几点起床？", "translation": "What time do you plan to get up tomorrow?"}]}, {"hanzi": "药", "pinyin": "yào", "pos": "n.", "translation": "medicine, drug", "common_words": [{"hanzi": "吃药", "translation": "to take medicine"}, {"hanzi": "中药", "translation": "Chinese medicine"}, {"hanzi": "药店", "translation": "pharmacy, drugstore"}]}, {"hanzi": "身体", "pinyin": "shēntǐ", "pos": "n.", "translation": "body", "examples": [{"hanzi": "他每天跑步，身体很好。", "translation": "He runs every day and is in good health."}, {"hanzi": "我的身体很好。", "translation": "My body is very good."}, {"hanzi": "你最近身体怎么样？", "translation": "How has your health been lately?"}]}, {"hanzi": "出院", "pinyin": "chūyuàn", "pos": "v.", "translation": "to leave hospital, to be discharged from hospital", "examples": [{"hanzi": "他今天出院了。", "translation": "He left the hospital today."}, {"hanzi": "明天可以出院吗？", "translation": "Can I leave the hospital tomorrow?"}, {"hanzi": "医生让我出院。", "translation": "The doctor let me leave the hospital."}]}, {"hanzi": "高", "pinyin": "gāo", "pos": "adj.", "translation": "tall, high", "common_words": [{"hanzi": "高兴", "translation": "pleased; happy"}, {"hanzi": "高大", "translation": "tall and big"}, {"hanzi": "高中", "translation": "high school"}]}, {"hanzi": "米", "pinyin": "mǐ", "pos": "m.", "translation": "meter", "common_words": [{"hanzi": "米饭", "translation": "rice [cooked; boiled]"}, {"hanzi": "厘米", "translation": "centimeter"}, {"hanzi": "千米", "translation": "kilometer"}]}, {"hanzi": "知道", "pinyin": "zhīdào", "pos": "v.", "translation": "to know", "examples": [{"hanzi": "我知道你的名字。", "translation": "I know your name."}, {"hanzi": "他不知道明天有考试。", "translation": "He doesn't know there is an exam tomorrow."}, {"hanzi": "你知道怎么去火车站吗？", "translation": "Do you know how to get to the train station?"}]}, {"hanzi": "休息", "pinyin": "xiūxi", "pos": "v.", "translation": "to have or take a rest", "examples": [{"hanzi": "我每天中午休息一会儿。", "translation": "I rest for a while every day at noon."}, {"hanzi": "我休息。", "translation": "I rest."}, {"hanzi": "我们休息十分钟再继续吧。", "translation": "Let's take a ten-minute break and then continue."}]}, {"hanzi": "忙", "pinyin": "máng", "pos": "adj.", "translation": "busy", "common_words": [{"hanzi": "很忙", "translation": "very busy"}, {"hanzi": "帮忙", "translation": "to help; to lend a hand"}, {"hanzi": "忙吗", "translation": "busy?"}]}, {"hanzi": "时间", "pinyin": "shíjiān", "pos": "n.", "translation": "time", "examples": [{"hanzi": "现在是什么时间？", "translation": "What time is it now?"}, {"hanzi": "我们约个时间见面吧。", "translation": "Let's schedule a time to meet."}, {"hanzi": "我没有时间看电视。", "translation": "I don't have time to watch TV."}]}]}, {"lesson": 3, "title_hanzi": "左边那个红色的是我的", "title_translation": "The red one on the left is mine", "words": [{"hanzi": "手表", "pinyin": "shǒubiǎo", "pos": "n.", "translation": "watch", "examples": [{"hanzi": "我的新手表很漂亮。", "translation": "My new watch is very beautiful."}, {"hanzi": "这是我的手表。", "translation": "This is my watch."}, {"hanzi": "我的手表好像走慢了。", "translation": "My watch seems to be running slow."}]}, {"hanzi": "千", "pinyin": "qiān", "pos": "num.", "translation": "thousand", "common_words": [{"hanzi": "一千", "translation": "one thousand"}, {"hanzi": "两千", "translation": "two thousand"}, {"hanzi": "三千", "translation": "three thousand"}]}, {"hanzi": "报纸", "pinyin": "bàozhǐ", "pos": "n.", "translation": "newspaper", "examples": [{"hanzi": "爸爸每天早上都看报纸。", "translation": "Dad reads the newspaper every morning."}, {"hanzi": "我每天看报纸。", "translation": "I read the newspaper every day."}, {"hanzi": "这份报纸是今天的吗？", "translation": "Is this newspaper from today?"}]}, {"hanzi": "送", "pinyin": "sòng", "pos": "v.", "translation": "to send, to deliver", "common_words": [{"hanzi": "送给", "translation": "to give to; to send to"}, {"hanzi": "送花", "translation": "to give flowers"}, {"hanzi": "送礼物", "translation": "to give a gift"}]}, {"hanzi": "一下", "pinyin": "yíxià", "pos": "num.-m.", "translation": "used after a verb, indicating an act or an attempt", "examples": [{"hanzi": "你看一下这本书。", "translation": "Take a look at this book."}, {"hanzi": "请你看一下这本书。", "translation": "Please take a look at this book."}, {"hanzi": "你可以试一下这件衣服。", "translation": "You can try on this piece of clothing."}]}, {"hanzi": "牛奶", "pinyin": "niúnǎi", "pos": "n.", "translation": "milk", "examples": [{"hanzi": "我喝牛奶。", "translation": "I drink milk."}, {"hanzi": "我每天早上喝一杯牛奶。", "translation": "I drink a glass of milk every morning."}, {"hanzi": "牛奶是白色的。", "translation": "Milk is white."}]}, {"hanzi": "房间", "pinyin": "fángjiān", "pos": "n.", "translation": "room", "examples": [{"hanzi": "我的房间很干净。", "translation": "My room is very clean."}, {"hanzi": "这是我的房间。", "translation": "This is my room."}, {"hanzi": "这个房间很大。", "translation": "This room is very big."}]}, {"hanzi": "丈夫", "pinyin": "zhàngfu", "pos": "n.", "translation": "husband", "examples": [{"hanzi": "他是我的丈夫。", "translation": "He is my husband."}, {"hanzi": "她的丈夫在医院工作。", "translation": "Her husband works at a hospital."}, {"hanzi": "她的丈夫是一位医生。", "translation": "Her husband is a doctor."}]}, {"hanzi": "旁边", "pinyin": "pángbiān", "pos": "n.", "translation": "beside", "examples": [{"hanzi": "我的书在桌子旁边。", "translation": "My book is beside the table."}, {"hanzi": "我的学校旁边有一个公园。", "translation": "There is a park next to my school."}, {"hanzi": "请坐在我旁边的空位上。", "translation": "Please sit in the empty seat next to me."}]}, {"hanzi": "真", "pinyin": "zhēn", "pos": "adv.", "translation": "really, indeed", "common_words": [{"hanzi": "真的", "translation": "really; true"}, {"hanzi": "真好", "translation": "really good"}, {"hanzi": "认真", "translation": "serious; careful"}]}, {"hanzi": "粉色", "pinyin": "fěnsè", "pos": "n.", "translation": "pink", "examples": [{"hanzi": "她喜欢粉色。", "translation": "She likes pink."}, {"hanzi": "她今天涂了粉色口红，显得格外有活力。", "translation": "She wore pink lipstick today, which made her look particularly energetic."}, {"hanzi": "这份报告建议使用粉色标记重点数据。", "translation": "This report recommends using pink to highlight key data."}]}, {"hanzi": "颜色", "pinyin": "yánsè", "pos": "n.", "translation": "color", "examples": [{"hanzi": "天空的颜色是蓝色的。", "translation": "The color of the sky is blue."}, {"hanzi": "这件衣服的颜色很漂亮。", "translation": "The colour of this piece of clothing is very beautiful."}, {"hanzi": "你喜欢什么颜色的书包？", "translation": "What color of backpack do you like?"}]}, {"hanzi": "左边", "pinyin": "zuǒbian", "pos": "n.", "translation": "left side", "examples": [{"hanzi": "我的书在左边。", "translation": "My book is on the left."}, {"hanzi": "我的书在桌子的左边。", "translation": "My book is on the left side of the table."}, {"hanzi": "地铁站在左边，我们往那边走。", "translation": "The subway station is on the left, let's go that way."}]}, {"hanzi": "红色", "pinyin": "hóngsè", "pos": "n.", "translation": "red", "examples": [{"hanzi": "红色帷幕缓缓拉开。", "translation": "The red curtain slowly opened."}, {"hanzi": "她最喜欢红色的裙子。", "translation": "She likes red skirts the most."}, {"hanzi": "她喜欢穿红色的衣服。", "translation": "She likes to wear red clothes."}]}]}, {"lesson": 4, "title_hanzi": "这个工作是他帮我介绍的", "title_translation": "He recommended me for this job", "words": [{"hanzi": "生日", "pinyin": "shēngrì", "pos": "n.", "translation": "birthday", "examples": [{"hanzi": "明天是我的生日。", "translation": "Tomorrow is my birthday."}, {"hanzi": "今天是我的生日。", "translation": "Today is my birthday."}, {"hanzi": "你的生日是哪一天？", "translation": "When is your birthday?"}]}, {"hanzi": "快乐", "pinyin": "kuàilè", "pos": "adj.", "translation": "happy, glad", "examples": [{"hanzi": "祝你生日快乐！", "translation": "Happy birthday to you!"}, {"hanzi": "我很快乐。", "translation": "I am very happy."}, {"hanzi": "祝大家节日快乐！", "translation": "Wishing everyone a happy holiday!"}]}, {"hanzi": "给", "pinyin": "gěi", "pos": "prep.", "translation": "(used after a verb) to, for", "common_words": [{"hanzi": "送给", "translation": "to give (as a gift) to"}, {"hanzi": "交给", "translation": "to hand over to"}, {"hanzi": "带给", "translation": "to bring to"}]}, {"hanzi": "接", "pinyin": "jiē", "pos": "v.", "translation": "to receive, to take, to accept", "common_words": [{"hanzi": "接电话", "translation": "to answer the phone"}, {"hanzi": "接人", "translation": "to pick someone up"}, {"hanzi": "接朋友", "translation": "to pick up a friend"}]}, {"hanzi": "晚上", "pinyin": "wǎnshang", "pos": "n.", "translation": "evening, night", "examples": [{"hanzi": "我晚上喜欢看书。", "translation": "I like to read books in the evening."}, {"hanzi": "晚上好。", "translation": "Good evening."}, {"hanzi": "我们晚上七点吃饭。", "translation": "We eat dinner at seven o'clock in the evening."}]}, {"hanzi": "问", "pinyin": "wèn", "pos": "v.", "translation": "to ask", "common_words": [{"hanzi": "问题", "translation": "question, problem"}, {"hanzi": "问好", "translation": "to say hello; to greet"}, {"hanzi": "请问", "translation": "excuse me; may I ask"}]}, {"hanzi": "非常", "pinyin": "fēicháng", "pos": "adv.", "translation": "very, extremely", "examples": [{"hanzi": "今天的天气非常好。", "translation": "The weather today is extremely good."}, {"hanzi": "这个苹果非常好吃。", "translation": "This apple is very delicious."}, {"hanzi": "我非常喜欢学习中文。", "translation": "I extremely like studying Chinese."}]}, {"hanzi": "开始", "pinyin": "kāishǐ", "pos": "v.", "translation": "to begin, to start", "examples": [{"hanzi": "我们开始学习吧。", "translation": "Let's start learning."}, {"hanzi": "会议将在下午三点开始。", "translation": "The meeting will begin at three o'clock in the afternoon."}, {"hanzi": "会议马上要开始了。", "translation": "The meeting is about to begin."}]}, {"hanzi": "已经", "pinyin": "yǐjīng", "pos": "adv.", "translation": "already", "examples": [{"hanzi": "他已经回家了。", "translation": "He has already gone home."}, {"hanzi": "我已经吃了。", "translation": "I have already eaten."}, {"hanzi": "火车已经开走了。", "translation": "The train has already left."}]}, {"hanzi": "长", "pinyin": "cháng", "pos": "adj.", "translation": "long", "common_words": [{"hanzi": "很长", "translation": "very long"}, {"hanzi": "长城", "translation": "the Great Wall"}, {"hanzi": "长度", "translation": "length"}]}, {"hanzi": "两", "pinyin": "liǎng", "pos": "num.", "translation": "two", "common_words": [{"hanzi": "两个", "translation": "two (general measure word)"}, {"hanzi": "两天", "translation": "two days"}, {"hanzi": "两岁", "translation": "two years old"}]}, {"hanzi": "帮", "pinyin": "bāng", "pos": "v.", "translation": "to help, to assist", "common_words": [{"hanzi": "帮助", "translation": "to help, to assist, to aid"}, {"hanzi": "帮忙", "translation": "to help"}, {"hanzi": "帮手", "translation": "helper, assistant"}]}, {"hanzi": "介绍", "pinyin": "jièshào", "pos": "v.", "translation": "to introduce, to recommend", "examples": [{"hanzi": "这是我的朋友，我介绍一下。", "translation": "This is my friend, let me introduce him."}, {"hanzi": "我来介绍一下我的新朋友。", "translation": "Let me introduce my new friend."}, {"hanzi": "你能介绍一下你自己吗？", "translation": "Can you introduce yourself?"}]}]}, {"lesson": 5, "title_hanzi": "就买这件吧", "title_translation": "Take this one", "words": [{"hanzi": "外面", "pinyin": "wàimiàn", "pos": "n.", "translation": "outside", "examples": [{"hanzi": "外面正在下雨。", "translation": "It is raining outside."}, {"hanzi": "外面正在下雨，你带伞了吗？", "translation": "It's raining outside, did you bring an umbrella?"}, {"hanzi": "今天外面刮风很大。", "translation": "It's very windy outside today."}]}, {"hanzi": "准备", "pinyin": "zhǔnbèi", "pos": "v.", "translation": "to intend, to plan", "examples": [{"hanzi": "我准备明天的考试。", "translation": "I am preparing for tomorrow's exam."}, {"hanzi": "我准备吃饭。", "translation": "I am preparing to eat."}, {"hanzi": "你准备好出发了吗？", "translation": "Are you ready to leave?"}]}, {"hanzi": "就", "pinyin": "jiù", "pos": "adv.", "translation": "used to indicate a conclusion or resolution", "common_words": [{"hanzi": "就是", "translation": "exactly; that is"}, {"hanzi": "就要", "translation": "be about to; will soon"}, {"hanzi": "就好", "translation": "then it is fine; just fine"}]}, {"hanzi": "鱼", "pinyin": "yú", "pos": "n.", "translation": "fish", "common_words": [{"hanzi": "金鱼", "translation": "goldfish"}, {"hanzi": "吃鱼", "translation": "eat fish"}, {"hanzi": "大鱼", "translation": "big fish"}]}, {"hanzi": "吧", "pinyin": "ba", "pos": "part.", "translation": "used at the end of a sentence to indicate consultation, suggestion, request or command", "common_words": [{"hanzi": "好吧", "translation": "okay; all right (expressing agreement)"}, {"hanzi": "走吧", "translation": "let's go (suggestion or command to leave)"}, {"hanzi": "是吧", "translation": "right?; isn't it? (seeking confirmation)"}]}, {"hanzi": "件", "pinyin": "jiàn", "pos": "m.", "translation": "(used for clothes among other items) piece", "common_words": [{"hanzi": "一件衣服", "translation": "one piece of clothing"}, {"hanzi": "这件", "translation": "this piece; this one"}, {"hanzi": "两件", "translation": "two pieces"}]}, {"hanzi": "还", "pinyin": "hái", "pos": "adv.", "translation": "passably, fairly, rather", "common_words": [{"hanzi": "还好", "translation": "passably good, not bad"}, {"hanzi": "还可以", "translation": "passably, fairly okay"}, {"hanzi": "还行", "translation": "passably, not bad"}]}, {"hanzi": "可以", "pinyin": "kěyǐ", "pos": "aux.", "translation": "can, may", "examples": [{"hanzi": "我可以喝水吗？", "translation": "Can I drink water?"}, {"hanzi": "你可以用我的笔。", "translation": "You can use my pen."}, {"hanzi": "这里可以停车吗？", "translation": "Can I park here?"}]}, {"hanzi": "不错", "pinyin": "búcuò", "pos": "adj.", "translation": "pretty good", "examples": [{"hanzi": "他今天心情好一点儿了，可能是因为天气不错。", "translation": "He's in a slightly better mood today, probably because the weather is nice."}, {"hanzi": "你的答案不错。", "translation": "Your answer is correct."}, {"hanzi": "这部电影拍得真不错。", "translation": "This movie is really not bad."}]}, {"hanzi": "考试", "pinyin": "kǎoshì", "pos": "n.", "translation": "test, exam", "examples": [{"hanzi": "明天有考试。", "translation": "There is an exam tomorrow."}, {"hanzi": "我们明天要考试。", "translation": "We have an exam tomorrow."}, {"hanzi": "你什么时候考试？", "translation": "When is your exam?"}]}, {"hanzi": "咖啡", "pinyin": "kāfēi", "pos": "n.", "translation": "coffee", "examples": [{"hanzi": "我喝咖啡。", "translation": "I drink coffee."}, {"hanzi": "我每天早上都喝一杯咖啡。", "translation": "I drink a cup of coffee every morning."}, {"hanzi": "你要喝咖啡还是茶？", "translation": "Do you want coffee or tea?"}]}, {"hanzi": "对", "pinyin": "duì", "pos": "prep.", "translation": "(used before a noun or pronoun) to, for", "common_words": [{"hanzi": "对不起", "translation": "sorry"}, {"hanzi": "对吗", "translation": "is that right?"}, {"hanzi": "对我", "translation": "to me; toward me"}]}, {"hanzi": "以后", "pinyin": "yǐhòu", "pos": "n.", "translation": "after, afterwards, later", "examples": [{"hanzi": "以后我会早来。", "translation": "I will come early later."}, {"hanzi": "我们以后再说。", "translation": "We will talk later."}, {"hanzi": "以后不要迟到。", "translation": "Do not be late in the future."}]}]}, {"lesson": 6, "title_hanzi": "你怎么不吃了", "title_translation": "Why don't you eat more", "words": [{"hanzi": "门", "pinyin": "mén", "pos": "n.", "translation": "door, gate", "common_words": [{"hanzi": "门口", "translation": "doorway, entrance"}, {"hanzi": "大门", "translation": "main door, gate"}, {"hanzi": "开门", "translation": "to open the door"}]}, {"hanzi": "外", "pinyin": "wài", "pos": "n.", "translation": "outer, outside", "common_words": [{"hanzi": "外面", "translation": "outside"}, {"hanzi": "外国", "translation": "foreign country"}, {"hanzi": "课外", "translation": "extracurricular, outside of class"}]}, {"hanzi": "自行车", "pinyin": "zìxíngchē", "pos": "n.", "translation": "bike", "examples": [{"hanzi": "我每天骑自行车去上班。", "translation": "I ride a bicycle to work every day."}, {"hanzi": "我有一辆自行车。", "translation": "I have a bicycle."}, {"hanzi": "为了环保，他决定每天骑自行车上下班。", "translation": "For environmental protection, he decided to ride a bicycle to and from work every day."}]}, {"hanzi": "羊肉", "pinyin": "yángròu", "pos": "n.", "translation": "mutton", "examples": [{"hanzi": "我喜欢吃羊肉。", "translation": "I like to eat mutton."}, {"hanzi": "这是羊肉。", "translation": "This is mutton."}, {"hanzi": "羊肉的价格有点贵。", "translation": "The price of mutton is a bit expensive."}]}, {"hanzi": "好吃", "pinyin": "hǎochī", "pos": "adj.", "translation": "delicious, yummy", "examples": [{"hanzi": "苹果好吃。", "translation": "Apples are delicious."}, {"hanzi": "这个苹果很好吃。", "translation": "This apple is very delicious."}, {"hanzi": "这个蛋糕真好吃！", "translation": "This cake is really delicious!"}]}, {"hanzi": "面条", "pinyin": "miàntiáo", "pos": "n.", "translation": "noodles", "examples": [{"hanzi": "我喜欢吃面条。", "translation": "I like to eat noodles."}, {"hanzi": "我吃面条。", "translation": "I eat noodles."}, {"hanzi": "今天中午我们吃面条吧。", "translation": "Let's have noodles for lunch today."}]}, {"hanzi": "打篮球", "pinyin": "dǎ lánqiú", "pos": "v.", "translation": "to play basketball", "examples": [{"hanzi": "我喜欢打篮球。", "translation": "I like playing basketball."}, {"hanzi": "我哥哥喜欢打篮球。", "translation": "My older brother likes to play basketball."}, {"hanzi": "他每天下午都打篮球。", "translation": "He plays basketball every afternoon."}]}, {"hanzi": "因为", "pinyin": "yīnwèi", "pos": "conj.", "translation": "because, since", "examples": [{"hanzi": "她喜欢这份工作，因为它很有意义。", "translation": "She likes this job because it is very meaningful."}, {"hanzi": "我今天没去学校，因为我生病了。", "translation": "I didn't go to school today because I was sick."}, {"hanzi": "他没有来参加聚会，因为工作太忙了。", "translation": "He didn't come to the party because he was too busy with work."}]}, {"hanzi": "所以", "pinyin": "suǒyǐ", "pos": "conj.", "translation": "so, therefore", "examples": [{"hanzi": "我很忙，所以不去。", "translation": "I am busy, so I will not go."}, {"hanzi": "今天下雨，所以我在家。", "translation": "It is raining today, so I am at home."}, {"hanzi": "他病了，所以没来。", "translation": "He is sick, so he did not come."}]}, {"hanzi": "游泳", "pinyin": "yóuyǒng", "pos": "v.", "translation": "to swim", "examples": [{"hanzi": "夏天我喜欢去河里游泳。", "translation": "In summer, I like to go swimming in the river."}, {"hanzi": "我喜欢游泳。", "translation": "I like swimming."}, {"hanzi": "你会游泳吗？", "translation": "Can you swim?"}]}, {"hanzi": "经常", "pinyin": "jīngcháng", "pos": "adv.", "translation": "often, frequently", "examples": [{"hanzi": "我经常去图书馆看书。", "translation": "I often go to the library to read books."}, {"hanzi": "我经常吃苹果。", "translation": "I often eat apples."}, {"hanzi": "为了保持健康，他经常去健身房锻炼。", "translation": "To stay healthy, he often goes to the gym to work out."}]}, {"hanzi": "公斤", "pinyin": "gōngjīn", "pos": "m.", "translation": "kilogram", "examples": [{"hanzi": "这个西瓜有五公斤重。", "translation": "This watermelon weighs five kilograms."}, {"hanzi": "这个苹果重一公斤。", "translation": "This apple weighs one kilogram."}, {"hanzi": "这袋面粉大约有十公斤，够用一个月了。", "translation": "This bag of flour weighs about ten kilograms, enough for a month."}]}, {"hanzi": "姐姐", "pinyin": "jiějie", "pos": "n.", "translation": "elder sister", "examples": [{"hanzi": "这是我的姐姐。", "translation": "This is my older sister."}, {"hanzi": "我的姐姐很漂亮。", "translation": "My elder sister is very beautiful."}, {"hanzi": "姐姐，你能帮我一下吗？", "translation": "Sister, can you help me?"}]}]}, {"lesson": 7, "title_hanzi": "你家离公司远吗", "title_translation": "Do you live far from your company", "words": [{"hanzi": "教室", "pinyin": "jiàoshì", "pos": "n.", "translation": "classroom", "examples": [{"hanzi": "我们的教室在二楼。", "translation": "Our classroom is on the second floor."}, {"hanzi": "这是教室。", "translation": "This is a classroom."}, {"hanzi": "请保持教室的整洁。", "translation": "Please keep the classroom clean."}]}, {"hanzi": "机场", "pinyin": "jīchǎng", "pos": "n.", "translation": "airport", "examples": [{"hanzi": "明天我要去机场接朋友。", "translation": "Tomorrow I need to go to the airport to pick up a friend."}, {"hanzi": "这是机场。", "translation": "This is an airport."}, {"hanzi": "机场离市中心很远。", "translation": "The airport is far from the city center."}]}, {"hanzi": "路", "pinyin": "lù", "pos": "n.", "translation": "road, path, way", "common_words": [{"hanzi": "路口", "translation": "crossing, crossroads"}, {"hanzi": "马路", "translation": "road, street"}, {"hanzi": "走路", "translation": "to walk, to go on foot"}]}, {"hanzi": "离", "pinyin": "lí", "pos": "v.", "translation": "to be away from", "common_words": [{"hanzi": "离开", "translation": "to leave"}, {"hanzi": "离家", "translation": "away from home; to leave home"}, {"hanzi": "离学校", "translation": "away from school"}]}, {"hanzi": "公司", "pinyin": "gōngsī", "pos": "n.", "translation": "company, firm", "examples": [{"hanzi": "我爸爸在公司工作。", "translation": "My father works at a company."}, {"hanzi": "这是我的公司。", "translation": "This is my company."}, {"hanzi": "这家公司很大。", "translation": "This company is very big."}]}, {"hanzi": "远", "pinyin": "yuǎn", "pos": "adj.", "translation": "far, distant", "common_words": [{"hanzi": "远处", "translation": "distant place"}, {"hanzi": "很远", "translation": "very far"}, {"hanzi": "远吗", "translation": "far (question)"}]}, {"hanzi": "公共汽车", "pinyin": "gōnggòngqìchē", "pos": "n.", "translation": "bus", "examples": [{"hanzi": "我每天坐公共汽车去上班。", "translation": "I take the bus to work every day."}, {"hanzi": "我坐公共汽车去学校。", "translation": "I take the bus to school."}, {"hanzi": "请问，去公园坐哪路公共汽车？", "translation": "Excuse me, which bus should I take to go to the park?"}]}, {"hanzi": "小时", "pinyin": "xiǎoshí", "pos": "n.", "translation": "hour", "examples": [{"hanzi": "我每天学习一小时。", "translation": "I study for one hour every day."}, {"hanzi": "我每天工作八小时。", "translation": "I work eight hours every day."}, {"hanzi": "我们等了一个小时了。", "translation": "We have been waiting for an hour."}]}, {"hanzi": "慢", "pinyin": "màn", "pos": "adj.", "translation": "slow", "common_words": [{"hanzi": "慢点", "translation": "slower; a little slower"}, {"hanzi": "慢走", "translation": "walk slowly; take care (goodbye)"}, {"hanzi": "很慢", "translation": "very slow"}]}, {"hanzi": "快", "pinyin": "kuài", "pos": "adj.", "translation": "quick, fast", "common_words": [{"hanzi": "快乐", "translation": "happy, glad"}, {"hanzi": "快车", "translation": "express train or bus"}, {"hanzi": "飞快", "translation": "very fast"}]}, {"hanzi": "过", "pinyin": "guò", "pos": "v.", "translation": "to pass (time), to spend (time)", "common_words": [{"hanzi": "过年", "translation": "to celebrate the New Year"}, {"hanzi": "过去", "translation": "to pass by, to go over"}, {"hanzi": "过来", "translation": "to come over"}]}, {"hanzi": "走", "pinyin": "zǒu", "pos": "v.", "translation": "to walk", "common_words": [{"hanzi": "走路", "translation": "to walk"}, {"hanzi": "走开", "translation": "to go away"}, {"hanzi": "行走", "translation": "to walk"}]}, {"hanzi": "到", "pinyin": "dào", "pos": "v.", "translation": "to arrive, to reach", "common_words": [{"hanzi": "到家", "translation": "to arrive home"}, {"hanzi": "到学校", "translation": "to arrive at school"}, {"hanzi": "迟到", "translation": "to be late"}]}]}, {"lesson": 8, "title_hanzi": "让我想想再告诉你", "title_translation": "Let me think about it and I'll tell you later", "words": [{"hanzi": "再", "pinyin": "zài", "pos": "adv.", "translation": "again, once more", "common_words": [{"hanzi": "再见", "translation": "goodbye; see you again"}, {"hanzi": "再来", "translation": "come again"}, {"hanzi": "再说", "translation": "say again; talk later"}]}, {"hanzi": "让", "pinyin": "ràng", "pos": "v.", "translation": "to let, to allow", "common_words": [{"hanzi": "让开", "translation": "to move aside"}, {"hanzi": "让座", "translation": "to offer a seat"}, {"hanzi": "让他", "translation": "let him"}]}, {"hanzi": "告诉", "pinyin": "gàosu", "pos": "v.", "translation": "to tell", "examples": [{"hanzi": "我告诉妈妈我饿了。", "translation": "I told my mom I was hungry."}, {"hanzi": "请告诉我你的名字。", "translation": "Please tell me your name."}, {"hanzi": "请告诉我你的电话号码。", "translation": "Please tell me your phone number."}]}, {"hanzi": "等", "pinyin": "děng", "pos": "v.", "translation": "to wait, to await", "common_words": [{"hanzi": "等一下", "translation": "wait a moment"}, {"hanzi": "等车", "translation": "to wait for a vehicle"}, {"hanzi": "等人", "translation": "to wait for someone"}]}, {"hanzi": "找", "pinyin": "zhǎo", "pos": "v.", "translation": "to look for", "common_words": [{"hanzi": "找到", "translation": "to find"}, {"hanzi": "找人", "translation": "to look for someone"}, {"hanzi": "找钱", "translation": "to give change"}]}, {"hanzi": "事情", "pinyin": "shìqing", "pos": "n.", "translation": "thing, matter, affair", "examples": [{"hanzi": "这是一件小事情。", "translation": "This is a small matter."}, {"hanzi": "这件事情很重要，我们要认真对待。", "translation": "This matter is very important; we must take it seriously."}, {"hanzi": "那件事情已经顺利解决了。", "translation": "That matter has been resolved smoothly."}]}, {"hanzi": "服务员", "pinyin": "fúwùyuán", "pos": "n.", "translation": "attendant, waiter/waitress", "examples": [{"hanzi": "服务员，请给我一杯水。", "translation": "Waiter, please give me a glass of water."}, {"hanzi": "服务员，请帮我点菜。", "translation": "Waiter, please help me order."}, {"hanzi": "请问服务员，厕所在哪里？", "translation": "Excuse me, waiter, where is the restroom?"}]}, {"hanzi": "白", "pinyin": "bái", "pos": "adj.", "translation": "white", "common_words": [{"hanzi": "白色", "translation": "white color"}, {"hanzi": "白天", "translation": "daytime"}, {"hanzi": "白菜", "translation": "Chinese cabbage"}]}, {"hanzi": "黑", "pinyin": "hēi", "pos": "adj.", "translation": "black", "common_words": [{"hanzi": "黑色", "translation": "black (color)"}, {"hanzi": "黑板", "translation": "blackboard"}, {"hanzi": "黑猫", "translation": "black cat"}]}, {"hanzi": "贵", "pinyin": "guì", "pos": "adj.", "translation": "expensive", "common_words": [{"hanzi": "很贵", "translation": "very expensive"}, {"hanzi": "太贵", "translation": "too expensive"}, {"hanzi": "贵吗", "translation": "expensive? (question)"}]}]}, {"lesson": 9, "title_hanzi": "题太多，我没做完", "title_translation": "There were too many questions; I didn't finish all of them", "words": [{"hanzi": "错", "pinyin": "cuò", "pos": "adj.", "translation": "wrong, incorrect", "common_words": [{"hanzi": "不错", "translation": "pretty good"}, {"hanzi": "错了", "translation": "wrong, mistaken"}, {"hanzi": "犯错", "translation": "to make a mistake"}]}, {"hanzi": "从", "pinyin": "cóng", "pos": "prep.", "translation": "from", "common_words": [{"hanzi": "从来", "translation": "always; all along"}, {"hanzi": "从前", "translation": "before; formerly"}, {"hanzi": "从小", "translation": "since childhood"}]}, {"hanzi": "跳舞", "pinyin": "tiàowǔ", "pos": "v.", "translation": "to dance", "examples": [{"hanzi": "她喜欢在周末和朋友一起跳舞。", "translation": "She likes to dance with friends on weekends."}, {"hanzi": "我喜欢跳舞。", "translation": "I like to dance."}, {"hanzi": "你会跳舞吗？", "translation": "Can you dance?"}]}, {"hanzi": "第一", "pinyin": "dìyī", "pos": "num.", "translation": "first", "examples": [{"hanzi": "这是我的第一本书。", "translation": "This is my first book."}, {"hanzi": "第一，我想介绍自己。", "translation": "Firstly, I would like to introduce myself."}, {"hanzi": "第一，请先介绍一下你自己。", "translation": "Firstly, please introduce yourself."}]}, {"hanzi": "希望", "pinyin": "xīwàng", "pos": "v.", "translation": "to hope, to wish", "examples": [{"hanzi": "我希望明天是晴天。", "translation": "I hope tomorrow will be sunny."}, {"hanzi": "我有一个小小的希望。", "translation": "I have a small hope."}, {"hanzi": "我希望你能来参加我的生日聚会。", "translation": "I hope you can come to my birthday party."}]}, {"hanzi": "问题", "pinyin": "wèntí", "pos": "n.", "translation": "question, problem", "examples": [{"hanzi": "我有一个问题。", "translation": "I have a problem."}, {"hanzi": "这个数学问题很难。", "translation": "This math problem is very difficult."}, {"hanzi": "这个数学问题太难了。", "translation": "This math problem is too difficult."}]}, {"hanzi": "欢迎", "pinyin": "huānyíng", "pos": "v.", "translation": "to welcome", "examples": [{"hanzi": "我们热烈欢迎新同学。", "translation": "We warmly welcome the new classmates."}, {"hanzi": "欢迎你来我家。", "translation": "Welcome to my home."}, {"hanzi": "我们随时欢迎您提出宝贵的建议。", "translation": "We always welcome your valuable suggestions."}]}, {"hanzi": "上班", "pinyin": "shàngbān", "pos": "v.", "translation": "to work, to do a job", "examples": [{"hanzi": "我每天八点上班。", "translation": "I go to work at eight o'clock every day."}, {"hanzi": "我每天早上八点上班。", "translation": "I start work at eight o'clock every morning."}, {"hanzi": "你明天几点上班？", "translation": "What time do you start work tomorrow?"}]}, {"hanzi": "懂", "pinyin": "dǒng", "pos": "v.", "translation": "to understand, to know", "common_words": [{"hanzi": "听懂", "translation": "to understand (by listening)"}, {"hanzi": "看懂", "translation": "to understand (by reading or seeing)"}, {"hanzi": "不懂", "translation": "don't understand"}]}, {"hanzi": "完", "pinyin": "wán", "pos": "v.", "translation": "to finish; [+ verb indicates completion]", "common_words": [{"hanzi": "完成", "translation": "to complete; to finish"}, {"hanzi": "完了", "translation": "finished"}, {"hanzi": "写完", "translation": "to finish writing"}]}, {"hanzi": "题", "pinyin": "tí", "pos": "n.", "translation": "question, problem", "common_words": [{"hanzi": "问题", "translation": "question, problem"}, {"hanzi": "题目", "translation": "title, topic, exercise question"}, {"hanzi": "话题", "translation": "topic of conversation"}]}]}, {"lesson": 10, "title_hanzi": "别找了，手机在桌子上呢", "title_translation": "Stop looking for your cell phone; it's on the desk", "words": [{"hanzi": "课", "pinyin": "kè", "pos": "n.", "translation": "class, lesson", "common_words": [{"hanzi": "上课", "translation": "to attend class"}, {"hanzi": "下课", "translation": "to finish class"}, {"hanzi": "课本", "translation": "textbook"}]}, {"hanzi": "帮助", "pinyin": "bāngzhù", "pos": "v.", "translation": "to help, to assist, to aid", "examples": [{"hanzi": "他经常帮助同学学习汉语。", "translation": "He often helps his classmates learn Chinese."}, {"hanzi": "他帮助我。", "translation": "He helps me."}, {"hanzi": "你能帮助我拿一下包吗？", "translation": "Can you help me carry the bag?"}]}, {"hanzi": "别", "pinyin": "bié", "pos": "adv.", "translation": "don't", "common_words": [{"hanzi": "别走", "translation": "don't go"}, {"hanzi": "别说", "translation": "don't say it"}, {"hanzi": "别去", "translation": "don't go there"}]}, {"hanzi": "哥哥", "pinyin": "gēge", "pos": "n.", "translation": "elder brother", "examples": [{"hanzi": "这是我的哥哥。", "translation": "This is my older brother."}, {"hanzi": "我的哥哥很高。", "translation": "My elder brother is very tall."}, {"hanzi": "哥哥，你什么时候回家？", "translation": "Brother, when are you coming home?"}]}, {"hanzi": "鸡蛋", "pinyin": "jīdàn", "pos": "n.", "translation": "(hen's) egg", "examples": [{"hanzi": "这是一个鸡蛋。", "translation": "This is an egg."}, {"hanzi": "我每天早上吃一个鸡蛋。", "translation": "I eat one egg every morning."}, {"hanzi": "妈妈用鸡蛋做蛋糕。", "translation": "Mom uses eggs to make a cake."}]}, {"hanzi": "西瓜", "pinyin": "xīguā", "pos": "n.", "translation": "watermelon", "examples": [{"hanzi": "这是西瓜。", "translation": "This is a watermelon."}, {"hanzi": "夏天吃西瓜很凉快。", "translation": "Eating watermelon in summer is very refreshing."}, {"hanzi": "你喜欢吃西瓜吗？", "translation": "Do you like eating watermelon?"}]}, {"hanzi": "正在", "pinyin": "zhèngzài", "pos": "adv.", "translation": "in the process of", "examples": [{"hanzi": "我正在吃饭。", "translation": "I am eating."}, {"hanzi": "他正在看书。", "translation": "He is reading a book."}, {"hanzi": "妈妈正在超市买东西。", "translation": "Mom is shopping at the supermarket."}]}, {"hanzi": "手机", "pinyin": "shǒujī", "pos": "n.", "translation": "cell phone", "examples": [{"hanzi": "这是我的手机。", "translation": "This is my mobile phone."}, {"hanzi": "我的手机很新。", "translation": "My mobile phone is very new."}, {"hanzi": "我的手机没电了。", "translation": "My mobile phone is out of battery."}]}, {"hanzi": "洗", "pinyin": "xǐ", "pos": "v.", "translation": "to wash, to bathe", "common_words": [{"hanzi": "洗手", "translation": "to wash hands"}, {"hanzi": "洗澡", "translation": "to take a bath or shower"}, {"hanzi": "洗衣服", "translation": "to wash clothes"}]}]}, {"lesson": 11, "title_hanzi": "他比我大三岁", "title_translation": "He is three years older than me", "words": [{"hanzi": "唱歌", "pinyin": "chànggē", "pos": "v.", "translation": "to sing", "examples": [{"hanzi": "我喜欢唱歌。", "translation": "I like singing."}, {"hanzi": "她喜欢唱歌。", "translation": "She likes to sing."}, {"hanzi": "你会唱歌吗？", "translation": "Can you sing?"}]}, {"hanzi": "男", "pinyin": "nán", "pos": "adj.", "translation": "man, male", "common_words": [{"hanzi": "男人", "translation": "man"}, {"hanzi": "男生", "translation": "male student"}, {"hanzi": "男女", "translation": "male and female"}]}, {"hanzi": "女", "pinyin": "nǚ", "pos": "adj.", "translation": "woman, female", "common_words": [{"hanzi": "女儿", "translation": "daughter"}, {"hanzi": "女人", "translation": "woman"}, {"hanzi": "女生", "translation": "female student"}]}, {"hanzi": "孩子", "pinyin": "háizi", "pos": "n.", "translation": "child, kid", "examples": [{"hanzi": "这个孩子很可爱。", "translation": "This child is very cute."}, {"hanzi": "孩子们在公园里玩。", "translation": "The children are playing in the park."}, {"hanzi": "请照顾好你的孩子。", "translation": "Please take good care of your child."}]}, {"hanzi": "右边", "pinyin": "yòubian", "pos": "n.", "translation": "right, right side", "examples": [{"hanzi": "我的书在桌子的右边。", "translation": "My book is on the right side of the table."}, {"hanzi": "我的书在右边。", "translation": "My book is on the right."}, {"hanzi": "超市的入口在右边。", "translation": "The supermarket entrance is on the right."}]}, {"hanzi": "比", "pinyin": "bǐ", "pos": "prep.", "translation": "than, (superior or inferior) to", "common_words": [{"hanzi": "比较", "translation": "rather; comparatively; to compare"}, {"hanzi": "比如", "translation": "for example"}, {"hanzi": "比我", "translation": "than me"}]}, {"hanzi": "便宜", "pinyin": "piányi", "pos": "adj.", "translation": "cheap, inexpensive", "examples": [{"hanzi": "这个苹果很便宜。", "translation": "This apple is very cheap."}, {"hanzi": "这件衣服很便宜。", "translation": "This piece of clothing is very cheap."}, {"hanzi": "这件衣服真便宜，我想买。", "translation": "This piece of clothing is really cheap, I want to buy it."}]}, {"hanzi": "说话", "pinyin": "shuōhuà", "pos": "v.", "translation": "to speak, to say, to talk", "examples": [{"hanzi": "妈妈在说话。", "translation": "Mom is speaking."}, {"hanzi": "请小声说话。", "translation": "Please speak quietly."}, {"hanzi": "请安静，老师正在说话。", "translation": "Please be quiet, the teacher is speaking."}]}, {"hanzi": "可能", "pinyin": "kěnéng", "pos": "aux.", "translation": "maybe, perhaps, probably", "examples": [{"hanzi": "明天可能下雨。", "translation": "It might rain tomorrow."}, {"hanzi": "他可能在家。", "translation": "He might be at home."}, {"hanzi": "他可能不知道这件事。", "translation": "He might not know about this matter."}]}, {"hanzi": "去年", "pinyin": "qùnián", "pos": "n.", "translation": "last year", "examples": [{"hanzi": "去年我去了北京。", "translation": "I went to Beijing last year."}, {"hanzi": "我去年在北京学习。", "translation": "I studied in Beijing last year."}, {"hanzi": "去年我学会了游泳。", "translation": "I learned how to swim last year."}]}, {"hanzi": "姓", "pinyin": "xìng", "pos": "n.", "translation": "family name, surname", "common_words": [{"hanzi": "姓名", "translation": "full name"}, {"hanzi": "贵姓", "translation": "your surname (polite)"}, {"hanzi": "姓王", "translation": "to have the surname Wang"}]}]}, {"lesson": 12, "title_hanzi": "你穿得太少了", "title_translation": "You wear too little", "words": [{"hanzi": "得", "pinyin": "de", "pos": "part.", "translation": "used after a verb or an adjective to introduce a complement of result or degree", "common_words": [{"hanzi": "觉得", "translation": "to think, to feel"}, {"hanzi": "记得", "translation": "to remember"}, {"hanzi": "懂得", "translation": "to understand"}]}, {"hanzi": "妻子", "pinyin": "qīzi", "pos": "n.", "translation": "wife", "examples": [{"hanzi": "他的妻子是一位医生。", "translation": "His wife is a doctor."}, {"hanzi": "这是我的妻子。", "translation": "This is my wife."}, {"hanzi": "我妻子做的菜很好吃。", "translation": "My wife's cooking is very delicious."}]}, {"hanzi": "雪", "pinyin": "xuě", "pos": "n.", "translation": "snow", "common_words": [{"hanzi": "雪人", "translation": "snowman"}, {"hanzi": "下雪", "translation": "to snow"}, {"hanzi": "雪花", "translation": "snowflake"}]}, {"hanzi": "零", "pinyin": "líng", "pos": "num.", "translation": "zero", "common_words": [{"hanzi": "零钱", "translation": "small change; pocket money"}, {"hanzi": "零下", "translation": "below zero"}, {"hanzi": "零点", "translation": "zero point; midnight"}]}, {"hanzi": "度", "pinyin": "dù", "pos": "n.", "translation": "degree", "common_words": [{"hanzi": "温度", "translation": "temperature"}, {"hanzi": "长度", "translation": "length"}, {"hanzi": "高度", "translation": "height"}]}, {"hanzi": "穿", "pinyin": "chuān", "pos": "v.", "translation": "to wear, to put on", "common_words": [{"hanzi": "穿上", "translation": "to put on"}, {"hanzi": "穿衣服", "translation": "to wear clothes; to get dressed"}, {"hanzi": "穿鞋", "translation": "to put on shoes"}]}, {"hanzi": "进", "pinyin": "jìn", "pos": "v.", "translation": "to enter, to come/go in", "common_words": [{"hanzi": "进来", "translation": "to come in"}, {"hanzi": "进去", "translation": "to go in"}, {"hanzi": "进入", "translation": "to enter"}]}, {"hanzi": "弟弟", "pinyin": "dìdi", "pos": "n.", "translation": "young brother", "examples": [{"hanzi": "这是我的弟弟。", "translation": "This is my younger brother."}, {"hanzi": "我的弟弟今年五岁。", "translation": "My younger brother is five years old this year."}, {"hanzi": "我弟弟每天七点起床。", "translation": "My younger brother gets up at seven every day."}]}, {"hanzi": "近", "pinyin": "jìn", "pos": "adj.", "translation": "near, close", "common_words": [{"hanzi": "附近", "translation": "nearby, vicinity"}, {"hanzi": "最近", "translation": "recently, lately"}, {"hanzi": "走近", "translation": "to approach, to walk closer"}]}]}, {"lesson": 13, "title_hanzi": "门开着呢", "title_translation": "The door is open", "words": [{"hanzi": "着", "pinyin": "zhe", "pos": "part.", "translation": "used to indicate a state", "common_words": [{"hanzi": "看着", "translation": "looking at"}, {"hanzi": "听着", "translation": "listening"}, {"hanzi": "拿着", "translation": "holding"}]}, {"hanzi": "手", "pinyin": "shǒu", "pos": "n.", "translation": "hand", "common_words": [{"hanzi": "手表", "translation": "watch"}, {"hanzi": "手机", "translation": "cell phone"}, {"hanzi": "手套", "translation": "gloves"}]}, {"hanzi": "拿", "pinyin": "ná", "pos": "v.", "translation": "to hold, to take, to bring", "common_words": [{"hanzi": "拿来", "translation": "to bring (here)"}, {"hanzi": "拿走", "translation": "to take away"}, {"hanzi": "拿出", "translation": "to take out"}]}, {"hanzi": "铅笔", "pinyin": "qiānbǐ", "pos": "n.", "translation": "pencil", "examples": [{"hanzi": "这是一支铅笔。", "translation": "This is a pencil."}, {"hanzi": "我需要一支铅笔来画画。", "translation": "I need a pencil to draw."}, {"hanzi": "请用铅笔填写这张表格。", "translation": "Please fill out this form with a pencil."}]}, {"hanzi": "班", "pinyin": "bān", "pos": "n.", "translation": "class, grade, team", "common_words": [{"hanzi": "上班", "translation": "to work, to do a job"}, {"hanzi": "班级", "translation": "class, grade (in school)"}, {"hanzi": "班长", "translation": "class monitor, team leader"}]}, {"hanzi": "长", "pinyin": "zhǎng", "pos": "v.", "translation": "to grow, to develop", "common_words": [{"hanzi": "长大", "translation": "to grow up"}, {"hanzi": "长高", "translation": "to grow taller"}, {"hanzi": "生长", "translation": "to grow"}]}, {"hanzi": "笑", "pinyin": "xiào", "pos": "v.", "translation": "to smile, to laugh", "common_words": [{"hanzi": "微笑", "translation": "to smile"}, {"hanzi": "笑话", "translation": "joke"}, {"hanzi": "笑了", "translation": "smiled; laughed"}]}, {"hanzi": "宾馆", "pinyin": "bīnguǎn", "pos": "n.", "translation": "hotel", "examples": [{"hanzi": "这是宾馆。", "translation": "This is a hotel."}, {"hanzi": "我们旅行时住在市中心的一家宾馆。", "translation": "We stayed at a guesthouse in the city center when we traveled."}, {"hanzi": "这家宾馆离火车站很近。", "translation": "This guesthouse is very close to the train station."}]}, {"hanzi": "一直", "pinyin": "yìzhí", "pos": "adv.", "translation": "straight, all along", "examples": [{"hanzi": "沿着这条路一直走，你就能看到医院。", "translation": "Go straight along this road, and you will see the hospital."}, {"hanzi": "他一直笑。", "translation": "He keeps laughing."}, {"hanzi": "沿着这条路一直走，你就能看到地铁站。", "translation": "Keep going straight along this road, and you'll see the subway station."}]}, {"hanzi": "往", "pinyin": "wǎng", "pos": "prep.", "translation": "to, towards", "common_words": [{"hanzi": "往前", "translation": "forward"}, {"hanzi": "往右", "translation": "to the right"}, {"hanzi": "往左", "translation": "to the left"}]}, {"hanzi": "路口", "pinyin": "lùkǒu", "pos": "n.", "translation": "crossing, crossroads", "examples": [{"hanzi": "请在路口右转。", "translation": "Please turn right at the intersection."}, {"hanzi": "请在下一个路口右转。", "translation": "Please turn right at the next crossing."}, {"hanzi": "我在十字路口等你。", "translation": "I'll wait for you at the intersection."}]}, {"hanzi": "杨笑笑", "pinyin": "Yáng Xiàoxiao", "pos": "n.", "translation": "name of a person", "examples": [{"hanzi": "杨笑笑在教室门口等我。", "translation": "Yang Xiaoxiao is waiting for me at the classroom door."}, {"hanzi": "杨笑笑，你的书在桌子上。", "translation": "Yang Xiaoxiao, your book is on the table."}, {"hanzi": "杨笑笑喜欢喝热茶。", "translation": "Yang Xiaoxiao likes to drink hot tea."}]}]}, {"lesson": 14, "title_hanzi": "你看过那个电影吗", "title_translation": "Have you seen that movie", "words": [{"hanzi": "有意思", "pinyin": "yǒuyìsi", "pos": "adj.", "translation": "interesting, fun", "examples": [{"hanzi": "这本书很有意思。", "translation": "This book is very interesting."}, {"hanzi": "我们边看边讨论剧情，这样更有意思。", "translation": "Let's discuss the plot while we watch; it's more fun that way."}, {"hanzi": "你最近有没有追什么特别有意思的综艺节目？", "translation": "Have you been following any particularly interesting variety shows recently?"}]}, {"hanzi": "但是", "pinyin": "dànshì", "pos": "conj.", "translation": "but, still, yet", "examples": [{"hanzi": "我想去，但是我没有时间。", "translation": "I want to go, but I don't have time."}, {"hanzi": "我想去，但是没时间。", "translation": "I want to go, but I don't have time."}, {"hanzi": "虽然下雨，但是我还是去公园了。", "translation": "Although it rained, I still went to the park."}]}, {"hanzi": "虽然", "pinyin": "suīrán", "pos": "conj.", "translation": "although, though", "examples": [{"hanzi": "爸爸虽然工作很忙，但周末总会抽时间陪我。", "translation": "Although Dad is very busy with work, he always makes time to accompany me."}, {"hanzi": "虽然今天很冷，但是我还是想去公园。", "translation": "Although it is very cold today, I still want to go to the park."}, {"hanzi": "虽然这次考试没考好，但没关系，下次努力就行。", "translation": "Although I didn't do well on this exam, it's okay, I'll try harder next time."}]}, {"hanzi": "次", "pinyin": "cì", "pos": "m.", "translation": "time", "common_words": [{"hanzi": "下次", "translation": "next time"}, {"hanzi": "每次", "translation": "every time"}, {"hanzi": "一次", "translation": "one time"}]}, {"hanzi": "玩儿", "pinyin": "wánr", "pos": "v.", "translation": "to play, to have fun", "examples": [{"hanzi": "我们一起去公园玩儿吧。", "translation": "Let's go to the park to play together."}, {"hanzi": "他喜欢和朋友玩儿电脑游戏。", "translation": "He likes to play computer games with friends."}, {"hanzi": "周末你在家玩儿什么？", "translation": "What do you play at home on weekends?"}]}, {"hanzi": "晴", "pinyin": "qíng", "pos": "adj.", "translation": "sunny, fine, clear", "common_words": [{"hanzi": "晴天", "translation": "sunny day"}, {"hanzi": "晴空", "translation": "clear sky"}, {"hanzi": "晴朗", "translation": "sunny and clear"}]}, {"hanzi": "百", "pinyin": "bǎi", "pos": "num.", "translation": "hundred", "common_words": [{"hanzi": "一百", "translation": "one hundred"}, {"hanzi": "二百", "translation": "two hundred"}, {"hanzi": "三百", "translation": "three hundred"}]}]}, {"lesson": 15, "title_hanzi": "新年就要到了", "title_translation": "The New Year is coming", "words": [{"hanzi": "日", "pinyin": "rì", "pos": "n.", "translation": "day, date", "common_words": [{"hanzi": "生日", "translation": "birthday"}, {"hanzi": "日记", "translation": "diary"}, {"hanzi": "日子", "translation": "day, date"}]}, {"hanzi": "新年", "pinyin": "xīnnián", "pos": "n.", "translation": "New Year", "examples": [{"hanzi": "新年快乐，万事如意！", "translation": "Happy New Year, may all your wishes come true!"}, {"hanzi": "我们全家一起庆祝新年。", "translation": "Our whole family celebrates the New Year together."}, {"hanzi": "我们一起庆祝新年到来。", "translation": "We celebrate the arrival of the new year together."}]}, {"hanzi": "票", "pinyin": "piào", "pos": "n.", "translation": "ticket", "common_words": [{"hanzi": "车票", "translation": "bus/train ticket"}, {"hanzi": "门票", "translation": "entrance ticket"}, {"hanzi": "机票", "translation": "plane ticket"}]}, {"hanzi": "火车站", "pinyin": "huǒchēzhàn", "pos": "n.", "translation": "railway station", "examples": [{"hanzi": "这是火车站。", "translation": "This is a train station."}, {"hanzi": "火车站离我家很近。", "translation": "The railway station is very close to my home."}, {"hanzi": "请到火车站售票处购票。", "translation": "Please go to the ticket office at the railway station to purchase tickets."}]}, {"hanzi": "大家", "pinyin": "dàjiā", "pos": "pron.", "translation": "all, everybody", "examples": [{"hanzi": "大家好。", "translation": "Hello, everyone."}, {"hanzi": "大家早上好。", "translation": "Good morning, everybody."}, {"hanzi": "请大家安静一下。", "translation": "Please be quiet for a moment, everybody."}]}, {"hanzi": "更", "pinyin": "gèng", "pos": "adv.", "translation": "more, to a greater extent", "common_words": [{"hanzi": "更加", "translation": "more, even more"}, {"hanzi": "更好", "translation": "better"}, {"hanzi": "更快", "translation": "faster"}]}, {"hanzi": "妹妹", "pinyin": "mèimei", "pos": "n.", "translation": "younger sister", "examples": [{"hanzi": "这是我的妹妹。", "translation": "This is my younger sister."}, {"hanzi": "我的妹妹很可爱。", "translation": "My younger sister is very cute."}, {"hanzi": "妹妹，你的书包在门口。", "translation": "Younger sister, your schoolbag is at the door."}]}, {"hanzi": "阴", "pinyin": "yīn", "pos": "adj.", "translation": "overcast, cloudy", "common_words": [{"hanzi": "阴天", "translation": "cloudy day"}, {"hanzi": "阴雨", "translation": "overcast and rainy"}, {"hanzi": "阴凉", "translation": "shady and cool"}]}]}]};
+const CHAR_PINYIN = {"旅": "lǚ", "游": "yóu", "觉": "jué", "得": "de", "最": "zuì", "为": "wèi", "什": "shén", "么": "me", "也": "yě", "运": "yùn", "动": "dòng", "踢": "tī", "足": "zú", "球": "qiú", "一": "yī", "起": "qǐ", "要": "yào", "新": "xīn", "它": "tā", "眼": "yǎn", "睛": "jīng", "花": "huā", "生": "shēng", "病": "bìng", "每": "měi", "早": "zǎo", "上": "shàng", "跑": "pǎo", "步": "bù", "床": "chuáng", "药": "yào", "身": "shēn", "体": "tǐ", "出": "chū", "院": "yuàn", "高": "gāo", "米": "mǐ", "知": "zhī", "道": "dào", "休": "xiū", "息": "xī", "忙": "máng", "时": "shí", "间": "jiān", "报": "bào", "纸": "zhǐ", "送": "sòng", "下": "xià", "牛": "niú", "奶": "nǎi", "房": "fáng", "丈": "zhàng", "夫": "fū", "旁": "páng", "边": "biān", "真": "zhēn", "粉": "fěn", "色": "sè", "颜": "yán", "左": "zuǒ", "红": "hóng", "日": "rì", "快": "kuài", "乐": "lè", "给": "gěi", "接": "jiē", "晚": "wǎn", "问": "wèn", "非": "fēi", "常": "cháng", "开": "kāi", "始": "shǐ", "已": "yǐ", "经": "jīng", "长": "cháng", "两": "liǎng", "帮": "bāng", "介": "jiè", "绍": "shào", "外": "wài", "面": "miàn", "准": "zhǔn", "备": "bèi", "就": "jiù", "鱼": "yú", "吧": "ba", "件": "jiàn", "还": "hái", "可": "kě", "以": "yǐ", "不": "bù", "错": "cuò", "考": "kǎo", "试": "shì", "咖": "kā", "啡": "fēi", "对": "duì", "后": "hòu", "门": "mén", "自": "zì", "行": "xíng", "车": "chē", "羊": "yáng", "肉": "ròu", "好": "hǎo", "吃": "chī", "条": "tiáo", "打": "dǎ", "篮": "lán", "因": "yīn", "所": "suǒ", "泳": "yǒng", "斤": "jīn", "姐": "jiě", "机": "jī", "场": "chǎng", "路": "lù", "离": "lí", "司": "sī", "远": "yuǎn", "共": "gòng", "汽": "qì", "小": "xiǎo", "慢": "màn", "过": "guò", "走": "zǒu", "到": "dào", "再": "zài", "让": "ràng", "告": "gào", "诉": "sù", "等": "děng", "找": "zhǎo", "事": "shì", "情": "qíng", "服": "fú", "务": "wù", "员": "yuán", "白": "bái", "黑": "hēi", "贵": "guì", "从": "cóng", "跳": "tiào", "舞": "wǔ", "第": "dì", "希": "xī", "望": "wàng", "题": "tí", "欢": "huān", "迎": "yíng", "班": "bān", "懂": "dǒng", "完": "wán", "课": "kè", "助": "zhù", "别": "bié", "哥": "gē", "鸡": "jī", "蛋": "dàn", "西": "xī", "瓜": "guā", "正": "zhèng", "在": "zài", "手": "shǒu", "洗": "xǐ", "唱": "chàng", "歌": "gē", "男": "nán", "女": "nǚ", "孩": "hái", "子": "zi", "右": "yòu", "比": "bǐ", "便": "pián", "宜": "yí", "说": "shuō", "话": "huà", "能": "néng", "去": "qù", "年": "nián", "姓": "xìng", "妻": "qī", "雪": "xuě", "零": "líng", "度": "dù", "穿": "chuān", "进": "jìn", "弟": "dì", "近": "jìn", "着": "zhe", "拿": "ná", "铅": "qiān", "笔": "bǐ", "笑": "xiào", "宾": "bīn", "馆": "guǎn", "直": "zhí", "往": "wǎng", "口": "kǒu", "杨": "Yáng", "有": "yǒu", "意": "yì", "思": "sī", "但": "dàn", "是": "shì", "虽": "suī", "然": "rán", "次": "cì", "玩": "wán", "儿": "ér", "晴": "qíng", "百": "bǎi", "票": "piào", "火": "huǒ", "站": "zhàn", "大": "dà", "家": "jiā", "更": "gèng", "妹": "mèi", "阴": "yīn", "公": "gōng", "千": "qiān", "表": "biǎo", "教": "jiào", "室": "shì", "七": "qī", "万": "wàn", "三": "sān", "东": "dōng", "个": "gè", "中": "zhōng", "义": "yì", "九": "jiǔ", "习": "xí", "书": "shū", "买": "mǎi", "了": "le", "二": "èr", "五": "wǔ", "交": "jiāo", "京": "jīng", "亮": "liàng", "人": "rén", "今": "jīn", "他": "tā", "们": "men", "价": "jià", "份": "fèn", "会": "huì", "伞": "sǎn", "位": "wèi", "住": "zhù", "作": "zuò", "你": "nǐ", "使": "shǐ", "保": "bǎo", "候": "hòu", "假": "jià", "做": "zuò", "停": "tíng", "健": "jiàn", "像": "xiàng", "先": "xiān", "入": "rù", "全": "quán", "八": "bā", "关": "guān", "兴": "xìng", "写": "xiě", "决": "jué", "冷": "lěng", "净": "jìng", "凉": "liáng", "前": "qián", "剧": "jù", "力": "lì", "加": "jiā", "努": "nǔ", "包": "bāo", "北": "běi", "医": "yī", "十": "shí", "午": "wǔ", "厕": "cè", "厘": "lí", "参": "cān", "友": "yǒu", "发": "fā", "号": "hào", "同": "tóng", "名": "míng", "吗": "ma", "听": "tīng", "周": "zhōu", "和": "hé", "哪": "nǎ", "哭": "kū", "售": "shòu", "喜": "xǐ", "喝": "hē", "回": "huí", "园": "yuán", "国": "guó", "图": "tú", "地": "dì", "坐": "zuò", "城": "chéng", "填": "tián", "声": "shēng", "处": "chù", "夏": "xià", "够": "gòu", "天": "tiān", "太": "tài", "套": "tào", "她": "tā", "如": "rú", "妈": "mā", "字": "zì", "学": "xué", "安": "ān", "定": "dìng", "宝": "bǎo", "将": "jiāng", "岁": "suì", "工": "gōng", "己": "jǐ", "市": "shì", "师": "shī", "带": "dài", "帷": "wéi", "幕": "mù", "干": "gàn", "庆": "qìng", "店": "diàn", "座": "zuò", "康": "kāng", "建": "jiàn", "张": "zhāng", "影": "yǐng", "待": "dài", "很": "hěn", "微": "wēi", "心": "xīn", "怎": "zěn", "总": "zǒng", "您": "nín", "想": "xiǎng", "戏": "xì", "成": "chéng", "我": "wǒ", "才": "cái", "抽": "chōu", "拉": "lā", "拍": "pāi", "持": "chí", "据": "jù", "提": "tí", "支": "zhī", "散": "sàn", "数": "shù", "整": "zhěng", "文": "wén", "明": "míng", "昨": "zuó", "显": "xiǎn", "月": "yuè", "朋": "péng", "朗": "lǎng", "期": "qī", "末": "mò", "本": "běn", "来": "lái", "杯": "bēi", "板": "bǎn", "果": "guǒ", "标": "biāo", "校": "xiào", "样": "yàng", "格": "gé", "案": "àn", "桌": "zhuō", "楼": "lóu", "气": "qì", "水": "shuǐ", "汉": "hàn", "没": "méi", "河": "hé", "沿": "yán", "洁": "jié", "活": "huó", "涂": "tú", "温": "wēn", "漂": "piào", "澡": "zǎo", "点": "diǎn", "炼": "liàn", "烈": "liè", "热": "rè", "照": "zhào", "爱": "ài", "爸": "bà", "物": "wù", "特": "tè", "犯": "fàn", "猫": "māo", "王": "wáng", "环": "huán", "现": "xiàn", "用": "yòng", "电": "diàn", "画": "huà", "的": "de", "目": "mù", "看": "kàn", "睡": "shuì", "码": "mǎ", "礼": "lǐ", "祝": "zhù", "空": "kōng", "答": "dá", "算": "suàn", "糕": "gāo", "系": "xì", "约": "yuē", "级": "jí", "继": "jì", "续": "xù", "综": "zōng", "缓": "huǎn", "老": "lǎo", "聚": "jù", "脑": "nǎo", "艺": "yì", "节": "jié", "苹": "píng", "茶": "chá", "菜": "cài", "蓝": "lán", "衣": "yī", "袋": "dài", "裙": "qún", "见": "jiàn", "视": "shì", "解": "jiě", "计": "jì", "认": "rèn", "讨": "tǎo", "议": "yì", "记": "jì", "论": "lùn", "语": "yǔ", "请": "qǐng", "购": "gòu", "超": "chāo", "转": "zhuǎn", "较": "jiào", "辆": "liàng", "这": "zhè", "迟": "chí", "追": "zhuī", "那": "nà", "部": "bù", "都": "dōu", "里": "lǐ", "重": "zhòng", "金": "jīn", "钟": "zhōng", "钱": "qián", "铁": "tiě", "锻": "duàn", "附": "fù", "陪": "péi", "随": "suí", "难": "nán", "雨": "yǔ", "需": "xū", "静": "jìng", "鞋": "xié", "顺": "shùn", "顾": "gù", "风": "fēng", "飞": "fēi", "饭": "fàn", "饿": "è", "马": "mǎ", "骑": "qí", "几": "jǐ", "分": "fēn", "划": "huà", "利": "lì", "刮": "guā"};
+const EXERCISES_DATA = {"lessons": [{"lesson": 1, "exercises": [{"sentence_blanked": "我们___吃饭。", "translation": "We eat together.", "options": ["它", "一起", "眼睛", "要"], "answer": "一起"}, {"sentence_blanked": "你___这个电影好看吗？", "translation": "Do you think this movie is good?", "options": ["最", "眼睛", "运动", "觉得"], "answer": "觉得"}, {"sentence_blanked": "她的___很漂亮。", "translation": "Her eyes are very beautiful.", "options": ["一起", "眼睛", "最", "也"], "answer": "眼睛"}, {"sentence_blanked": "我每天和___一起玩。", "translation": "I play with Huahua every day.", "options": ["花花", "它", "为什么", "旅游"], "answer": "花花"}, {"sentence_blanked": "他喜欢___。", "translation": "He likes to play football (lit. kick football).", "options": ["眼睛", "踢足球", "最", "运动"], "answer": "踢足球"}]}, {"lesson": 2, "exercises": [{"sentence_blanked": "我每天七点___。", "translation": "I get up at seven o'clock every day.", "options": ["每", "高", "起床", "药"], "answer": "起床"}, {"sentence_blanked": "我每天___。", "translation": "I run every day.", "options": ["时间", "身体", "跑步", "每"], "answer": "跑步"}, {"sentence_blanked": "他今天___了，不能来学校。", "translation": "He is sick today and cannot come to school.", "options": ["身体", "每", "高", "生病"], "answer": "生病"}, {"sentence_blanked": "我的___很好。", "translation": "My body is very good.", "options": ["跑步", "身体", "知道", "忙"], "answer": "身体"}, {"sentence_blanked": "我每天___都喝一杯牛奶。", "translation": "I drink a glass of milk every morning.", "options": ["高", "生病", "忙", "早上"], "answer": "早上"}]}, {"lesson": 3, "exercises": [{"sentence_blanked": "我喝___。", "translation": "I drink milk.", "options": ["一下", "千", "真", "牛奶"], "answer": "牛奶"}, {"sentence_blanked": "请你看___这本书。", "translation": "Please take a look at this book.", "options": ["牛奶", "旁边", "送", "一下"], "answer": "一下"}, {"sentence_blanked": "我每天早上喝一杯___。", "translation": "I drink a glass of milk every morning.", "options": ["一下", "真", "牛奶", "千"], "answer": "牛奶"}, {"sentence_blanked": "地铁站在___，我们往那边走。", "translation": "The subway station is on the left, let's go that way.", "options": ["千", "送", "一下", "左边"], "answer": "左边"}, {"sentence_blanked": "她的___是一位医生。", "translation": "Her husband is a doctor.", "options": ["千", "一下", "丈夫", "送"], "answer": "丈夫"}]}, {"lesson": 4, "exercises": [{"sentence_blanked": "这是我的朋友，我___一下。", "translation": "This is my friend, let me introduce him.", "options": ["快乐", "生日", "晚上", "介绍"], "answer": "介绍"}, {"sentence_blanked": "我___喜欢学习中文。", "translation": "I extremely like studying Chinese.", "options": ["非常", "给", "两", "开始"], "answer": "非常"}, {"sentence_blanked": "会议马上要___了。", "translation": "The meeting is about to begin.", "options": ["晚上", "非常", "开始", "生日"], "answer": "开始"}, {"sentence_blanked": "明天是我的___。", "translation": "Tomorrow is my birthday.", "options": ["快乐", "生日", "开始", "问"], "answer": "生日"}, {"sentence_blanked": "我们___七点吃饭。", "translation": "We eat dinner at seven o'clock in the evening.", "options": ["晚上", "介绍", "给", "已经"], "answer": "晚上"}]}, {"lesson": 5, "exercises": [{"sentence_blanked": "我___喝水吗？", "translation": "Can I drink water?", "options": ["外面", "不错", "可以", "就"], "answer": "可以"}, {"sentence_blanked": "我___吃饭。", "translation": "I am preparing to eat.", "options": ["不错", "准备", "以后", "咖啡"], "answer": "准备"}, {"sentence_blanked": "他今天心情好一点儿了，可能是因为天气___。", "translation": "He's in a slightly better mood today, probably because the weather is nice.", "options": ["对", "不错", "可以", "还"], "answer": "不错"}, {"sentence_blanked": "你___用我的笔。", "translation": "You can use my pen.", "options": ["咖啡", "以后", "鱼", "可以"], "answer": "可以"}, {"sentence_blanked": "你的答案___。", "translation": "Your answer is correct.", "options": ["件", "不错", "可以", "鱼"], "answer": "不错"}]}, {"lesson": 6, "exercises": [{"sentence_blanked": "我今天没去学校，___我生病了。", "translation": "I didn't go to school today because I was sick.", "options": ["因为", "自行车", "门", "好吃"], "answer": "因为"}, {"sentence_blanked": "苹果___。", "translation": "Apples are delicious.", "options": ["所以", "自行车", "经常", "好吃"], "answer": "好吃"}, {"sentence_blanked": "我有一辆___。", "translation": "I have a bicycle.", "options": ["打篮球", "自行车", "因为", "好吃"], "answer": "自行车"}, {"sentence_blanked": "她喜欢这份工作，___它很有意义。", "translation": "She likes this job because it is very meaningful.", "options": ["面条", "好吃", "姐姐", "因为"], "answer": "因为"}, {"sentence_blanked": "我每天骑___去上班。", "translation": "I ride a bicycle to work every day.", "options": ["自行车", "游泳", "好吃", "公斤"], "answer": "自行车"}]}, {"lesson": 7, "exercises": [{"sentence_blanked": "我爸爸在___工作。", "translation": "My father works at a company.", "options": ["远", "走", "离", "公司"], "answer": "公司"}, {"sentence_blanked": "我们的___在二楼。", "translation": "Our classroom is on the second floor.", "options": ["走", "离", "远", "教室"], "answer": "教室"}, {"sentence_blanked": "我坐___去学校。", "translation": "I take the bus to school.", "options": ["公共汽车", "离", "过", "到"], "answer": "公共汽车"}, {"sentence_blanked": "我每天工作八___。", "translation": "I work eight hours every day.", "options": ["走", "小时", "慢", "过"], "answer": "小时"}, {"sentence_blanked": "___离市中心很远。", "translation": "The airport is far from the city center.", "options": ["走", "机场", "远", "过"], "answer": "机场"}]}, {"lesson": 8, "exercises": [{"sentence_blanked": "这件___很重要，我们要认真对待。", "translation": "This matter is very important; we must take it seriously.", "options": ["告诉", "事情", "黑", "等"], "answer": "事情"}, {"sentence_blanked": "请___我你的电话号码。", "translation": "Please tell me your phone number.", "options": ["白", "贵", "黑", "告诉"], "answer": "告诉"}, {"sentence_blanked": "那件___已经顺利解决了。", "translation": "That matter has been resolved smoothly.", "options": ["黑", "事情", "告诉", "等"], "answer": "事情"}, {"sentence_blanked": "___，请给我一杯水。", "translation": "Waiter, please give me a glass of water.", "options": ["服务员", "黑", "让", "贵"], "answer": "服务员"}, {"sentence_blanked": "请问___，厕所在哪里？", "translation": "Excuse me, waiter, where is the restroom?", "options": ["白", "再", "服务员", "找"], "answer": "服务员"}]}, {"lesson": 9, "exercises": [{"sentence_blanked": "你明天几点___？", "translation": "What time do you start work tomorrow?", "options": ["错", "题", "上班", "问题"], "answer": "上班"}, {"sentence_blanked": "这个数学___太难了。", "translation": "This math problem is too difficult.", "options": ["欢迎", "上班", "跳舞", "问题"], "answer": "问题"}, {"sentence_blanked": "她喜欢在周末和朋友一起___。", "translation": "She likes to dance with friends on weekends.", "options": ["第一", "从", "跳舞", "题"], "answer": "跳舞"}, {"sentence_blanked": "你会___吗？", "translation": "Can you dance?", "options": ["题", "跳舞", "错", "从"], "answer": "跳舞"}, {"sentence_blanked": "我每天八点___。", "translation": "I go to work at eight o'clock every day.", "options": ["题", "问题", "上班", "错"], "answer": "上班"}]}, {"lesson": 10, "exercises": [{"sentence_blanked": "你喜欢吃___吗？", "translation": "Do you like eating watermelon?", "options": ["帮助", "正在", "洗", "西瓜"], "answer": "西瓜"}, {"sentence_blanked": "妈妈用___做蛋糕。", "translation": "Mom uses eggs to make a cake.", "options": ["鸡蛋", "帮助", "洗", "别"], "answer": "鸡蛋"}, {"sentence_blanked": "他___看书。", "translation": "He is reading a book.", "options": ["鸡蛋", "手机", "正在", "哥哥"], "answer": "正在"}, {"sentence_blanked": "我的___没电了。", "translation": "My mobile phone is out of battery.", "options": ["别", "帮助", "手机", "正在"], "answer": "手机"}, {"sentence_blanked": "夏天吃___很凉快。", "translation": "Eating watermelon in summer is very refreshing.", "options": ["帮助", "别", "西瓜", "洗"], "answer": "西瓜"}]}, {"lesson": 11, "exercises": [{"sentence_blanked": "请小声___。", "translation": "Please speak quietly.", "options": ["便宜", "说话", "可能", "孩子"], "answer": "说话"}, {"sentence_blanked": "超市的入口在___。", "translation": "The supermarket entrance is on the right.", "options": ["比", "说话", "可能", "右边"], "answer": "右边"}, {"sentence_blanked": "这件衣服很___。", "translation": "This piece of clothing is very cheap.", "options": ["孩子", "右边", "便宜", "可能"], "answer": "便宜"}, {"sentence_blanked": "这个___很可爱。", "translation": "This child is very cute.", "options": ["比", "女", "孩子", "男"], "answer": "孩子"}, {"sentence_blanked": "明天___下雨。", "translation": "It might rain tomorrow.", "options": ["可能", "姓", "去年", "男"], "answer": "可能"}]}, {"lesson": 12, "exercises": [{"sentence_blanked": "他的___是一位医生。", "translation": "His wife is a doctor.", "options": ["零", "妻子", "得", "近"], "answer": "妻子"}, {"sentence_blanked": "我的___今年五岁。", "translation": "My younger brother is five years old this year.", "options": ["近", "穿", "零", "弟弟"], "answer": "弟弟"}, {"sentence_blanked": "我___每天七点起床。", "translation": "My younger brother gets up at seven every day.", "options": ["进", "零", "弟弟", "得"], "answer": "弟弟"}, {"sentence_blanked": "我___做的菜很好吃。", "translation": "My wife's cooking is very delicious.", "options": ["穿", "进", "妻子", "得"], "answer": "妻子"}, {"sentence_blanked": "这是我的___。", "translation": "This is my wife.", "options": ["得", "进", "妻子", "近"], "answer": "妻子"}]}, {"lesson": 13, "exercises": [{"sentence_blanked": "我需要一支___来画画。", "translation": "I need a pencil to draw.", "options": ["长", "往", "着", "铅笔"], "answer": "铅笔"}, {"sentence_blanked": "沿着这条路___走，你就能看到地铁站。", "translation": "Keep going straight along this road, and you'll see the subway station.", "options": ["杨笑笑", "长", "拿", "一直"], "answer": "一直"}, {"sentence_blanked": "___，你的书在桌子上。", "translation": "Yang Xiaoxiao, your book is on the table.", "options": ["着", "长", "一直", "杨笑笑"], "answer": "杨笑笑"}, {"sentence_blanked": "这家___离火车站很近。", "translation": "This guesthouse is very close to the train station.", "options": ["往", "宾馆", "长", "一直"], "answer": "宾馆"}, {"sentence_blanked": "我在十字___等你。", "translation": "I'll wait for you at the intersection.", "options": ["往", "长", "路口", "一直"], "answer": "路口"}]}, {"lesson": 14, "exercises": [{"sentence_blanked": "爸爸___工作很忙，但周末总会抽时间陪我。", "translation": "Although Dad is very busy with work, he always makes time to accompany me.", "options": ["玩儿", "百", "次", "虽然"], "answer": "虽然"}, {"sentence_blanked": "我想去，___我没有时间。", "translation": "I want to go, but I don't have time.", "options": ["玩儿", "但是", "晴", "次"], "answer": "但是"}, {"sentence_blanked": "周末你在家___什么？", "translation": "What do you play at home on weekends?", "options": ["玩儿", "虽然", "有意思", "百"], "answer": "玩儿"}, {"sentence_blanked": "你最近有没有追什么特别___的综艺节目？", "translation": "Have you been following any particularly interesting variety shows recently?", "options": ["百", "虽然", "次", "有意思"], "answer": "有意思"}, {"sentence_blanked": "我们边看边讨论剧情，这样更___。", "translation": "Let's discuss the plot while we watch; it's more fun that way.", "options": ["次", "但是", "百", "有意思"], "answer": "有意思"}]}, {"lesson": 15, "exercises": [{"sentence_blanked": "___早上好。", "translation": "Good morning, everybody.", "options": ["妹妹", "更", "大家", "日"], "answer": "大家"}, {"sentence_blanked": "我们全家一起庆祝___。", "translation": "Our whole family celebrates the New Year together.", "options": ["更", "新年", "大家", "阴"], "answer": "新年"}, {"sentence_blanked": "___好。", "translation": "Hello, everyone.", "options": ["大家", "阴", "日", "新年"], "answer": "大家"}, {"sentence_blanked": "我的___很可爱。", "translation": "My younger sister is very cute.", "options": ["妹妹", "阴", "更", "大家"], "answer": "妹妹"}, {"sentence_blanked": "___，你的书包在门口。", "translation": "Younger sister, your schoolbag is at the door.", "options": ["阴", "更", "妹妹", "大家"], "answer": "妹妹"}]}]};
+
+// ==================== СОСТОЯНИЕ ====================
+let currentLesson = null;
+let currentTab = 'vocab';
+let vocabHide = {pinyin:false, trans:false, hanzi:false};
+let strokeCache = {};
+let quizScope = 'lesson';
+let quizMode = 'all';
+let quizState = null;
+let currentWordDetailIndex = null;
+let dictAllWords = [];
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+function initApp(){
+  if (window.Telegram && window.Telegram.WebApp){
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+  }
+  buildDictAllWords();
+  renderLessonNav();
+  renderLessonGrid();
+  document.getElementById('stat-lessons').textContent = LESSONS_DATA.lessons.length;
+  document.getElementById('stat-words').textContent = dictAllWords.length;
+  goHome();
+}
+
+function buildDictAllWords(){
+  dictAllWords = [];
+  LESSONS_DATA.lessons.forEach(lesson => {
+    lesson.words.forEach(w => {
+      dictAllWords.push({...w, lesson: lesson.lesson});
+    });
+  });
+}
+
+// ==================== НАВИГАЦИЯ ====================
+function renderLessonNav(){
+  const nav = document.getElementById('lesson-nav');
+  nav.innerHTML = LESSONS_DATA.lessons.map(l =>
+    `<button id="nav-l${l.lesson}" onclick="openLesson(${l.lesson})">У${l.lesson}</button>`
+  ).join('');
+}
+
+function renderLessonGrid(){
+  const grid = document.getElementById('lesson-grid');
+  grid.innerHTML = LESSONS_DATA.lessons.map(l => `
+    <div class="lesson-card" onclick="openLesson(${l.lesson})">
+      <div class="lesson-card-num">Урок ${l.lesson}</div>
+      <div class="lesson-card-hanzi">${l.title_hanzi}</div>
+      <div class="lesson-card-trans">${l.title_translation}</div>
+    </div>
+  `).join('');
+}
+
+function goHome(){
+  document.getElementById('home-screen').classList.remove('hidden');
+  document.getElementById('lesson-view').style.display = 'none';
+  document.getElementById('dict-view').style.display = 'none';
+  document.getElementById('home-screen').style.display = 'block';
+  currentLesson = null;
+  clearNavActive();
+}
+
+function clearNavActive(){
+  document.querySelectorAll('.lesson-nav button').forEach(b => b.classList.remove('active'));
+}
+
+function openLesson(n){
+  currentLesson = n;
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('dict-view').style.display = 'none';
+  document.getElementById('lesson-view').style.display = 'block';
+  clearNavActive();
+  const navBtn = document.getElementById('nav-l'+n);
+  if (navBtn) navBtn.classList.add('active');
+
+  const lesson = LESSONS_DATA.lessons.find(l => l.lesson === n);
+  document.getElementById('lesson-meta').textContent = `Урок ${n} / ${LESSONS_DATA.lessons.length}`;
+  document.getElementById('lesson-hanzi-title').textContent = lesson.title_hanzi;
+  document.getElementById('lesson-trans-title').textContent = lesson.title_translation;
+
+  showTab('vocab');
+}
+
+function showTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabIndex = {vocab:0, strokes:1, quiz:2, exercises:3}[tab];
+  document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+
+  if (tab === 'vocab') renderVocabGrid();
+  if (tab === 'strokes') renderStrokesTab();
+  if (tab === 'quiz') resetQuiz();
+  if (tab === 'exercises') renderExercisesTab();
+}
+
+// ==================== СЛОВАРЬ (вкладка урока) ====================
+function toggleHide(field){
+  vocabHide[field] = !vocabHide[field];
+  document.getElementById('btn-hide-'+field).classList.toggle('active', vocabHide[field]);
+  renderVocabGrid();
+}
+
+function renderVocabGrid(){
+  const lesson = LESSONS_DATA.lessons.find(l => l.lesson === currentLesson);
+  const grid = document.getElementById('vocab-grid');
+  grid.innerHTML = lesson.words.map((w, i) => `
+    <div class="vocab-cell" onclick="showWordDetail(${currentLesson}, ${i})">
+      <div class="vc-pinyin ${vocabHide.pinyin?'vc-hidden':''}">${w.pinyin}</div>
+      <div class="vc-hanzi ${vocabHide.hanzi?'vc-hidden':''}">${w.hanzi}</div>
+      <div class="vc-trans ${vocabHide.trans?'vc-hidden':''}">${w.translation}</div>
+    </div>
+  `).join('');
+  document.getElementById('word-detail').innerHTML = '';
+}
+
+function showWordDetail(lessonNum, wordIdx){
+  const lesson = LESSONS_DATA.lessons.find(l => l.lesson === lessonNum);
+  const w = lesson.words[wordIdx];
+  document.getElementById('word-detail').innerHTML = renderWordPageHTML(w);
+  const _el1=document.getElementById('word-detail'); if(_el1.scrollIntoView) _el1.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderWordPageHTML(w){
+  let html = `<div class="word-page">
+    <div class="wp-hanzi">${w.hanzi}</div>
+    <div class="wp-pinyin">${w.pinyin}</div>
+    <div class="wp-pos">${w.pos||''}</div>
+    <div class="wp-trans">${w.translation}</div>`;
+
+  if (w.examples && w.examples.length){
+    html += `<div class="wp-section"><div class="wp-section-label">Примеры</div>`;
+    w.examples.forEach(ex => {
+      html += `<div class="wp-example-pinyin">${pinyinForText(ex.hanzi)}</div><div class="wp-example">${ex.hanzi}</div><div class="wp-example-trans">${ex.translation}</div>`;
+    });
+    html += `</div>`;
+  }
+  if (w.common_words && w.common_words.length){
+    html += `<div class="wp-section"><div class="wp-section-label">Словосочетания</div>`;
+    w.common_words.forEach(cw => {
+      html += `<div class="wp-common"><span class="wp-common-pinyin">${pinyinForText(cw.hanzi)}</span> ${cw.hanzi} <span class="wp-common-trans">— ${cw.translation}</span></div>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+// ==================== ШТРИХИ ====================
+const CDN_STROKE_BASE = 'https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/';
+
+async function fetchStrokeData(ch){
+  if (strokeCache[ch]) return strokeCache[ch];
+  try {
+    const res = await fetch(CDN_STROKE_BASE + encodeURIComponent(ch) + '.json');
+    const data = await res.json();
+    strokeCache[ch] = data;
+    return data;
+  } catch(e){
+    return null;
+  }
+}
+
+function getCharsOfWord(word){
+  return [...word].filter(c => { const cp = c.codePointAt(0); return cp >= 0x4E00 && cp <= 0x9FFF; });
+}
+
+// известный полифон: 长 имеет два чтения в зависимости от слова
+function pinyinForCharInWord(ch, word, wordPinyinReading){
+  if (ch === '长'){
+    if (word === '长' && wordPinyinReading === 'zhǎng') return 'zhǎng';
+    return 'cháng';
+  }
+  return CHAR_PINYIN[ch] || '?';
+}
+
+// пиньинь для целой строки (предложение или словосочетание) — посимвольно, с учётом контекстных полифонов
+function pinyinForText(text){
+  const chars = [...text];
+  const out = [];
+  for (const ch of chars){
+    const cp = ch.codePointAt(0);
+    if (!(cp >= 0x4E00 && cp <= 0x9FFF)){ continue; } // только реальные иероглифы CJK Unified Ideographs — пунктуация/латиница/пробелы пропускаются
+    let py;
+    if (ch === '长'){
+      py = text.includes('长大') || text.includes('长高') || text.includes('生长') ? 'zhǎng' : 'cháng';
+    } else if (ch === '空'){
+      py = text.includes('空位') ? 'kòng' : 'kōng';
+    } else {
+      py = CHAR_PINYIN[ch] || '?';
+    }
+    out.push(py);
+  }
+  return out.join(' ');
+}
+
+async function renderStrokesTab(){
+  const lesson = LESSONS_DATA.lessons.find(l => l.lesson === currentLesson);
+  const container = document.getElementById('strokes-list');
+  container.innerHTML = lesson.words.map(w => {
+    const chars = getCharsOfWord(w.hanzi);
+    return `<div class="stroke-word-block" data-word="${w.hanzi}">
+      <div class="stroke-word-head">${w.hanzi} · ${w.translation}</div>
+      ${chars.map(ch => `
+        <div class="stroke-char-row">
+          <div class="stroke-char-label">${ch} <span class="stroke-char-pinyin">${pinyinForCharInWord(ch, w.hanzi, w.pinyin)}</span></div>
+          <div class="stroke-frames" id="frames-${w.hanzi}-${ch}"><span class="stroke-loading">...</span></div>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+
+  for (const w of lesson.words){
+    const chars = getCharsOfWord(w.hanzi);
+    for (const ch of chars){
+      const data = await fetchStrokeData(ch);
+      const holder = document.getElementById(`frames-${w.hanzi}-${ch}`);
+      if (holder && data && data.strokes){
+        renderProgressiveStrokeFrames(holder, data.strokes);
+      } else if (holder){
+        holder.innerHTML = '<span class="stroke-loading">нет данных</span>';
+      }
+    }
+  }
+}
+
+// показывает РЕАЛЬНЫЙ порядок черт как ряд статичных кадров (черта 1, черты 1-2, черты 1-2-3, ...)
+// без анимации — просто последовательность срезов, по номеру черты видно порядок
+function renderProgressiveStrokeFrames(holder, strokes){
+  let html = '';
+  for (let i = 0; i < strokes.length; i++){
+    const pathsUpToHere = strokes.slice(0, i+1).map(d => `<path d="${d}" fill="#1a1a18"></path>`).join('');
+    const lastPath = `<path d="${strokes[i]}" fill="#c0392b"></path>`; // текущая (новая) черта — красным
+    const prevPaths = strokes.slice(0, i).map(d => `<path d="${d}" fill="#1a1a18"></path>`).join('');
+    html += `
+      <div class="stroke-frame">
+        <svg viewBox="0 0 1024 1024" class="stroke-frame-svg">
+          <g transform="scale(1,-1) translate(0,-900)">${prevPaths}${lastPath}</g>
+        </svg>
+        <div class="stroke-frame-num">${i+1}</div>
+      </div>`;
+  }
+  holder.innerHTML = html;
+}
+
+// ==================== ПРОВЕРКА (quiz) ====================
+function setQuizScope(s){
+  quizScope = s;
+  document.getElementById('qscope-lesson').classList.toggle('active', s==='lesson');
+  document.getElementById('qscope-all').classList.toggle('active', s==='all');
+  resetQuiz();
+}
+function setQuizMode(m){
+  quizMode = m;
+  ['all','cn2ru','ru2cn','pinyin'].forEach(x => document.getElementById('qmode-'+x).classList.toggle('active', x===m));
+  resetQuiz();
+}
+
+function getQuizWordPool(){
+  if (quizScope === 'lesson'){
+    return LESSONS_DATA.lessons.find(l => l.lesson === currentLesson).words.map(w => ({...w, lesson: currentLesson}));
+  }
+  let pool = [];
+  LESSONS_DATA.lessons.filter(l => l.lesson <= currentLesson).forEach(l => {
+    l.words.forEach(w => pool.push({...w, lesson: l.lesson}));
+  });
+  return pool;
+}
+
+function shuffle(arr){
+  const a = [...arr];
+  for (let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildQuizQuestions(pool){
+  const types = quizMode === 'all' ? ['cn2ru','ru2cn','pinyin'] : [quizMode];
+  const questions = [];
+  pool.forEach(w => {
+    const type = types[Math.floor(Math.random()*types.length)];
+    const distractorPool = pool.filter(x => x.hanzi !== w.hanzi);
+    const distractors = shuffle(distractorPool).slice(0,3);
+    if (distractors.length < 3) return;
+    let prompt, sub, options, correctLabel;
+    if (type === 'cn2ru'){
+      prompt = w.hanzi; sub = w.pinyin;
+      options = shuffle([w.translation, ...distractors.map(d=>d.translation)]);
+      correctLabel = w.translation;
+    } else if (type === 'ru2cn'){
+      prompt = w.translation; sub = '';
+      options = shuffle([w.hanzi, ...distractors.map(d=>d.hanzi)]);
+      correctLabel = w.hanzi;
+    } else {
+      prompt = w.hanzi; sub = '';
+      options = shuffle([w.pinyin, ...distractors.map(d=>d.pinyin)]);
+      correctLabel = w.pinyin;
+    }
+    questions.push({type, prompt, sub, options, correctLabel});
+  });
+  return shuffle(questions);
+}
+
+function resetQuiz(){
+  const pool = getQuizWordPool();
+  const queue = buildQuizQuestions(pool);
+  quizState = {queue, wrongQueue:[], q:0, correct:0, total:0, totalWrong:0};
+  document.getElementById('quiz-correct').textContent = '0';
+  document.getElementById('quiz-total').textContent = '0';
+  document.getElementById('quiz-pbar').style.width = '0%';
+  renderQuiz();
+}
+
+function renderQuiz(){
+  const {queue, wrongQueue, q, correct, total, totalWrong} = quizState;
+  const done = q >= queue.length && wrongQueue.length === 0;
+  const denom = queue.length + totalWrong;
+  const pct = denom ? Math.min(Math.round(total/denom*100),100) : 0;
+  document.getElementById('quiz-pbar').style.width = pct+'%';
+  document.getElementById('quiz-correct').textContent = correct;
+  document.getElementById('quiz-total').textContent = total;
+  const area = document.getElementById('quiz-area');
+  if (done){
+    area.innerHTML = `<div class="q-done">
+      <div class="q-done-score">${correct} / ${total}</div>
+      <div class="q-done-label">правильных ответов</div>
+      <button class="q-restart" onclick="resetQuiz()">Начать заново</button>
+    </div>`;
+    return;
+  }
+  const isRetry = q >= queue.length;
+  const curQ = isRetry ? wrongQueue[0] : queue[q];
+  const labels = {cn2ru:'Что значит?', ru2cn:'Напиши по-китайски:', pinyin:'Как читается?'};
+  const isCN = curQ.type === 'cn2ru' || curQ.type === 'pinyin';
+  area.innerHTML = `
+    <div class="q-card">
+      <div class="q-label">${labels[curQ.type]}</div>
+      ${isCN ? `<div class="q-cn">${curQ.prompt}</div>${curQ.sub?`<div class="q-sub">${curQ.sub}</div>`:''}` : `<div class="q-ru">${curQ.prompt}</div>`}
+    </div>
+    <div class="q-opts">
+      ${curQ.options.map(o => `<button class="q-opt" data-val="${encodeURIComponent(o)}" onclick="answerQuiz(this)">${o}</button>`).join('')}
+    </div>
+  `;
+  quizState._current = curQ;
+}
+
+function answerQuiz(btn){
+  const val = decodeURIComponent(btn.getAttribute('data-val'));
+  const cur = quizState._current;
+  const opts = document.querySelectorAll('.q-opt');
+  opts.forEach(o => o.style.pointerEvents = 'none');
+  const isCorrect = val === cur.correctLabel;
+  quizState.total++;
+  if (isCorrect){
+    quizState.correct++;
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('wrong');
+    opts.forEach(o => { if (decodeURIComponent(o.getAttribute('data-val')) === cur.correctLabel) o.classList.add('correct'); });
+    quizState.wrongQueue.push(cur);
+    quizState.totalWrong++;
+  }
+  setTimeout(() => {
+    if (quizState.q < quizState.queue.length) quizState.q++;
+    else quizState.wrongQueue.shift();
+    renderQuiz();
+  }, 700);
+}
+
+// ==================== УПРАЖНЕНИЯ ====================
+function renderExercisesTab(){
+  const lessonEx = EXERCISES_DATA.lessons.find(l => l.lesson === currentLesson);
+  const container = document.getElementById('exercises-list');
+  if (!lessonEx || !lessonEx.exercises.length){
+    container.innerHTML = '<p style="color:var(--text3); font-size:13px;">Нет упражнений для этого урока.</p>';
+    return;
+  }
+  container.innerHTML = lessonEx.exercises.map((ex, i) => `
+    <div class="ex-card">
+      <div class="ex-num">Задание ${i+1}</div>
+      <div class="ex-sentence">${ex.sentence_blanked}</div>
+      <div class="ex-trans">${ex.translation}</div>
+      <div class="ex-opts">
+        ${ex.options.map(o => `<button class="ex-opt" data-val="${encodeURIComponent(o)}" data-answer="${encodeURIComponent(ex.answer)}" onclick="answerExercise(this)">${o}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function answerExercise(btn){
+  const val = decodeURIComponent(btn.getAttribute('data-val'));
+  const answer = decodeURIComponent(btn.getAttribute('data-answer'));
+  const card = btn.closest('.ex-card');
+  const opts = card.querySelectorAll('.ex-opt');
+  opts.forEach(o => o.style.pointerEvents = 'none');
+  if (val === answer){
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('wrong');
+    opts.forEach(o => { if (decodeURIComponent(o.getAttribute('data-val')) === answer) o.classList.add('correct'); });
+  }
+}
+
+// ==================== СЛОВАРЬ HSK2 (глобальный) ====================
+function openDict(){
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('lesson-view').style.display = 'none';
+  document.getElementById('dict-view').style.display = 'block';
+  clearNavActive();
+  document.getElementById('dict-word-detail').innerHTML = '';
+  document.getElementById('dict-search').value = '';
+  renderDictTable();
+}
+
+function renderDictTable(){
+  const q = document.getElementById('dict-search').value.trim().toLowerCase();
+  const filtered = dictAllWords.filter(w =>
+    !q || w.hanzi.includes(q) || w.pinyin.toLowerCase().includes(q) || w.translation.toLowerCase().includes(q)
+  );
+  const body = document.getElementById('dict-table-body');
+  body.innerHTML = filtered.map((w) => {
+    const idx = dictAllWords.indexOf(w);
+    return `<tr onclick="openWordByIndex(${idx})">
+      <td class="dict-td-hanzi">${w.hanzi}</td>
+      <td class="dict-td-pinyin">${w.pinyin}</td>
+      <td>${w.translation}</td>
+      <td class="dict-td-lesson">У${w.lesson}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openWordByIndex(idx){
+  currentWordDetailIndex = idx;
+  const w = dictAllWords[idx];
+  document.getElementById('dict-word-detail').innerHTML = renderWordPageHTML(w) +
+    `<button class="wp-close" onclick="document.getElementById('dict-word-detail').innerHTML=''">Закрыть</button>`;
+  const _el2=document.getElementById('dict-word-detail'); if(_el2.scrollIntoView) _el2.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ==================== СТАРТ ====================
+initApp();
+
+
+</script>
+</body>
+</html>
